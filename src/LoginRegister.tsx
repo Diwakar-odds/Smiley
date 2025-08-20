@@ -1,0 +1,370 @@
+// frontend/src/components/LoginRegister.tsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion"; // ✨ For animations
+
+const API_URL = "http://localhost:5000/api/auth";
+
+const LoginRegister = () => {
+    const [isLogin, setIsLogin] = useState(true);
+    const [loginType, setLoginType] = useState("mobile"); // 'mobile', 'email', 'gmail'
+    const [authMethod, setAuthMethod] = useState("password"); // 'password' or 'otp' for mobile login
+    const [name, setName] = useState("");
+    const [mobile, setMobile] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [otp, setOtp] = useState("");
+    const [message, setMessage] = useState("");
+    const [otpSent, setOtpSent] = useState(false);
+    const [sendingOtp, setSendingOtp] = useState(false);
+    // Send OTP to mobile number
+    const handleSendOtp = async () => {
+        if (!mobile.trim()) {
+            setMessage("Please enter your mobile number first.");
+            return;
+        }
+        setSendingOtp(true);
+        setMessage("");
+        try {
+            const res = await fetch(API_URL + "/send-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mobile }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setOtpSent(true);
+                setMessage(data.message || "OTP sent to your mobile number.");
+            } else {
+                setMessage(data.message || "Failed to send OTP.");
+            }
+        } catch (err) {
+            setMessage("Network error while sending OTP.");
+        }
+        setSendingOtp(false);
+    };
+    const [token, setToken] = useState("");
+    const [loggedInUser, setLoggedInUser] = useState("");
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setMessage("");
+        // Registration: name and mobile mandatory
+        if (!isLogin && (!name.trim() || !mobile.trim())) {
+            setMessage("Name and mobile number are required for registration.");
+            return;
+        }
+        // Login: name mandatory for all types
+        if (isLogin && !name.trim()) {
+            setMessage("Name is required for login.");
+            return;
+        }
+        // Login: at least one identifier required
+        if (isLogin) {
+            if (loginType === "mobile" && !mobile.trim()) {
+                setMessage("Mobile number is required for login.");
+                return;
+            }
+            if (loginType === "email" && !email.trim()) {
+                setMessage("Email is required for login.");
+                return;
+            }
+            if (loginType === "gmail" && !email.trim()) {
+                setMessage("Gmail is required for login.");
+                return;
+            }
+            if (loginType === "mobile" && authMethod === "otp" && !otp.trim()) {
+                setMessage("OTP is required for mobile login.");
+                return;
+            }
+            if (loginType === "mobile" && authMethod === "password" && !password.trim()) {
+                setMessage("Password is required for mobile login.");
+                return;
+            }
+        }
+        try {
+            const endpoint = isLogin ? "/login" : "/register";
+            let payload;
+            if (isLogin) {
+                if (loginType === "mobile") {
+                    payload = authMethod === "otp"
+                        ? { name, mobile, otp }
+                        : { name, mobile, password };
+                } else {
+                    payload = { name, email, password };
+                }
+            } else {
+                payload = { name, mobile, email, password };
+            }
+            const res = await fetch(API_URL + endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                if (isLogin && data.token) {
+                    setToken(""); // Hide token from UI
+                    setMessage("Login successful!");
+                    localStorage.setItem("jwtToken", data.token);
+                    localStorage.setItem("username", name);
+                    setLoggedInUser(name);
+                    setTimeout(() => {
+                        navigate("/");
+                    }, 1000);
+                } else {
+                    setMessage(data.message || "Registration successful!");
+                }
+            } else {
+                setMessage(data.message || "Error");
+            }
+        } catch (err) {
+            setMessage("Network error");
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-yellow-100 via-orange-50 to-coffee-100 relative font-sans">
+            {/* Floating food-themed blobs */}
+            <motion.img
+                src="https://www.svgrepo.com/show/353655/burger.svg"
+                alt="Burger Icon Background"
+                className="absolute top-4 left-4 w-32 h-32 opacity-30 pointer-events-none"
+                initial={{ scale: 0.9, rotate: -10 }}
+                animate={{ scale: [0.9, 1.05, 0.9], rotate: [-10, 10, -10] }}
+                transition={{ duration: 8, repeat: Infinity }}
+            />
+            <motion.img
+                src="https://www.svgrepo.com/show/520564/ice-cream.svg"
+                alt="Ice Cream Icon Background"
+                className="absolute bottom-4 right-4 w-40 h-40 opacity-30 pointer-events-none"
+                initial={{ scale: 0.9, rotate: 10 }}
+                animate={{ scale: [0.9, 1.05, 0.9], rotate: [10, -10, 10] }}
+                transition={{ duration: 10, repeat: Infinity }}
+            />
+            {/* Glassmorphism Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="relative z-10 flex w-full max-w-5xl bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-gray-100"
+            >
+                {/* Left side: pastry/coffee shop vibe */}
+                <div className="w-1/2 hidden md:flex flex-col items-center justify-center p-10 bg-gradient-to-br from-yellow-50 via-orange-100 to-coffee-200 relative">
+                    <div className="flex flex-col items-center justify-center">
+                        <motion.img
+                            initial={{ scale: 0.95 }}
+                            animate={{ scale: [0.95, 1.05, 0.95] }}
+                            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+                            src="https://images.unsplash.com/photo-1565958011703-44e6f8a52b5?auto=format&fit=crop&w=400&q=80"
+                            alt="Smiley Softy Register Illustration"
+                            className="w-44 h-44 object-cover rounded-full mb-6 shadow-lg border-4 border-yellow-200"
+                        />
+                        {/* No text inside the image circle */}
+                    </div>
+                    <h2 className="font-extrabold text-3xl mb-2 text-coffee-900 text-center">Welcome Foodie! 🍔🥤</h2>
+                    <p className="text-coffee-700 mb-6 text-center">Register to enjoy exclusive deals on Softy, Patties & Shakes!</p>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-2 rounded-full font-semibold shadow hover:bg-orange-500 transition"
+                        onClick={() => setIsLogin(false)}
+                    >
+                        SIGN UP
+                    </motion.button>
+                </div>
+                {/* Right side: login with blurred pastry bg */}
+                <div className="w-full md:w-1/2 flex flex-col justify-center p-10 relative">
+                    <motion.img
+                        src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80"
+                        alt="Pastry Background"
+                        className="absolute inset-0 w-full h-full object-cover opacity-20 blur-lg rounded-2xl z-0"
+                        initial={{ scale: 1.05 }}
+                        animate={{ scale: [1.05, 1, 1.05] }}
+                        transition={{ duration: 10, repeat: Infinity }}
+                    />
+                    <div className="relative z-10">
+                        <h2 className="font-bold text-3xl mb-6 text-center text-coffee-900">
+                            {isLogin ? "Login to Continue" : "Create Your Account"}
+                        </h2>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {!isLogin && (
+                                <>
+                                    <motion.input
+                                        whileFocus={{ scale: 1.02 }}
+                                        type="text"
+                                        placeholder="Name (required)"
+                                        value={name}
+                                        onChange={e => setName(e.target.value)}
+                                        className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                        required
+                                    />
+                                    <motion.input
+                                        whileFocus={{ scale: 1.02 }}
+                                        type="tel"
+                                        placeholder="Mobile Number (required)"
+                                        value={mobile}
+                                        onChange={e => setMobile(e.target.value)}
+                                        className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                        required
+                                    />
+                                    <motion.input
+                                        whileFocus={{ scale: 1.02 }}
+                                        type="email"
+                                        placeholder="Email (optional)"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                    />
+                                    <motion.input
+                                        whileFocus={{ scale: 1.02 }}
+                                        type="password"
+                                        placeholder="Password"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                        required
+                                    />
+                                </>
+                            )}
+                            {isLogin && (
+                                <>
+                                    <motion.input
+                                        whileFocus={{ scale: 1.02 }}
+                                        type="text"
+                                        placeholder="Name (required)"
+                                        value={name}
+                                        onChange={e => setName(e.target.value)}
+                                        className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                        required
+                                    />
+                                    <div className="flex gap-2 mb-2">
+                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'mobile' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setLoginType('mobile')}>Mobile</button>
+                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'email' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setLoginType('email')}>Email</button>
+                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'gmail' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setLoginType('gmail')}>Gmail</button>
+                                    </div>
+                                    {loginType === 'mobile' && (
+                                        <>
+                                            <div className="flex gap-2 items-center mb-2">
+                                                <motion.input
+                                                    whileFocus={{ scale: 1.02 }}
+                                                    type="tel"
+                                                    placeholder="Mobile Number"
+                                                    value={mobile}
+                                                    onChange={e => setMobile(e.target.value)}
+                                                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                                    required
+                                                />
+                                                {authMethod === 'otp' && (
+                                                    <button
+                                                        type="button"
+                                                        className={`px-3 py-2 rounded-full font-semibold border bg-yellow-400 text-white shadow ${sendingOtp ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        onClick={handleSendOtp}
+                                                        disabled={sendingOtp}
+                                                    >
+                                                        {sendingOtp ? 'Sending...' : (otpSent ? 'Resend OTP' : 'Send OTP')}
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <div className="flex gap-2 mb-2">
+                                                <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${authMethod === 'password' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setAuthMethod('password')}>Password</button>
+                                                <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${authMethod === 'otp' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setAuthMethod('otp')}>OTP</button>
+                                            </div>
+                                            {authMethod === 'password' && (
+                                                <motion.input
+                                                    whileFocus={{ scale: 1.02 }}
+                                                    type="password"
+                                                    placeholder="Password"
+                                                    value={password}
+                                                    onChange={e => setPassword(e.target.value)}
+                                                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                                    required
+                                                />
+                                            )}
+                                            {authMethod === 'otp' && (
+                                                <motion.input
+                                                    whileFocus={{ scale: 1.02 }}
+                                                    type="text"
+                                                    placeholder="Enter OTP"
+                                                    value={otp}
+                                                    onChange={e => setOtp(e.target.value)}
+                                                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                                    required
+                                                />
+                                            )}
+                                        </>
+                                    )}
+                                    {(loginType === 'email' || loginType === 'gmail') && (
+                                        <>
+                                            <motion.input
+                                                whileFocus={{ scale: 1.02 }}
+                                                type="email"
+                                                placeholder={loginType === 'gmail' ? 'Gmail Address' : 'Email Address'}
+                                                value={email}
+                                                onChange={e => setEmail(e.target.value)}
+                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                                required
+                                            />
+                                            <motion.input
+                                                whileFocus={{ scale: 1.02 }}
+                                                type="password"
+                                                placeholder="Password"
+                                                value={password}
+                                                onChange={e => setPassword(e.target.value)}
+                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
+                                                required
+                                            />
+                                        </>
+                                    )}
+                                </>
+                            )}
+                            <motion.button
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                type="submit"
+                                className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-500 transition shadow"
+                            >
+                                {isLogin ? "LOGIN" : "REGISTER"}
+                            </motion.button>
+                        </form>
+                        {/* Social login */}
+                        <div className="mt-6 flex flex-col items-center">
+                            <span className="text-coffee-500">Or Sign in with</span>
+                            <div className="mt-3 flex items-center justify-center gap-4">
+                                <a href="#" title="Sign in with Google" className="bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow flex items-center justify-center">
+                                    <span className="sr-only">Sign in with Google</span>
+                                    <i className="fab fa-google" aria-hidden="true"></i>
+                                </a>
+                                <a href="#" title="Sign in with Facebook" className="bg-blue-700 hover:bg-blue-800 text-white rounded-full p-3 shadow flex items-center justify-center">
+                                    <span className="sr-only">Sign in with Facebook</span>
+                                    <i className="fab fa-facebook-f" aria-hidden="true"></i>
+                                </a>
+                                <a href="#" title="Sign in with LinkedIn" className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow flex items-center justify-center">
+                                    <span className="sr-only">Sign in with LinkedIn</span>
+                                    <i className="fab fa-linkedin-in" aria-hidden="true"></i>
+                                </a>
+                                <a href="#" title="Sign in with Twitter" className="bg-sky-400 hover:bg-sky-500 text-white rounded-full p-3 shadow flex items-center justify-center">
+                                    <span className="sr-only">Sign in with Twitter</span>
+                                    <i className="fab fa-twitter" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {/* Switch login/register */}
+                        <button
+                            className="mt-6 text-yellow-700 underline"
+                            onClick={() => setIsLogin(!isLogin)}
+                        >
+                            {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
+                        </button>
+                        {/* Messages */}
+                        {message && <div className="mt-4 text-center text-red-500">{message}</div>}
+                        {/* Hide JWT token from UI */}
+                    </div>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
+export default LoginRegister;

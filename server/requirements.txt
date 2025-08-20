@@ -1,0 +1,4 @@
+bcryptjs
+jsonwebtoken
+mongoose
+dotenv
