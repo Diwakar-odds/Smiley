@@ -1,4 +1,5 @@
 # Smiley Food - Full-Stack Food Ordering App
+[![Netlify Status](https://api.netlify.com/api/v1/badges/f718aa0c-9340-4e67-996c-83d35a318bd8/deploy-status)](https://app.netlify.com/projects/smileyfood/deploys)
 
 A modern, responsive one-page web application for Smiley Food, featuring delicious soft serves, crispy patties, and refreshing shakes.
 
