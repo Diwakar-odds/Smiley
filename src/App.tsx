@@ -184,7 +184,7 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white rounded-b-lg shadow-lg"
+            className="md:hidden bg-white rounded-b-lg shadow-lg flex flex-col"
           >
             {navItems.map((item) => (
               <a
@@ -201,6 +201,45 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
                 {item}
               </a>
             ))}
+            <div className="px-4 py-3">
+              <motion.button
+                onClick={toggleCart}
+                className="relative p-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-full w-full"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <ShoppingCart size={20} />
+                {cart.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                    {cart.reduce((sum, item) => sum + item.quantity, 0)}
+                  </span>
+                )}
+              </motion.button>
+            </div>
+            <div className="px-4 py-3">
+              {loggedInUser ? (
+                <>
+                  <span className="block w-full text-center px-6 py-2 rounded-full bg-green-500 text-white font-semibold shadow cursor-pointer" onClick={() => navigate('/profile')}>{loggedInUser}</span>
+                  <motion.button
+                    onClick={handleLogout}
+                    className="mt-2 w-full px-4 py-2 rounded-full bg-red-500 text-white font-semibold shadow hover:bg-red-600 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Logout
+                  </motion.button>
+                </>
+              ) : (
+                <motion.button
+                  onClick={() => navigate('/login')}
+                  className="w-full px-6 py-2 rounded-full bg-orange-500 text-white font-semibold shadow hover:bg-orange-600 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Login
+                </motion.button>
+              )}
+            </div>
           </motion.div>
         )}
       </div>
@@ -714,7 +753,7 @@ const ContactSection = ({ cart, clearCart }: { cart: CartItem[], clearCart: () =
                 whileHover={{ scale: cart.length > 0 ? 1.02 : 1 }}
                 whileTap={{ scale: cart.length > 0 ? 0.98 : 1 }}
               >
-                {isSubmitting ? 'Submitting...' : `Place Order ${cart.length > 0 ? `($${totalPrice.toFixed(2)})` : ''}`}
+                {isSubmitting ? 'Submitting...' : `Place Order ${cart.length > 0 ? `(${totalPrice.toFixed(2)})` : ''}`}
               </motion.button>
             </form>
 
