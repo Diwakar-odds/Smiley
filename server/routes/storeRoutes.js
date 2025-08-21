@@ -1,11 +1,15 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {
+import {
   getStoreProfile,
   updateStoreProfile,
-} = require('../controllers/storeController');
-const { protect, admin } = require('../middleware/authMiddleware');
+} from "../controllers/storeController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
 
-router.route('/profile').get(getStoreProfile).put(protect, admin, updateStoreProfile);
+router
+  .route("/profile")
+  .get(getStoreProfile)
+  .put(protect, admin, updateStoreProfile);
 
-module.exports = router;
+
+export default router;

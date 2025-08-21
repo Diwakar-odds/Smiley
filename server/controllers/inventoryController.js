@@ -1,5 +1,5 @@
 import Inventory from "../models/Inventory.js";
-import Meal from "../models/Meal.js";
+import Meal from "../models/MenuItem.js";
 
 // 👉 Get all inventory items
 export async function getInventory(req, res) {
@@ -69,11 +69,9 @@ export async function getLowStock(req, res) {
 
     res.json(lowStockItems);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching low stock items",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching low stock items",
+      error: error.message,
+    });
   }
 }

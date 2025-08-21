@@ -2,7 +2,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // ✨ For animations
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
+
 
 const LoginRegister = () => {
     const { state, dispatch, sendOtp, handleSubmit } = useAuth();

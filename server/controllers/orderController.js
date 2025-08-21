@@ -1,4 +1,4 @@
-const Order = require('../models/Order');
+import Order from '../models/Order.js';
 
 // @desc    Create a new order
 // @route   POST /api/orders
@@ -72,7 +72,7 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   createOrder,
   getOrders,
   getOrderById,

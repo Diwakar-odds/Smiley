@@ -1,4 +1,4 @@
-const MenuItem = require('../models/MenuItem');
+import MenuItem from '../models/MenuItem.js';
 
 // @desc    Get all menu items
 // @route   GET /api/menu
@@ -78,7 +78,7 @@ const deleteMenuItem = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getMenuItems,
   createMenuItem,
   updateMenuItem,

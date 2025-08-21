@@ -1,6 +1,6 @@
 // This is just demo logic – replace with real DB queries later
 import Order from "../models/Order.js";
-import Meal from "../models/Meal.js";
+import Meal from "../models/MenuItem.js";
 import User from "../models/User.js";
 
 // 📊 Sales Overview

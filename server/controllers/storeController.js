@@ -1,4 +1,4 @@
-const Store = require('../models/Store');
+import store from "../models/Store.js";
 
 // @desc    Get store profile
 // @route   GET /api/store/profile
@@ -9,10 +9,10 @@ const getStoreProfile = async (req, res) => {
     if (store) {
       res.json(store);
     } else {
-      res.status(404).json({ message: 'Store profile not found' });
+      res.status(404).json({ message: "Store profile not found" });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -49,11 +49,8 @@ const updateStoreProfile = async (req, res) => {
       res.status(201).json(createdStore);
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-module.exports = {
-  getStoreProfile,
-  updateStoreProfile,
-};
+export { getStoreProfile, updateStoreProfile };

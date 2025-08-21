@@ -1,17 +1,18 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {
+import {
   getMenuItems,
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
-} = require('../controllers/menuController');
-const { protect, admin } = require('../middleware/authMiddleware');
+} from "../controllers/menuController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
 
-router.route('/').get(getMenuItems).post(protect, admin, createMenuItem);
+router.route("/").get(getMenuItems).post(protect, admin, createMenuItem);
 router
-  .route('/:id')
+  .route("/:id")
   .put(protect, admin, updateMenuItem)
   .delete(protect, admin, deleteMenuItem);
 
-module.exports = router;
+
+export default router;
