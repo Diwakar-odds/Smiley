@@ -1,25 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Profile = () => {
-    const [user, setUser] = useState<{ name: string; email?: string; mobile?: string } | null>(null);
+const Profile: React.FC = () => {
+  const [username, setUsername] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const name = localStorage.getItem("username");
-        // You can extend this to fetch more user info from backend
-        setUser({ name });
-    }, []);
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    } else {
+      navigate('/login');
+    }
+  }, [navigate]);
 
-    if (!user) return <div className="p-8">Loading profile...</div>;
+  const handleLogout = () => {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('username');
+    navigate('/login');
+  };
 
-    return (
-        <div className="max-w-xl mx-auto p-8 bg-white rounded-2xl shadow-lg mt-10">
-            <h2 className="text-2xl font-bold mb-4">Profile</h2>
-            <div className="mb-2"><strong>Name:</strong> {user.name}</div>
-            {user.email && <div className="mb-2"><strong>Email:</strong> {user.email}</div>}
-            {user.mobile && <div className="mb-2"><strong>Mobile:</strong> {user.mobile}</div>}
-            {/* Add more user info and edit options here */}
-        </div>
-    );
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-center">Profile</h2>
+        {username && <p className="text-center">Welcome, {username}!</p>}
+        <button
+          onClick={handleLogout}
+          className="w-full px-4 py-2 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default Profile;

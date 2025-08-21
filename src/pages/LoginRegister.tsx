@@ -1,126 +1,18 @@
 // frontend/src/components/LoginRegister.tsx
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // ✨ For animations
-
-const API_URL = "http://localhost:5000/api/auth";
+import { useAuth } from "../../hooks/useAuth";
 
 const LoginRegister = () => {
-    const [isLogin, setIsLogin] = useState(true);
-    const [loginType, setLoginType] = useState("mobile"); // 'mobile', 'email', 'gmail'
-    const [authMethod, setAuthMethod] = useState("password"); // 'password' or 'otp' for mobile login
-    const [name, setName] = useState("");
-    const [mobile, setMobile] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [otp, setOtp] = useState("");
-    const [message, setMessage] = useState("");
-    const [otpSent, setOtpSent] = useState(false);
-    const [sendingOtp, setSendingOtp] = useState(false);
-    // Send OTP to mobile number
-    const handleSendOtp = async () => {
-        if (!mobile.trim()) {
-            setMessage("Please enter your mobile number first.");
-            return;
-        }
-        setSendingOtp(true);
-        setMessage("");
-        try {
-            const res = await fetch(API_URL + "/send-otp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mobile }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setOtpSent(true);
-                setMessage(data.message || "OTP sent to your mobile number.");
-            } else {
-                setMessage(data.message || "Failed to send OTP.");
-            }
-        } catch (err) {
-            setMessage("Network error while sending OTP.");
-        }
-        setSendingOtp(false);
-    };
-    const [token, setToken] = useState("");
-    const [loggedInUser, setLoggedInUser] = useState("");
+    const { state, dispatch, sendOtp, handleSubmit } = useAuth();
+    const { isLogin, loginType, authMethod, name, mobile, email, password, otp, message, otpSent, sendingOtp, loading } = state;
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setMessage("");
-        // Registration: name and mobile mandatory
-        if (!isLogin && (!name.trim() || !mobile.trim())) {
-            setMessage("Name and mobile number are required for registration.");
-            return;
-        }
-        // Login: name mandatory for all types
-        if (isLogin && !name.trim()) {
-            setMessage("Name is required for login.");
-            return;
-        }
-        // Login: at least one identifier required
-        if (isLogin) {
-            if (loginType === "mobile" && !mobile.trim()) {
-                setMessage("Mobile number is required for login.");
-                return;
-            }
-            if (loginType === "email" && !email.trim()) {
-                setMessage("Email is required for login.");
-                return;
-            }
-            if (loginType === "gmail" && !email.trim()) {
-                setMessage("Gmail is required for login.");
-                return;
-            }
-            if (loginType === "mobile" && authMethod === "otp" && !otp.trim()) {
-                setMessage("OTP is required for mobile login.");
-                return;
-            }
-            if (loginType === "mobile" && authMethod === "password" && !password.trim()) {
-                setMessage("Password is required for mobile login.");
-                return;
-            }
-        }
-        try {
-            const endpoint = isLogin ? "/login" : "/register";
-            let payload;
-            if (isLogin) {
-                if (loginType === "mobile") {
-                    payload = authMethod === "otp"
-                        ? { name, mobile, otp }
-                        : { name, mobile, password };
-                } else {
-                    payload = { name, email, password };
-                }
-            } else {
-                payload = { name, mobile, email, password };
-            }
-            const res = await fetch(API_URL + endpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                if (isLogin && data.token) {
-                    setToken(""); // Hide token from UI
-                    setMessage("Login successful!");
-                    localStorage.setItem("jwtToken", data.token);
-                    localStorage.setItem("username", name);
-                    setLoggedInUser(name);
-                    setTimeout(() => {
-                        navigate("/");
-                    }, 1000);
-                } else {
-                    setMessage(data.message || "Registration successful!");
-                }
-            } else {
-                setMessage(data.message || "Error");
-            }
-        } catch (err) {
-            setMessage("Network error");
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        const result = await handleSubmit(e);
+        if (result) {
+            navigate(result);
         }
     };
 
@@ -169,7 +61,7 @@ const LoginRegister = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-2 rounded-full font-semibold shadow hover:bg-orange-500 transition"
-                        onClick={() => setIsLogin(false)}
+                        onClick={() => dispatch({ type: 'SET_FIELD', field: 'isLogin', payload: false })}
                     >
                         SIGN UP
                     </motion.button>
@@ -188,7 +80,7 @@ const LoginRegister = () => {
                         <h2 className="font-bold text-3xl mb-6 text-center text-coffee-900">
                             {isLogin ? "Login to Continue" : "Create Your Account"}
                         </h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleFormSubmit} className="space-y-4">
                             {!isLogin && (
                                 <>
                                     <motion.input
@@ -196,7 +88,7 @@ const LoginRegister = () => {
                                         type="text"
                                         placeholder="Name (required)"
                                         value={name}
-                                        onChange={e => setName(e.target.value)}
+                                        onChange={e => dispatch({ type: 'SET_FIELD', field: 'name', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                         required
                                     />
@@ -205,7 +97,7 @@ const LoginRegister = () => {
                                         type="tel"
                                         placeholder="Mobile Number (required)"
                                         value={mobile}
-                                        onChange={e => setMobile(e.target.value)}
+                                        onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                         required
                                     />
@@ -214,7 +106,7 @@ const LoginRegister = () => {
                                         type="email"
                                         placeholder="Email (optional)"
                                         value={email}
-                                        onChange={e => setEmail(e.target.value)}
+                                        onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                     />
                                     <motion.input
@@ -222,7 +114,7 @@ const LoginRegister = () => {
                                         type="password"
                                         placeholder="Password"
                                         value={password}
-                                        onChange={e => setPassword(e.target.value)}
+                                        onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                         required
                                     />
@@ -235,14 +127,14 @@ const LoginRegister = () => {
                                         type="text"
                                         placeholder="Name (required)"
                                         value={name}
-                                        onChange={e => setName(e.target.value)}
+                                        onChange={e => dispatch({ type: 'SET_FIELD', field: 'name', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                         required
                                     />
                                     <div className="flex gap-2 mb-2">
-                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'mobile' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setLoginType('mobile')}>Mobile</button>
-                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'email' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setLoginType('email')}>Email</button>
-                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'gmail' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setLoginType('gmail')}>Gmail</button>
+                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'mobile' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => dispatch({ type: 'SET_FIELD', field: 'loginType', payload: 'mobile' })}>Mobile</button>
+                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'email' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => dispatch({ type: 'SET_FIELD', field: 'loginType', payload: 'email' })}>Email</button>
+                                        <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${loginType === 'gmail' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => dispatch({ type: 'SET_FIELD', field: 'loginType', payload: 'gmail' })}>Gmail</button>
                                     </div>
                                     {loginType === 'mobile' && (
                                         <>
@@ -252,7 +144,7 @@ const LoginRegister = () => {
                                                     type="tel"
                                                     placeholder="Mobile Number"
                                                     value={mobile}
-                                                    onChange={e => setMobile(e.target.value)}
+                                                    onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })}
                                                     className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                                     required
                                                 />
@@ -260,7 +152,7 @@ const LoginRegister = () => {
                                                     <button
                                                         type="button"
                                                         className={`px-3 py-2 rounded-full font-semibold border bg-yellow-400 text-white shadow ${sendingOtp ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                        onClick={handleSendOtp}
+                                                        onClick={sendOtp}
                                                         disabled={sendingOtp}
                                                     >
                                                         {sendingOtp ? 'Sending...' : (otpSent ? 'Resend OTP' : 'Send OTP')}
@@ -268,8 +160,8 @@ const LoginRegister = () => {
                                                 )}
                                             </div>
                                             <div className="flex gap-2 mb-2">
-                                                <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${authMethod === 'password' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setAuthMethod('password')}>Password</button>
-                                                <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${authMethod === 'otp' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => setAuthMethod('otp')}>OTP</button>
+                                                <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${authMethod === 'password' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => dispatch({ type: 'SET_FIELD', field: 'authMethod', payload: 'password' })}>Password</button>
+                                                <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${authMethod === 'otp' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => dispatch({ type: 'SET_FIELD', field: 'authMethod', payload: 'otp' })}>OTP</button>
                                             </div>
                                             {authMethod === 'password' && (
                                                 <motion.input
@@ -277,7 +169,7 @@ const LoginRegister = () => {
                                                     type="password"
                                                     placeholder="Password"
                                                     value={password}
-                                                    onChange={e => setPassword(e.target.value)}
+                                                    onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })}
                                                     className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                                     required
                                                 />
@@ -288,7 +180,7 @@ const LoginRegister = () => {
                                                     type="text"
                                                     placeholder="Enter OTP"
                                                     value={otp}
-                                                    onChange={e => setOtp(e.target.value)}
+                                                    onChange={e => dispatch({ type: 'SET_FIELD', field: 'otp', payload: e.target.value })}
                                                     className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                                     required
                                                 />
@@ -302,7 +194,7 @@ const LoginRegister = () => {
                                                 type="email"
                                                 placeholder={loginType === 'gmail' ? 'Gmail Address' : 'Email Address'}
                                                 value={email}
-                                                onChange={e => setEmail(e.target.value)}
+                                                onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })}
                                                 className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                                 required
                                             />
@@ -311,7 +203,7 @@ const LoginRegister = () => {
                                                 type="password"
                                                 placeholder="Password"
                                                 value={password}
-                                                onChange={e => setPassword(e.target.value)}
+                                                onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })}
                                                 className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                                 required
                                             />
@@ -323,9 +215,10 @@ const LoginRegister = () => {
                                 whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.97 }}
                                 type="submit"
-                                className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-500 transition shadow"
+                                className={`w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-500 transition shadow ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={loading}
                             >
-                                {isLogin ? "LOGIN" : "REGISTER"}
+                                {loading ? 'Loading...' : (isLogin ? "LOGIN" : "REGISTER")}
                             </motion.button>
                         </form>
                         {/* Social login */}
@@ -353,7 +246,7 @@ const LoginRegister = () => {
                         {/* Switch login/register */}
                         <button
                             className="mt-6 text-yellow-700 underline"
-                            onClick={() => setIsLogin(!isLogin)}
+                            onClick={() => dispatch({ type: 'SET_FIELD', field: 'isLogin', payload: !isLogin })}
                         >
                             {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
                         </button>

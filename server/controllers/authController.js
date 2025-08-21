@@ -1,107 +1,116 @@
-// controllers/authController.js
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
-import { generateOtp, verifyOtp } from "../services/otpService.js";
+import User from '../models/User.js';
+import Otp from '../models/Otp.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+// @desc    Register a new user
+// @route   POST /api/auth/register
+// @access  Public
+export const register = async (req, res) => {
+  const { name, email, mobile, password } = req.body;
 
-// 👉 Send OTP
-export async function sendOtp(req, res) {
   try {
-    const { mobile } = req.body;
-    if (!mobile)
-      return res.status(400).json({ message: "Mobile number required" });
-
-    const otp = await generateOtp(mobile);
-
-    // TODO: integrate SMS service
-    console.log(`OTP for ${mobile}: ${otp}`); // demo only
-
-    res.json({ message: "OTP sent to your mobile number" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error sending OTP", error: error.message });
-  }
-}
-
-// 👉 Login
-export async function loginUser(req, res) {
-  try {
-    const { name, mobile, password, otp, email } = req.body;
-
-    // Mobile + OTP login
-    if (mobile && otp) {
-      const valid = await verifyOtp(mobile, otp);
-      if (!valid)
-        return res.status(401).json({ message: "Invalid or expired OTP" });
-
-      const user = await User.findOne({ mobile, name });
-      if (!user) return res.status(401).json({ message: "User not found" });
-
-      const token = jwt.sign({ name, mobile }, JWT_SECRET, { expiresIn: "1h" });
-      return res.json({ token });
+    // Check if user already exists
+    let user = await User.findOne({ $or: [{ email }, { mobile }] });
+    if (user) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Mobile + Password login
-    if (mobile && password) {
-      const user = await User.findOne({ mobile, name });
-      if (!user) return res.status(401).json({ message: "User not found" });
+    // Create a new user
+    user = new User({
+      name,
+      email,
+      mobile,
+      password,
+    });
 
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    await user.save();
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+};
+
+// @desc    Auth user & get token
+// @route   POST /api/auth/login
+// @access  Public
+export const login = async (req, res) => {
+  const { name, email, mobile, password, otp } = req.body;
+
+  try {
+    let user;
+    // Find user by email or mobile
+    if (email) {
+      user = await User.findOne({ email });
+    } else if (mobile) {
+      user = await User.findOne({ mobile });
+    }
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Check password or OTP
+    if (password) {
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch)
-        return res.status(401).json({ message: "Invalid credentials" });
-
-      const token = jwt.sign({ name, mobile }, JWT_SECRET, { expiresIn: "1h" });
-      return res.json({ token });
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+    } else if (otp) {
+      const otpEntry = await Otp.findOne({ mobile, otp });
+      if (!otpEntry) {
+        return res.status(400).json({ message: 'Invalid OTP' });
+      }
+    } else {
+        return res.status(400).json({ message: 'Please provide password or OTP' });
     }
 
-    // Email + Password login
-    if (email && password) {
-      const user = await User.findOne({ email, name });
-      if (!user) return res.status(401).json({ message: "User not found" });
+    // Create and return JWT token
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch)
-        return res.status(401).json({ message: "Invalid credentials" });
-
-      const token = jwt.sign({ name, email }, JWT_SECRET, { expiresIn: "1h" });
-      return res.json({ token });
-    }
-
-    return res.status(400).json({ message: "Invalid login request" });
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET, 
+      { expiresIn: 3600 },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
   } catch (error) {
-    res.status(500).json({ message: "Login failed", error: error.message });
+    console.error(error.message);
+    res.status(500).send('Server error');
   }
-}
-// 👉 Register
-export async function registerUser(req, res) {
+};
+
+// @desc    Send OTP to user
+// @route   POST /api/auth/send-otp
+// @access  Public
+export const sendOtp = async (req, res) => {
+  const { mobile } = req.body;
+
   try {
-    const { name, mobile, email, password } = req.body;
-    if (!name || !mobile || !password) {
-      return res
-        .status(400)
-        .json({ message: "Name, mobile, and password required" });
-    }
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const existingUser = await User.findOne({ $or: [{ mobile }, { email }] });
-    if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
-    }
+    // Save OTP to database
+    await Otp.create({ mobile, otp });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await User.create({ name, mobile, email, password: hashedPassword });
+    // TODO: Implement actual OTP sending logic (e.g., via SMS gateway)
 
-    res.status(201).json({ message: "User registered successfully" });
+    res.json({ message: 'OTP sent successfully' });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Registration failed", error: error.message });
+    console.error(error.message);
+    res.status(500).send('Server error');
   }
-}
-
-// 👉 Profile (Protected)
-export async function getProfile(req, res) {
-  res.json({ user: req.user });
-}
+};
