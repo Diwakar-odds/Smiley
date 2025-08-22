@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginRegister from './pages/LoginRegister';
-import Profile from './Profile';
+import Profile from './pages/Profile';
 import Inventory from './pages/Inventory';
 import Orders from './pages/Orders';
 import Analytics from './pages/Analytics';
 import StoreProfile from './pages/StoreProfile';
+import AdminMenu from './pages/AdminMenu';
 import { motion } from 'framer-motion';
 import Navbar from './components/ui/Navbar';
 import Hero from './components/ui/Hero';
@@ -14,6 +15,7 @@ import AboutSection from './components/ui/AboutSection';
 import TestimonialsSection from './components/ui/TestimonialsSection';
 import ContactSection from './components/ui/ContactSection';
 import Footer from './components/ui/Footer';
+import Cart from './components/ui/Cart';
 
 interface MenuItem {
   _id: string;
@@ -76,6 +78,20 @@ const App = () => {
     });
   };
 
+  const removeFromCart = (item: MenuItem) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem._id === item._id);
+      if (existingItem && existingItem.quantity > 1) {
+        return prevCart.map(cartItem =>
+          cartItem._id === item._id
+            ? { ...cartItem, quantity: cartItem.quantity - 1 }
+            : cartItem
+        );
+      }
+      return prevCart.filter(cartItem => cartItem._id !== item._id);
+    });
+  };
+
   const clearCart = () => {
     setCart([]);
   };
@@ -86,12 +102,22 @@ const App = () => {
 
   return (
     <Router>
+      {showCart && (
+        <Cart
+          cart={cart}
+          onClose={() => setShowCart(false)}
+          clearCart={clearCart}
+          addToCart={addToCart}
+          removeFromCart={removeFromCart}
+        />
+      )}
       <Routes>
         <Route path="/login" element={<LoginRegister />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/admin/menu" element={<AdminMenu />} />
         <Route path="/store-profile" element={<StoreProfile />} />
         <Route
           path="/"

@@ -158,21 +158,15 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-white rounded-b-lg shadow-lg flex flex-col"
           >
-            {navItems.map((item) => (
+            {user && user.isAdmin && (
               <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
+                href="/admin/menu"
                 className="block px-4 py-3 text-gray-700 hover:bg-orange-50 transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsOpen(false);
-                  const element = document.getElementById(item.toLowerCase());
-                  element?.scrollIntoView({ behavior: 'smooth' });
-                }}
+                onClick={() => setIsOpen(false)}
               >
-                {item}
+                Admin Menu
               </a>
-            ))}
+            )}
             <div className="px-4 py-3">
               <motion.button
                 onClick={toggleCart}

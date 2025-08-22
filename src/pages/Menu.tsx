@@ -2,30 +2,31 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import MenuItem from '../components/ui/MenuItem';
 import axios from 'axios';
-
-interface MenuItemData {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  category: string;
-}
+import { menuData, MenuItemData } from '../data/menuData';
 
 const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void }) => {
-  const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItemData[]>(menuData); // start with local data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState('all');
 
   useEffect(() => {
     const fetchMenuItems = async () => {
+      let combinedItems: MenuItemData[] = [...menuData]; // Start with local data
+
       try {
-        const { data } = await axios.get('/api/menu');
-        setMenuItems(data);
-        setLoading(false);
-      } catch (error) {
-        setError('Error fetching menu items');
+        const { data: dbItems } = await axios.get('/api/menu');
+        // Combine and remove duplicates (preference to DB items)
+        const itemMap = new Map<string, MenuItemData>();
+        combinedItems.forEach(item => itemMap.set(item.name, item));
+        dbItems.forEach((item: MenuItemData) => itemMap.set(item.name, item));
+        combinedItems = Array.from(itemMap.values());
+        setError(null);
+      } catch (err) {
+        console.warn("API failed, using local menuData instead.");
+        setError("DB data not loaded. Displaying local data.");
+      } finally {
+        setMenuItems(combinedItems);
         setLoading(false);
       }
     };
@@ -38,11 +39,14 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
     { id: 'softy', name: 'Softy', icon: '🍦' },
     { id: 'patties', name: 'Patties', icon: '🥟' },
     { id: 'shakes', name: 'Shakes', icon: '🥤' },
+    { id: 'Corn', name: 'Corns', icon: '🌽' },
+    { id: 'combos', name: 'Combos', icon: '🎁' },
   ];
 
-  const filteredItems = activeCategory === 'all'
-    ? menuItems
-    : menuItems.filter(item => item.category === activeCategory);
+  const filteredItems =
+    activeCategory === 'all'
+      ? menuItems
+      : menuItems.filter((item) => item.category === activeCategory);
 
   return (
     <section id="menu" className="py-20 bg-gradient-to-br from-orange-50 to-pink-50">
@@ -61,6 +65,7 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
           </p>
         </motion.div>
 
+        {/* Categories */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -84,15 +89,21 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
           ))}
         </motion.div>
 
+        {/* Items */}
         {loading ? (
           <div className="text-center">Loading...</div>
-        ) : error ? (
-          <div className="text-center text-red-500">{error}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredItems.map((item) => (
               <MenuItem key={item._id} {...item} addToCart={addToCart} />
             ))}
+          </div>
+        )}
+
+        {/* Error info (non-blocking) */}
+        {error && (
+          <div className="text-center text-yellow-600 mt-4">
+            {error}
           </div>
         )}
       </div>
