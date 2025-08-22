@@ -76,7 +76,8 @@ export const useAuth = () => {
       } else {
         dispatch({ type: 'SET_MESSAGE', payload: data.message || "Failed to send OTP." });
       }
-    } catch (_error) {
+    // @ts-ignore
+    } catch (error) {
       dispatch({ type: 'SET_MESSAGE', payload: 'Network error while sending OTP.' });
     }
     dispatch({ type: 'SET_LOADING', payload: false });
@@ -152,7 +153,8 @@ export const useAuth = () => {
       } else {
         dispatch({ type: 'SET_MESSAGE', payload: data.message || "Error" });
       }
-    } catch (_error) {
+    // @ts-ignore
+    } catch (error) {
       dispatch({ type: 'SET_MESSAGE', payload: 'Network error' });
     }
     dispatch({ type: 'SET_LOADING', payload: false });

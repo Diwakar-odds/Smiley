@@ -14,11 +14,24 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "src/components/ui/switch.tsx",
+    "src/components/ui/input.tsx",
+    "src/components/ui/card.tsx",
+    "src/components/ui/button.tsx",
+    "src/components/ui/tabs.tsx"
+  ]
 }

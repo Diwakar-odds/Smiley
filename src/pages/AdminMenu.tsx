@@ -39,7 +39,8 @@ const AdminMenu = () => {
         category: '',
         imageUrl: '',
       });
-    } catch (_error) {
+    // @ts-ignore
+    } catch (error) {
       setError('Failed to create menu item. Please try again.');
     }
   };
