@@ -18,7 +18,7 @@ type State = {
 };
 
 type Action = 
-  | { type: 'SET_FIELD', field: keyof State, payload: any }
+  | { type: 'SET_FIELD', field: keyof State, payload: State[keyof State] }
   | { type: 'SET_LOADING', payload: boolean }
   | { type: 'SET_MESSAGE', payload: string }
   | { type: 'SET_OTP_SENT', payload: boolean };
@@ -76,7 +76,7 @@ export const useAuth = () => {
       } else {
         dispatch({ type: 'SET_MESSAGE', payload: data.message || "Failed to send OTP." });
       }
-    } catch (err) {
+    } catch (_error) {
       dispatch({ type: 'SET_MESSAGE', payload: 'Network error while sending OTP.' });
     }
     dispatch({ type: 'SET_LOADING', payload: false });
@@ -152,7 +152,7 @@ export const useAuth = () => {
       } else {
         dispatch({ type: 'SET_MESSAGE', payload: data.message || "Error" });
       }
-    } catch (err) {
+    } catch (_error) {
       dispatch({ type: 'SET_MESSAGE', payload: 'Network error' });
     }
     dispatch({ type: 'SET_LOADING', payload: false });

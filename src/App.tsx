@@ -128,7 +128,7 @@ const App = () => {
               <MenuSection addToCart={addToCart} />
               <AboutSection />
               <TestimonialsSection />
-              <ContactSection cart={cart} clearCart={clearCart} />
+              <ContactSection />
               <Footer />
             </div>
           }

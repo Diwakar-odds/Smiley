@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Plus, Minus } from 'lucide-react';
+import OrderForm from '../forms/OrderForm';
 
 interface MenuItem {
   _id: string;
@@ -62,7 +63,7 @@ const Cart = ({ cart, onClose, clearCart, addToCart, removeFromCart }: CartProps
                   <img src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover rounded-lg"/>
                   <div className="flex-grow">
                     <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-sm text-gray-500">${item.price.toFixed(2)}</p>
+                    <p className="text-sm text-gray-500">₹{item.price.toFixed(2)}</p>
                     <div className="flex items-center space-x-2 mt-2">
                       <button onClick={() => removeFromCart(item)} className="p-1 rounded-full bg-gray-200 hover:bg-gray-300">
                         <Minus size={16} />
@@ -73,7 +74,7 @@ const Cart = ({ cart, onClose, clearCart, addToCart, removeFromCart }: CartProps
                       </button>
                     </div>
                   </div>
-                  <p className="font-bold">${(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-bold">₹{(item.price * item.quantity).toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -83,15 +84,13 @@ const Cart = ({ cart, onClose, clearCart, addToCart, removeFromCart }: CartProps
             <div className="p-4 border-t space-y-4">
               <div className="flex justify-between font-bold text-xl">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
+              <OrderForm cart={cart} total={total} clearCart={clearCart} />
               <div className="flex space-x-2">
                 <button onClick={clearCart} className="w-full py-3 rounded-lg bg-red-500 text-white font-bold hover:bg-red-600 transition-colors flex items-center justify-center space-x-2">
                   <Trash2 size={20} />
                   <span>Clear Cart</span>
-                </button>
-                <button className="w-full py-3 rounded-lg bg-green-500 text-white font-bold hover:bg-green-600 transition-colors">
-                  Checkout
                 </button>
               </div>
             </div>

@@ -30,7 +30,7 @@ const AdminMenu = () => {
           Authorization: `Bearer ${token}`,
         },
       };
-      const { data } = await axios.post('/api/menu', formData, config);
+      await axios.post('/api/menu', formData, config);
       setSuccess('Menu item created successfully!');
       setFormData({
         name: '',
@@ -39,7 +39,7 @@ const AdminMenu = () => {
         category: '',
         imageUrl: '',
       });
-    } catch (err) {
+    } catch (_error) {
       setError('Failed to create menu item. Please try again.');
     }
   };

@@ -22,7 +22,7 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
         dbItems.forEach((item: MenuItemData) => itemMap.set(item.name, item));
         combinedItems = Array.from(itemMap.values());
         setError(null);
-      } catch (err) {
+      } catch (_error) {
         console.warn("API failed, using local menuData instead.");
         setError("DB data not loaded. Displaying local data.");
       } finally {
