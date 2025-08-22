@@ -5,7 +5,7 @@ import MenuItem from '../models/MenuItem.js';
 // @access  Public
 const getMenuItems = async (req, res) => {
   try {
-    const menuItems = await MenuItem.find();
+    const menuItems = await MenuItem.find({}, '_id name description price imageUrl category');
     res.json(menuItems);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });

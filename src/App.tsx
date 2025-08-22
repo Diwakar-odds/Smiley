@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginRegister from './pages/LoginRegister';
-import Profile from './pages/Profile';
-import Inventory from './pages/Inventory';
-import Orders from './pages/Orders';
-import Analytics from './pages/Analytics';
-import StoreProfile from './pages/StoreProfile';
-import AdminMenu from './pages/AdminMenu';
+const LoginRegister = React.lazy(() => import('./pages/LoginRegister'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Inventory = React.lazy(() => import('./pages/Inventory'));
+const Orders = React.lazy(() => import('./pages/Orders'));
+const Analytics = React.lazy(() => import('./pages/Analytics'));
+const StoreProfile = React.lazy(() => import('./pages/StoreProfile'));
+const AdminMenu = React.lazy(() => import('./pages/AdminMenu'));
 import { motion } from 'framer-motion';
 import Navbar from './components/ui/Navbar';
 import Hero from './components/ui/Hero';
@@ -111,29 +111,31 @@ const App = () => {
           removeFromCart={removeFromCart}
         />
       )}
-      <Routes>
-        <Route path="/login" element={<LoginRegister />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/admin/menu" element={<AdminMenu />} />
-        <Route path="/store-profile" element={<StoreProfile />} />
-        <Route
-          path="/"
-          element={
-            <div className="min-h-screen">
-              <Navbar cart={cart} toggleCart={() => setShowCart(!showCart)} />
-              <Hero />
-              <MenuSection addToCart={addToCart} />
-              <AboutSection />
-              <TestimonialsSection />
-              <ContactSection />
-              <Footer />
-            </div>
-          }
-        />
-      </Routes>
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          <Route path="/login" element={<LoginRegister />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/admin/menu" element={<AdminMenu />} />
+          <Route path="/store-profile" element={<StoreProfile />} />
+          <Route
+            path="/"
+            element={
+              <div className="min-h-screen">
+                <Navbar cart={cart} toggleCart={() => setShowCart(!showCart)} />
+                <Hero />
+                <MenuSection addToCart={addToCart} />
+                <AboutSection />
+                <TestimonialsSection />
+                <ContactSection />
+                <Footer />
+              </div>
+            }
+          />
+        </Routes>
+      </React.Suspense>
     </Router>
   );
 };
