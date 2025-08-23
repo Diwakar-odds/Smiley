@@ -28,12 +28,12 @@ const AddressManagement = () => {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       const data = await res.json();
-      setAddresses(data.map(a => ({
-        id: a._id,
-        street: a.street,
-        city: a.city,
-        state: a.state,
-        zip: a.zip
+      setAddresses(data.map((a: { _id: string; street: string; city: string; state: string; zip: string }) => ({
+        id: (a as { _id: string; street: string; city: string; state: string; zip: string })._id,
+        street: (a as { _id: string; street: string; city: string; state: string; zip: string }).street,
+        city: (a as { _id: string; street: string; city: string; state: string; zip: string }).city,
+        state: (a as { _id: string; street: string; city: string; state: string; zip: string }).state,
+        zip: (a as { _id: string; street: string; city: string; state: string; zip: string }).zip
       })));
     };
     fetchAddresses();
@@ -54,13 +54,13 @@ const AddressManagement = () => {
     setNewAddress({ id: "", street: "", city: "", state: "", zip: "" });
   };
 
-  const handleDeleteAddress = async (id: string) => {
+  const handleDeleteAddress = async (id: string): Promise<void> => {
     const jwtToken = localStorage.getItem('jwtToken');
     await fetch(`http://localhost:5000/api/addresses/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwtToken}` }
     });
-    setAddresses(addresses.filter(a => a.id !== id));
+    setAddresses(addresses.filter((a: Address) => a.id !== id));
   };
 
   return (

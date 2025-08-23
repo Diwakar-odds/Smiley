@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, X, ShoppingCart } from 'lucide-react';
@@ -67,7 +67,6 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -120,6 +119,7 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
               className="relative p-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-full"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title="Navigation Button"
             >
               <ShoppingCart size={20} />
               {cart.length > 0 && (
@@ -155,6 +155,7 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
           <button
             className="md:hidden"
             onClick={() => setIsOpen(!isOpen)}
+            title="Toggle Menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -170,6 +171,7 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
             <button
               className="absolute top-4 right-4 text-white hover:text-gray-900"
               onClick={() => setIsOpen(false)}
+              title="Close Menu"
             >
               <X size={24} />
             </button>

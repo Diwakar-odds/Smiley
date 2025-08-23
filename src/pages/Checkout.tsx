@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import OrderForm from '../components/forms/OrderForm';
 
 const Checkout = () => {
@@ -9,7 +9,7 @@ const Checkout = () => {
         // Fetch cart from localStorage or backend if needed
         const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
         setCart(storedCart);
-        setTotal(storedCart.reduce((acc, item) => acc + item.price * item.quantity, 0));
+        setTotal(storedCart.reduce((acc: number, item: { price: number; quantity: number }) => acc + item.price * item.quantity, 0));
     }, []);
 
     const clearCart = () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 
@@ -114,6 +114,7 @@ const Orders = () => {
                     <td className="py-2 px-4 border-b">{order.status}</td>
                     <td className="py-2 px-4 border-b">
                       <select
+                        title="Order Status Selector"
                         value={order.status}
                         onChange={(e) =>
                           handleUpdateStatus(order._id, e.target.value)

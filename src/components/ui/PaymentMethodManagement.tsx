@@ -26,7 +26,7 @@ const PaymentMethodManagement = () => {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       const data = await res.json();
-      setPaymentMethods(data.map(m => ({
+      setPaymentMethods(data.map((m: { _id: string; cardNumber: string; expiryDate: string; cvv: string }) => ({
         id: m._id,
         cardNumber: m.cardNumber,
         expiryDate: m.expiryDate,
@@ -57,7 +57,7 @@ const PaymentMethodManagement = () => {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwtToken}` }
     });
-    setPaymentMethods(paymentMethods.filter(m => m.id !== id));
+    setPaymentMethods(paymentMethods.filter((m) => m.id !== id));
   };
 
   return (

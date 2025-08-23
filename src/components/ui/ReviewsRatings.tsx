@@ -9,7 +9,11 @@ interface Review {
     comment: string;
 }
 
-const ReviewsRatings = ({ menuItemId }) => {
+interface ReviewsRatingsProps {
+    menuItemId: string;
+}
+
+const ReviewsRatings = ({ menuItemId }: ReviewsRatingsProps) => {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
 
@@ -17,7 +21,7 @@ const ReviewsRatings = ({ menuItemId }) => {
         const fetchReviews = async () => {
             const res = await fetch(`http://localhost:5000/api/reviews/${menuItemId}`);
             const data = await res.json();
-            setReviews(data.map(r => ({
+            setReviews(data.map((r: any) => ({
                 id: r._id,
                 user: r.userId, // You can populate user name if available
                 rating: r.rating,
@@ -53,7 +57,7 @@ const ReviewsRatings = ({ menuItemId }) => {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${jwtToken}` }
         });
-        setReviews(reviews.filter(r => r.id !== id));
+        setReviews(reviews.filter((r: Review) => r.id !== id));
     };
 
     return (

@@ -310,14 +310,15 @@ const LoginRegister = () => {
                         </div>
                         {/* Switch login/register */}
                         <button
-                            <button
-                                className="mt-6 text-yellow-700 underline"
+                            type="button"
+                            className="mt-6 text-yellow-700 underline"
                             onClick={() => dispatch({ type: 'SET_FIELD', field: 'isLogin', payload: !isLogin })}
                         >
                             {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
                         </button>
                         {isLogin && (
                             <button
+                                type="button"
                                 className="mt-2 text-blue-700 underline"
                                 onClick={() => setShowReset(true)}
                             >

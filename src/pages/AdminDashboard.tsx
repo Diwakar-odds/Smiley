@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FiUsers, FiShoppingCart, FiDollarSign, FiTrendingUp } from 'react-icons/fi';
+// If you get a module error, run: npm install react-icons
 
 interface SalesOverview {
     totalOrders: number;
@@ -41,8 +42,8 @@ const AdminDashboard = () => {
 
                 setSalesOverview(salesRes.data);
                 // Join topItems with details
-                const populatedItems = itemsRes.data.topItems.map(item => {
-                    const detail = itemsRes.data.details.find(d => d._id === item._id);
+                const populatedItems = itemsRes.data.topItems.map((item: TopItem) => {
+                    const detail = itemsRes.data.details.find((d: { _id: string; name?: string }) => d._id === item._id);
                     return { ...item, name: detail?.name || 'Unknown Item' };
                 });
                 setTopItems(populatedItems);
@@ -79,10 +80,10 @@ const AdminDashboard = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <StatCard icon={<FiDollarSign />} title="Total Revenue" value={`₹${salesOverview?.totalRevenue.toFixed(2)}`} />
-                <StatCard icon={<FiShoppingCart />} title="Total Orders" value={salesOverview?.totalOrders} />
-                <StatCard icon={<FiUsers />} title="Total Users" value={customerBehavior?.totalUsers} />
-                <StatCard icon={<FiTrendingUp />} title="Repeat Customers" value={customerBehavior?.repeatCustomers} />
+                <StatCard icon={<FiDollarSign />} title="Total Revenue" value={`₹${salesOverview?.totalRevenue?.toFixed(2) ?? '0.00'}`} />
+                <StatCard icon={<FiShoppingCart />} title="Total Orders" value={salesOverview?.totalOrders ?? 0} />
+                <StatCard icon={<FiUsers />} title="Total Users" value={customerBehavior?.totalUsers ?? 0} />
+                <StatCard icon={<FiTrendingUp />} title="Repeat Customers" value={customerBehavior?.repeatCustomers ?? 0} />
             </div>
 
             {/* Top Items */}
@@ -101,7 +102,13 @@ const AdminDashboard = () => {
     );
 };
 
-const StatCard = ({ icon, title, value }) => (
+interface StatCardProps {
+    icon: React.ReactNode;
+    title: string;
+    value: string | number;
+}
+
+const StatCard = ({ icon, title, value }: StatCardProps) => (
     <motion.div
         className="bg-white shadow-lg rounded-lg p-6 flex items-center space-x-4"
         whileHover={{ scale: 1.05 }}

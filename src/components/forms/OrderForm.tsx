@@ -95,7 +95,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
         name: 'Smiley Food',
         description: 'Order Payment',
         order_id: orderData.id,
-        handler: async function (response) {
+        handler: async function (response: { razorpay_payment_id: string;[key: string]: any }) {
           paymentStatus = 'Paid';
           razorpayPaymentId = response.razorpay_payment_id;
           await submitOrder(paymentStatus, razorpayPaymentId);
