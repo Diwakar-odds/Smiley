@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   mobile: { type: String, unique: true, sparse: true },
   password: { type: String, required: true },
   role: { type: String, default: "user", enum: ["user", "admin"] },
+  resetToken: { type: String },
+  resetTokenExpiry: { type: Date },
 });
 
 export default mongoose.model("User", userSchema);

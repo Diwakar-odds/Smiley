@@ -6,6 +6,47 @@ import { useAuth } from "../hooks/useAuth";
 
 
 const LoginRegister = () => {
+    const [showReset, setShowReset] = React.useState(false);
+    const [resetStep, setResetStep] = React.useState(1);
+    const [resetEmail, setResetEmail] = React.useState("");
+    const [resetMobile, setResetMobile] = React.useState("");
+    const [resetToken, setResetToken] = React.useState("");
+    const [resetNewPassword, setResetNewPassword] = React.useState("");
+    const [resetMsg, setResetMsg] = React.useState("");
+
+    const handleRequestReset = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setResetMsg("");
+        const res = await fetch("http://localhost:5000/api/auth/request-reset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: resetEmail, mobile: resetMobile })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            setResetStep(2);
+            setResetMsg("Token sent! Check your email or SMS.");
+        } else {
+            setResetMsg(data.message || "Error requesting reset");
+        }
+    };
+
+    const handleResetPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setResetMsg("");
+        const res = await fetch("http://localhost:5000/api/auth/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: resetEmail, mobile: resetMobile, resetToken, newPassword: resetNewPassword })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            setResetMsg("Password reset successful! You can now login.");
+            setTimeout(() => { setShowReset(false); setResetStep(1); }, 2000);
+        } else {
+            setResetMsg(data.message || "Error resetting password");
+        }
+    };
     const { state, dispatch, sendOtp, handleSubmit } = useAuth();
     const { isLogin, loginType, authMethod, name, mobile, email, password, otp, message, otpSent, sendingOtp, loading } = state;
     const navigate = useNavigate();
@@ -19,6 +60,29 @@ const LoginRegister = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-yellow-100 via-orange-50 to-coffee-100 relative font-sans">
+            {showReset && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+                        <button type="button" className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl" onClick={() => setShowReset(false)}>&times;</button>
+                        <h2 className="text-2xl font-bold mb-4 text-center">Reset Password</h2>
+                        {resetStep === 1 ? (
+                            <form onSubmit={handleRequestReset} className="space-y-4">
+                                <input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} placeholder="Email (or leave blank)" className="w-full px-4 py-2 border rounded" />
+                                <input type="tel" value={resetMobile} onChange={e => setResetMobile(e.target.value)} placeholder="Mobile (or leave blank)" className="w-full px-4 py-2 border rounded" />
+                                <button type="submit" className="w-full bg-yellow-500 text-white py-2 rounded">Request Reset</button>
+                                {resetMsg && <div className="text-center text-red-500">{resetMsg}</div>}
+                            </form>
+                        ) : (
+                            <form onSubmit={handleResetPassword} className="space-y-4">
+                                <input type="text" value={resetToken} onChange={e => setResetToken(e.target.value)} placeholder="Reset Token" className="w-full px-4 py-2 border rounded" />
+                                <input type="password" value={resetNewPassword} onChange={e => setResetNewPassword(e.target.value)} placeholder="New Password" className="w-full px-4 py-2 border rounded" />
+                                <button type="submit" className="w-full bg-yellow-500 text-white py-2 rounded">Reset Password</button>
+                                {resetMsg && <div className="text-center text-green-600">{resetMsg}</div>}
+                            </form>
+                        )}
+                    </div>
+                </div>
+            )}
             {/* Floating food-themed blobs */}
             <motion.img
                 src="https://www.svgrepo.com/show/353655/burger.svg"
@@ -246,11 +310,20 @@ const LoginRegister = () => {
                         </div>
                         {/* Switch login/register */}
                         <button
-                            className="mt-6 text-yellow-700 underline"
+                            <button
+                                className="mt-6 text-yellow-700 underline"
                             onClick={() => dispatch({ type: 'SET_FIELD', field: 'isLogin', payload: !isLogin })}
                         >
                             {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
                         </button>
+                        {isLogin && (
+                            <button
+                                className="mt-2 text-blue-700 underline"
+                                onClick={() => setShowReset(true)}
+                            >
+                                Forgot Password?
+                            </button>
+                        )}
                         {/* Messages */}
                         {message && <div className="mt-4 text-center text-red-500">{message}</div>}
                         {/* Hide JWT token from UI */}

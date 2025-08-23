@@ -19,6 +19,17 @@ interface OrderFormProps {
 }
 
 const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
+  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Online'>('COD');
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+  React.useEffect(() => {
+    if (!razorpayLoaded) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => setRazorpayLoaded(true);
+      document.body.appendChild(script);
+    }
+  }, [razorpayLoaded]);
   const [showDetailsForm, setShowDetailsForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -52,36 +63,94 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
 
     setIsSubmitting(true);
 
-    try {
-      const response = await fetch('http://localhost:5000/api/orders', {
+    let paymentStatus = 'Pending';
+    let razorpayPaymentId = '';
+
+    if (paymentMethod === 'Online') {
+      if (!razorpayLoaded) {
+        alert('Razorpay is not loaded yet. Please wait.');
+        setIsSubmitting(false);
+        return;
+      }
+      // Create order on backend for Razorpay
+      const orderRes = await fetch('http://localhost:5000/api/orders/razorpay', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${jwtToken}`
         },
-        body: JSON.stringify({
-          items: cart,
-          name: formData.name,
-          phone: formData.phone,
-          address: formData.address,
-          specialRequests: formData.specialRequests
-        }),
+        body: JSON.stringify({ amount: total * 100 }) // Razorpay expects amount in paise
       });
-
-      if (response.ok) {
-        setShowSuccess(true);
-        setFormData({ name: '', phone: '', address: '', specialRequests: '' });
-        clearCart();
-        setTimeout(() => setShowSuccess(false), 5000);
-      } else {
-        alert('Failed to submit order. Please try again.');
+      const orderData = await orderRes.json();
+      if (!orderRes.ok || !orderData.id) {
+        alert('Failed to initiate payment.');
+        setIsSubmitting(false);
+        return;
       }
-    } catch (error) {
-      console.error('Error submitting order:', error);
-      alert('Failed to submit order. Please try again.');
+      // Open Razorpay modal
+      const options = {
+        key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your Razorpay key
+        amount: orderData.amount,
+        currency: 'INR',
+        name: 'Smiley Food',
+        description: 'Order Payment',
+        order_id: orderData.id,
+        handler: async function (response) {
+          paymentStatus = 'Paid';
+          razorpayPaymentId = response.razorpay_payment_id;
+          await submitOrder(paymentStatus, razorpayPaymentId);
+        },
+        prefill: {
+          name: formData.name,
+          contact: formData.phone,
+        },
+        theme: { color: '#F59E42' },
+      };
+      // @ts-ignore
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+      setIsSubmitting(false);
+      return;
+    } else {
+      paymentStatus = 'COD';
+      await submitOrder(paymentStatus, razorpayPaymentId);
     }
 
     setIsSubmitting(false);
+
+    async function submitOrder(paymentStatus: string, razorpayPaymentId: string) {
+      try {
+        const response = await fetch('http://localhost:5000/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`
+          },
+          body: JSON.stringify({
+            items: cart,
+            name: formData.name,
+            phone: formData.phone,
+            address: formData.address,
+            specialRequests: formData.specialRequests,
+            paymentMethod,
+            paymentStatus,
+            razorpayPaymentId
+          }),
+        });
+
+        if (response.ok) {
+          setShowSuccess(true);
+          setFormData({ name: '', phone: '', address: '', specialRequests: '' });
+          clearCart();
+          setTimeout(() => setShowSuccess(false), 5000);
+        } else {
+          alert('Failed to submit order. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error submitting order:', error);
+        alert('Failed to submit order. Please try again.');
+      }
+    }
   };
 
   return (
@@ -112,6 +181,18 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
               &times;
             </button>
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="payment-method" className="block font-inter font-medium text-gray-700 mb-2">Payment Method</label>
+                <select
+                  id="payment-method"
+                  value={paymentMethod}
+                  onChange={e => setPaymentMethod(e.target.value as 'COD' | 'Online')}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                >
+                  <option value="COD">Cash on Delivery</option>
+                  <option value="Online">Online Payment (Razorpay)</option>
+                </select>
+              </div>
               <div>
                 <label className="block font-inter font-medium text-gray-700 mb-2">Name</label>
                 <input
