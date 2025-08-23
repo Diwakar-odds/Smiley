@@ -21,6 +21,7 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
   const navItems = ['Home', 'Menu', 'About', 'Testimonials', 'Contact',];
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState("");
 
   useEffect(() => {
@@ -35,17 +36,25 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
           localStorage.removeItem("jwtToken");
           localStorage.removeItem("username");
           setLoggedInUser("");
+          setIsAdmin(false);
         } else if (username) {
           setLoggedInUser(username);
+          if (payload.isAdmin) { // Assuming isAdmin is a boolean in the JWT payload
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
         }
       } catch {
         // Invalid token, force logout
         localStorage.removeItem("jwtToken");
         localStorage.removeItem("username");
         setLoggedInUser("");
+        setIsAdmin(false);
       }
     } else {
       setLoggedInUser("");
+      setIsAdmin(false);
     }
   }, []);
 
@@ -70,8 +79,8 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between h-16 px-2 sm:px-4 lg:px-8">
           <motion.div
             className="flex items-center space-x-2"
             whileHover={{ scale: 1.05 }}
@@ -153,15 +162,21 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
 
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white rounded-b-lg shadow-lg flex flex-col"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 flex flex-col items-center justify-center md:hidden h-screen"
           >
-            {user && user.isAdmin && (
+            <button
+              className="absolute top-4 right-4 text-white hover:text-gray-900"
+              onClick={() => setIsOpen(false)}
+            >
+              <X size={24} />
+            </button>
+            {isAdmin && (
               <a
                 href="/admin/menu"
-                className="block px-4 py-3 text-gray-700 hover:bg-orange-50 transition-colors"
+                className="block px-4 py-3 text-white hover:bg-orange-50 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 Admin Menu

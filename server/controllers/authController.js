@@ -73,14 +73,13 @@ export const login = async (req, res) => {
 
     // Create and return JWT token
     const payload = {
-      user: {
-        id: user.id,
-      },
+      _id: user._id, // Use _id directly
+      isAdmin: user.isAdmin || false, // Include isAdmin if available
     };
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET, 
+      "your_jwt_secret", 
       { expiresIn: 3600 },
       (err, token) => {
         if (err) throw err;

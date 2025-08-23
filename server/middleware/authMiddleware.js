@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const JWT_SECRET = "your_jwt_secret"; // Explicitly use the default secret for debugging
 
 export function protect(req, res, next) {
   const authHeader = req.headers["authorization"];

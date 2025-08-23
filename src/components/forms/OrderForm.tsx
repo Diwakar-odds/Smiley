@@ -19,9 +19,11 @@ interface OrderFormProps {
 }
 
 const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
+  const [showDetailsForm, setShowDetailsForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    address: '',
     specialRequests: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,10 +35,11 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setShowDetailsForm(false); // Hide form after submit
     e.preventDefault();
 
-    if (!formData.name || !formData.phone || cart.length === 0) {
-      alert('Please fill in all required fields and add items to cart');
+    if (cart.length === 0) {
+      alert('Please add items to cart');
       return;
     }
     // Check for JWT token in localStorage
@@ -57,16 +60,17 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           'Authorization': `Bearer ${jwtToken}`
         },
         body: JSON.stringify({
+          items: cart,
           name: formData.name,
           phone: formData.phone,
-          items: cart,
+          address: formData.address,
           specialRequests: formData.specialRequests
         }),
       });
 
       if (response.ok) {
         setShowSuccess(true);
-        setFormData({ name: '', phone: '', specialRequests: '' });
+        setFormData({ name: '', phone: '', address: '', specialRequests: '' });
         clearCart();
         setTimeout(() => setShowSuccess(false), 5000);
       } else {
@@ -81,60 +85,93 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block font-inter font-medium text-gray-700 mb-2">
-          Name *
-        </label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-          placeholder="Your full name"
-        />
-      </div>
-
-      <div>
-        <label className="block font-inter font-medium text-gray-700 mb-2">
-          Phone Number *
-        </label>
-        <input
-          type="tel"
-          name="phone"
-          value={formData.phone}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-          placeholder="Your phone number"
-        />
-      </div>
-
-      <div>
-        <label className="block font-inter font-medium text-gray-700 mb-2">
-          Special Requests
-        </label>
-        <textarea
-          name="specialRequests"
-          value={formData.specialRequests}
-          onChange={handleInputChange}
-          rows={4}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-          placeholder="Any special instructions or requests..."
-        />
-      </div>
-
+    <div>
       <motion.button
-        type="submit"
-        disabled={isSubmitting || cart.length === 0}
-        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-poppins font-semibold py-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        whileHover={{ scale: cart.length > 0 ? 1.02 : 1 }}
-        whileTap={{ scale: cart.length > 0 ? 0.98 : 1 }}
+        type="button"
+        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-poppins font-semibold py-4 rounded-lg mb-4"
+        onClick={() => setShowDetailsForm(true)}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
       >
-        {isSubmitting ? 'Submitting...' : `Place Order (${total.toFixed(2)})`}
+        Enter Delivery Details
       </motion.button>
+
+      {showDetailsForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative"
+          >
+            <button
+              type="button"
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+              onClick={() => setShowDetailsForm(false)}
+            >
+              &times;
+            </button>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block font-inter font-medium text-gray-700 mb-2">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  placeholder="Enter your name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-inter font-medium text-gray-700 mb-2">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-inter font-medium text-gray-700 mb-2">Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  placeholder="Enter your address"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-inter font-medium text-gray-700 mb-2">Special Requests</label>
+                <textarea
+                  name="specialRequests"
+                  value={formData.specialRequests}
+                  onChange={handleInputChange}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  placeholder="Any special instructions or requests..."
+                />
+              </div>
+              <motion.button
+                type="submit"
+                disabled={isSubmitting || cart.length === 0}
+                className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-poppins font-semibold py-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: cart.length > 0 ? 1.02 : 1 }}
+                whileTap={{ scale: cart.length > 0 ? 0.98 : 1 }}
+              >
+                {isSubmitting ? 'Submitting...' : `Place Order (${total.toFixed(2)})`}
+              </motion.button>
+            </form>
+          </motion.div>
+        </div>
+      )}
       {showSuccess && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -146,7 +183,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           </p>
         </motion.div>
       )}
-    </form>
+    </div>
   );
 };
 
