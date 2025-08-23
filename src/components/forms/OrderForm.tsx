@@ -40,15 +40,19 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Auto-close modal on route change
+  useEffect(() => {
+    setShowDetailsForm(false);
+  }, [location.pathname]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setShowDetailsForm(false); // Hide form after submit
     e.preventDefault();
-
     if (cart.length === 0) {
       alert('Please add items to cart');
       return;
@@ -60,62 +64,73 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
       navigate('/login');
       return;
     }
-
     setIsSubmitting(true);
-
     let paymentStatus = 'Pending';
     let razorpayPaymentId = '';
-
-    if (paymentMethod === 'Online') {
-      if (!razorpayLoaded) {
-        alert('Razorpay is not loaded yet. Please wait.');
-        setIsSubmitting(false);
+    try {
+      if (paymentMethod === 'Online') {
+        if (!razorpayLoaded) {
+          alert('Razorpay is not loaded yet. Please wait.');
+          setIsSubmitting(false);
+          return;
+        }
+        // Create order on backend for Razorpay
+        const orderRes = await fetch('http://localhost:5000/api/orders/razorpay', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`
+          },
+          body: JSON.stringify({ amount: total * 100 }) // Razorpay expects amount in paise
+        });
+        const orderData = await orderRes.json();
+        if (!orderRes.ok || !orderData.id) {
+          alert('Failed to initiate payment.');
+          setIsSubmitting(false);
+          return;
+        }
+        // Open Razorpay modal
+        const options = {
+          key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your Razorpay key
+          amount: orderData.amount,
+          currency: 'INR',
+          name: 'Smiley Food',
+          description: 'Order Payment',
+          order_id: orderData.id,
+          handler: async function (response: { razorpay_payment_id: string;[key: string]: any }) {
+            try {
+              paymentStatus = 'Paid';
+              razorpayPaymentId = response.razorpay_payment_id;
+              await submitOrder(paymentStatus, razorpayPaymentId);
+              setShowDetailsForm(false);
+            } catch (err) {
+              alert('Order submission failed after payment.');
+            }
+          },
+          prefill: {
+            name: formData.name,
+            contact: formData.phone,
+          },
+          theme: { color: '#F59E42' },
+          modal: {
+            ondismiss: () => {
+              setIsSubmitting(false);
+            }
+          }
+        };
+        // @ts-ignore
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+        // Don't set isSubmitting false here, let modal handle it
         return;
+      } else {
+        paymentStatus = 'COD';
+        await submitOrder(paymentStatus, razorpayPaymentId);
+        setShowDetailsForm(false);
       }
-      // Create order on backend for Razorpay
-      const orderRes = await fetch('http://localhost:5000/api/orders/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${jwtToken}`
-        },
-        body: JSON.stringify({ amount: total * 100 }) // Razorpay expects amount in paise
-      });
-      const orderData = await orderRes.json();
-      if (!orderRes.ok || !orderData.id) {
-        alert('Failed to initiate payment.');
-        setIsSubmitting(false);
-        return;
-      }
-      // Open Razorpay modal
-      const options = {
-        key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your Razorpay key
-        amount: orderData.amount,
-        currency: 'INR',
-        name: 'Smiley Food',
-        description: 'Order Payment',
-        order_id: orderData.id,
-        handler: async function (response: { razorpay_payment_id: string;[key: string]: any }) {
-          paymentStatus = 'Paid';
-          razorpayPaymentId = response.razorpay_payment_id;
-          await submitOrder(paymentStatus, razorpayPaymentId);
-        },
-        prefill: {
-          name: formData.name,
-          contact: formData.phone,
-        },
-        theme: { color: '#F59E42' },
-      };
-      // @ts-ignore
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-      setIsSubmitting(false);
-      return;
-    } else {
-      paymentStatus = 'COD';
-      await submitOrder(paymentStatus, razorpayPaymentId);
+    } catch (err) {
+      alert('Order submission failed.');
     }
-
     setIsSubmitting(false);
 
     async function submitOrder(paymentStatus: string, razorpayPaymentId: string) {
