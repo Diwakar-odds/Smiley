@@ -1,8 +1,10 @@
 // frontend/src/components/LoginRegister.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion"; // ✨ For animations
+import { motion, AnimatePresence } from "framer-motion"; // ✨ For animations
 import { useAuth } from "../hooks/useAuth";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebookF, FaLinkedinIn, FaTwitter } from "react-icons/fa";
 
 
 const LoginRegister = () => {
@@ -60,29 +62,46 @@ const LoginRegister = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-yellow-100 via-orange-50 to-coffee-100 relative font-sans">
-            {showReset && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                    <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
-                        <button type="button" className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl" onClick={() => setShowReset(false)}>&times;</button>
-                        <h2 className="text-2xl font-bold mb-4 text-center">Reset Password</h2>
-                        {resetStep === 1 ? (
-                            <form onSubmit={handleRequestReset} className="space-y-4">
-                                <input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} placeholder="Email (or leave blank)" className="w-full px-4 py-2 border rounded" />
-                                <input type="tel" value={resetMobile} onChange={e => setResetMobile(e.target.value)} placeholder="Mobile (or leave blank)" className="w-full px-4 py-2 border rounded" />
-                                <button type="submit" className="w-full bg-yellow-500 text-white py-2 rounded">Request Reset</button>
-                                {resetMsg && <div className="text-center text-red-500">{resetMsg}</div>}
-                            </form>
-                        ) : (
-                            <form onSubmit={handleResetPassword} className="space-y-4">
-                                <input type="text" value={resetToken} onChange={e => setResetToken(e.target.value)} placeholder="Reset Token" className="w-full px-4 py-2 border rounded" />
-                                <input type="password" value={resetNewPassword} onChange={e => setResetNewPassword(e.target.value)} placeholder="New Password" className="w-full px-4 py-2 border rounded" />
-                                <button type="submit" className="w-full bg-yellow-500 text-white py-2 rounded">Reset Password</button>
-                                {resetMsg && <div className="text-center text-green-600">{resetMsg}</div>}
-                            </form>
-                        )}
-                    </div>
-                </div>
-            )}
+            <AnimatePresence>
+                {showReset && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+                    >
+                        <motion.div
+                            initial={{ y: 40, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 40, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative"
+                        >
+                            <button type="button" aria-label="Close" className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl" onClick={() => setShowReset(false)}>&times;</button>
+                            <h2 className="text-2xl font-bold mb-4 text-center">Reset Password</h2>
+                            {resetStep === 1 ? (
+                                <form onSubmit={handleRequestReset} className="space-y-4">
+                                    <label htmlFor="resetEmail" className="block text-sm font-medium text-gray-700">Email (or leave blank)</label>
+                                    <input id="resetEmail" type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} className="w-full px-4 py-2 border rounded" />
+                                    <label htmlFor="resetMobile" className="block text-sm font-medium text-gray-700">Mobile (or leave blank)</label>
+                                    <input id="resetMobile" type="tel" value={resetMobile} onChange={e => setResetMobile(e.target.value)} className="w-full px-4 py-2 border rounded" />
+                                    <button type="submit" className="w-full bg-yellow-500 text-white py-2 rounded">Request Reset</button>
+                                    {resetMsg && <div className="text-center text-red-500">{resetMsg}</div>}
+                                </form>
+                            ) : (
+                                <form onSubmit={handleResetPassword} className="space-y-4">
+                                    <label htmlFor="resetToken" className="block text-sm font-medium text-gray-700">Reset Token</label>
+                                    <input id="resetToken" type="text" value={resetToken} onChange={e => setResetToken(e.target.value)} className="w-full px-4 py-2 border rounded" />
+                                    <label htmlFor="resetNewPassword" className="block text-sm font-medium text-gray-700">New Password</label>
+                                    <input id="resetNewPassword" type="password" value={resetNewPassword} onChange={e => setResetNewPassword(e.target.value)} className="w-full px-4 py-2 border rounded" />
+                                    <button type="submit" className="w-full bg-yellow-500 text-white py-2 rounded">Reset Password</button>
+                                    {resetMsg && <div className="text-center text-green-600">{resetMsg}</div>}
+                                </form>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             {/* Floating food-themed blobs */}
             <motion.img
                 src="https://www.svgrepo.com/show/353655/burger.svg"
@@ -148,36 +167,40 @@ const LoginRegister = () => {
                         <form onSubmit={handleFormSubmit} className="space-y-4">
                             {!isLogin && (
                                 <>
+                                    <label htmlFor="regName" className="block text-sm font-medium text-gray-700">Name (required)</label>
                                     <motion.input
                                         whileFocus={{ scale: 1.02 }}
+                                        id="regName"
                                         type="text"
-                                        placeholder="Name (required)"
                                         value={name}
                                         onChange={e => dispatch({ type: 'SET_FIELD', field: 'name', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                         required
                                     />
+                                    <label htmlFor="regMobile" className="block text-sm font-medium text-gray-700">Mobile Number (required)</label>
                                     <motion.input
                                         whileFocus={{ scale: 1.02 }}
+                                        id="regMobile"
                                         type="tel"
-                                        placeholder="Mobile Number (required)"
                                         value={mobile}
                                         onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                         required
                                     />
+                                    <label htmlFor="regEmail" className="block text-sm font-medium text-gray-700">Email (optional)</label>
                                     <motion.input
                                         whileFocus={{ scale: 1.02 }}
+                                        id="regEmail"
                                         type="email"
-                                        placeholder="Email (optional)"
                                         value={email}
                                         onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                     />
+                                    <label htmlFor="regPassword" className="block text-sm font-medium text-gray-700">Password</label>
                                     <motion.input
                                         whileFocus={{ scale: 1.02 }}
+                                        id="regPassword"
                                         type="password"
-                                        placeholder="Password"
                                         value={password}
                                         onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
@@ -187,10 +210,11 @@ const LoginRegister = () => {
                             )}
                             {isLogin && (
                                 <>
+                                    <label htmlFor="loginName" className="block text-sm font-medium text-gray-700">Name (required)</label>
                                     <motion.input
                                         whileFocus={{ scale: 1.02 }}
+                                        id="loginName"
                                         type="text"
-                                        placeholder="Name (required)"
                                         value={name}
                                         onChange={e => dispatch({ type: 'SET_FIELD', field: 'name', payload: e.target.value })}
                                         className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
@@ -203,11 +227,12 @@ const LoginRegister = () => {
                                     </div>
                                     {loginType === 'mobile' && (
                                         <>
+                                            <label htmlFor="loginMobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
                                             <div className="flex gap-2 items-center mb-2">
                                                 <motion.input
                                                     whileFocus={{ scale: 1.02 }}
+                                                    id="loginMobile"
                                                     type="tel"
-                                                    placeholder="Mobile Number"
                                                     value={mobile}
                                                     onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })}
                                                     className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
@@ -229,10 +254,13 @@ const LoginRegister = () => {
                                                 <button type="button" className={`px-3 py-1 rounded-full font-semibold border ${authMethod === 'otp' ? 'bg-yellow-400 text-white' : 'bg-white text-coffee-700'}`} onClick={() => dispatch({ type: 'SET_FIELD', field: 'authMethod', payload: 'otp' })}>OTP</button>
                                             </div>
                                             {authMethod === 'password' && (
+                                                <label htmlFor="loginPassword" className="block text-sm font-medium text-gray-700">Password</label>
+                                            )}
+                                            {authMethod === 'password' && (
                                                 <motion.input
                                                     whileFocus={{ scale: 1.02 }}
+                                                    id="loginPassword"
                                                     type="password"
-                                                    placeholder="Password"
                                                     value={password}
                                                     onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })}
                                                     className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
@@ -240,10 +268,13 @@ const LoginRegister = () => {
                                                 />
                                             )}
                                             {authMethod === 'otp' && (
+                                                <label htmlFor="loginOtp" className="block text-sm font-medium text-gray-700">Enter OTP</label>
+                                            )}
+                                            {authMethod === 'otp' && (
                                                 <motion.input
                                                     whileFocus={{ scale: 1.02 }}
+                                                    id="loginOtp"
                                                     type="text"
-                                                    placeholder="Enter OTP"
                                                     value={otp}
                                                     onChange={e => dispatch({ type: 'SET_FIELD', field: 'otp', payload: e.target.value })}
                                                     className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
@@ -254,19 +285,21 @@ const LoginRegister = () => {
                                     )}
                                     {(loginType === 'email' || loginType === 'gmail') && (
                                         <>
+                                            <label htmlFor="loginEmail" className="block text-sm font-medium text-gray-700">{loginType === 'gmail' ? 'Gmail Address' : 'Email Address'}</label>
                                             <motion.input
                                                 whileFocus={{ scale: 1.02 }}
+                                                id="loginEmail"
                                                 type="email"
-                                                placeholder={loginType === 'gmail' ? 'Gmail Address' : 'Email Address'}
                                                 value={email}
                                                 onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })}
                                                 className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
                                                 required
                                             />
+                                            <label htmlFor="loginEmailPassword" className="block text-sm font-medium text-gray-700">Password</label>
                                             <motion.input
                                                 whileFocus={{ scale: 1.02 }}
+                                                id="loginEmailPassword"
                                                 type="password"
-                                                placeholder="Password"
                                                 value={password}
                                                 onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })}
                                                 className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow"
@@ -283,28 +316,33 @@ const LoginRegister = () => {
                                 className={`w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-500 transition shadow ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 disabled={loading}
                             >
-                                {loading ? 'Loading...' : (isLogin ? "LOGIN" : "REGISTER")}
+                                {loading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                        Loading...
+                                    </span>
+                                ) : (isLogin ? "LOGIN" : "REGISTER")}
                             </motion.button>
                         </form>
                         {/* Social login */}
                         <div className="mt-6 flex flex-col items-center">
                             <span className="text-coffee-500">Or Sign in with</span>
                             <div className="mt-3 flex items-center justify-center gap-4">
-                                <a href="#" title="Sign in with Google" className="bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow flex items-center justify-center">
+                                <a href="#" title="Sign in with Google" className="bg-white hover:bg-gray-100 rounded-full p-3 shadow flex items-center justify-center">
                                     <span className="sr-only">Sign in with Google</span>
-                                    <i className="fab fa-google" aria-hidden="true"></i>
+                                    <FcGoogle size={24} />
                                 </a>
                                 <a href="#" title="Sign in with Facebook" className="bg-blue-700 hover:bg-blue-800 text-white rounded-full p-3 shadow flex items-center justify-center">
                                     <span className="sr-only">Sign in with Facebook</span>
-                                    <i className="fab fa-facebook-f" aria-hidden="true"></i>
+                                    <FaFacebookF size={20} />
                                 </a>
                                 <a href="#" title="Sign in with LinkedIn" className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow flex items-center justify-center">
                                     <span className="sr-only">Sign in with LinkedIn</span>
-                                    <i className="fab fa-linkedin-in" aria-hidden="true"></i>
+                                    <FaLinkedinIn size={20} />
                                 </a>
                                 <a href="#" title="Sign in with Twitter" className="bg-sky-400 hover:bg-sky-500 text-white rounded-full p-3 shadow flex items-center justify-center">
                                     <span className="sr-only">Sign in with Twitter</span>
-                                    <i className="fab fa-twitter" aria-hidden="true"></i>
+                                    <FaTwitter size={20} />
                                 </a>
                             </div>
                         </div>

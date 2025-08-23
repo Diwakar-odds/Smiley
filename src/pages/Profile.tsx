@@ -90,7 +90,7 @@ const Profile: React.FC = () => {
       try {
         const userProfile = await fetchUserProfile();
         dispatch({ type: "SET_PROFILE", payload: userProfile });
-      } catch (_error) {
+      } catch {
         dispatch({ type: "SET_ERROR", payload: "Failed to fetch profile." });
       }
       dispatch({ type: "SET_LOADING", payload: false });
@@ -111,7 +111,7 @@ const Profile: React.FC = () => {
     try {
       const updatedProfile = await updateUserProfile(profile);
       dispatch({ type: "SET_PROFILE", payload: updatedProfile });
-    } catch (_error) {
+    } catch {
       dispatch({ type: "SET_ERROR", payload: "Failed to save changes." });
     }
     dispatch({ type: "SET_LOADING", payload: false });

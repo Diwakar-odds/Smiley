@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
 interface CartItem {
   _id: string;
@@ -65,8 +66,8 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
       return;
     }
     setIsSubmitting(true);
-    let paymentStatus = 'Pending';
-    let razorpayPaymentId = '';
+    let paymentStatus: string = 'Pending';
+    let razorpayPaymentId: string = '';
     try {
       if (paymentMethod === 'Online') {
         if (!razorpayLoaded) {
@@ -83,7 +84,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           },
           body: JSON.stringify({ amount: total * 100 }) // Razorpay expects amount in paise
         });
-        const orderData = await orderRes.json();
+        const orderData: { id?: string; amount?: number } = await orderRes.json();
         if (!orderRes.ok || !orderData.id) {
           alert('Failed to initiate payment.');
           setIsSubmitting(false);
@@ -97,15 +98,11 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           name: 'Smiley Food',
           description: 'Order Payment',
           order_id: orderData.id,
-          handler: async function (response: { razorpay_payment_id: string;[key: string]: any }) {
-            try {
-              paymentStatus = 'Paid';
-              razorpayPaymentId = response.razorpay_payment_id;
-              await submitOrder(paymentStatus, razorpayPaymentId);
-              setShowDetailsForm(false);
-            } catch (err) {
-              alert('Order submission failed after payment.');
-            }
+          handler: async function (response: { razorpay_payment_id: string;[key: string]: unknown }) {
+            paymentStatus = 'Paid';
+            razorpayPaymentId = response.razorpay_payment_id;
+            await submitOrder(paymentStatus, razorpayPaymentId);
+            setShowDetailsForm(false);
           },
           prefill: {
             name: formData.name,
@@ -118,7 +115,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
             }
           }
         };
-        // @ts-ignore
+        // @ts-expect-error: Razorpay is not typed in window object
         const rzp = new window.Razorpay(options);
         rzp.open();
         // Don't set isSubmitting false here, let modal handle it
@@ -128,7 +125,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
         await submitOrder(paymentStatus, razorpayPaymentId);
         setShowDetailsForm(false);
       }
-    } catch (err) {
+    } catch {
       alert('Order submission failed.');
     }
     setIsSubmitting(false);
@@ -161,8 +158,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
         } else {
           alert('Failed to submit order. Please try again.');
         }
-      } catch (error) {
-        console.error('Error submitting order:', error);
+      } catch {
         alert('Failed to submit order. Please try again.');
       }
     }
