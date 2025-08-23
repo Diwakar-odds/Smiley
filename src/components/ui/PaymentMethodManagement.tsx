@@ -11,15 +11,7 @@ interface PaymentMethod {
 }
 
 const PaymentMethodManagement = () => {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-    {
-      id: "1",
-      cardNumber: "**** **** **** 1234",
-      expiryDate: "12/25",
-      cvv: "***",
-    },
-  ]);
-
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [newPaymentMethod, setNewPaymentMethod] = useState<PaymentMethod>({
     id: "",
     cardNumber: "",
@@ -27,9 +19,45 @@ const PaymentMethodManagement = () => {
     cvv: "",
   });
 
-  const handleAddPaymentMethod = () => {
-    setPaymentMethods([...paymentMethods, { ...newPaymentMethod, id: Date.now().toString() }]);
+  React.useEffect(() => {
+    const fetchMethods = async () => {
+      const jwtToken = localStorage.getItem('jwtToken');
+      const res = await fetch('http://localhost:5000/api/payments', {
+        headers: { Authorization: `Bearer ${jwtToken}` }
+      });
+      const data = await res.json();
+      setPaymentMethods(data.map(m => ({
+        id: m._id,
+        cardNumber: m.cardNumber,
+        expiryDate: m.expiryDate,
+        cvv: m.cvv
+      })));
+    };
+    fetchMethods();
+  }, []);
+
+  const handleAddPaymentMethod = async () => {
+    const jwtToken = localStorage.getItem('jwtToken');
+    const res = await fetch('http://localhost:5000/api/payments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify(newPaymentMethod)
+    });
+    const data = await res.json();
+    setPaymentMethods([...paymentMethods, { ...newPaymentMethod, id: data._id }]);
     setNewPaymentMethod({ id: "", cardNumber: "", expiryDate: "", cvv: "" });
+  };
+
+  const handleDeletePaymentMethod = async (id: string) => {
+    const jwtToken = localStorage.getItem('jwtToken');
+    await fetch(`http://localhost:5000/api/payments/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${jwtToken}` }
+    });
+    setPaymentMethods(paymentMethods.filter(m => m.id !== id));
   };
 
   return (
@@ -40,9 +68,12 @@ const PaymentMethodManagement = () => {
       <CardContent>
         <div className="space-y-4">
           {paymentMethods.map((method) => (
-            <div key={method.id} className="border p-4 rounded-md">
-              <p>Card Number: {method.cardNumber}</p>
-              <p>Expiry Date: {method.expiryDate}</p>
+            <div key={method.id} className="border p-4 rounded-md flex justify-between items-center">
+              <div>
+                <p>Card Number: {method.cardNumber}</p>
+                <p>Expiry Date: {method.expiryDate}</p>
+              </div>
+              <Button variant="destructive" onClick={() => handleDeletePaymentMethod(method.id)}>Delete</Button>
             </div>
           ))}
         </div>

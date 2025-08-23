@@ -12,16 +12,7 @@ interface Address {
 }
 
 const AddressManagement = () => {
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: "1",
-      street: "123 Main St",
-      city: "Anytown",
-      state: "CA",
-      zip: "12345",
-    },
-  ]);
-
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [newAddress, setNewAddress] = useState<Address>({
     id: "",
     street: "",
@@ -30,9 +21,46 @@ const AddressManagement = () => {
     zip: "",
   });
 
-  const handleAddAddress = () => {
-    setAddresses([...addresses, { ...newAddress, id: Date.now().toString() }]);
+  React.useEffect(() => {
+    const fetchAddresses = async () => {
+      const jwtToken = localStorage.getItem('jwtToken');
+      const res = await fetch('http://localhost:5000/api/addresses', {
+        headers: { Authorization: `Bearer ${jwtToken}` }
+      });
+      const data = await res.json();
+      setAddresses(data.map(a => ({
+        id: a._id,
+        street: a.street,
+        city: a.city,
+        state: a.state,
+        zip: a.zip
+      })));
+    };
+    fetchAddresses();
+  }, []);
+
+  const handleAddAddress = async () => {
+    const jwtToken = localStorage.getItem('jwtToken');
+    const res = await fetch('http://localhost:5000/api/addresses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify(newAddress)
+    });
+    const data = await res.json();
+    setAddresses([...addresses, { ...newAddress, id: data._id }]);
     setNewAddress({ id: "", street: "", city: "", state: "", zip: "" });
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    const jwtToken = localStorage.getItem('jwtToken');
+    await fetch(`http://localhost:5000/api/addresses/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${jwtToken}` }
+    });
+    setAddresses(addresses.filter(a => a.id !== id));
   };
 
   return (
@@ -43,9 +71,12 @@ const AddressManagement = () => {
       <CardContent>
         <div className="space-y-4">
           {addresses.map((address) => (
-            <div key={address.id} className="border p-4 rounded-md">
-              <p>{address.street}</p>
-              <p>{address.city}, {address.state} {address.zip}</p>
+            <div key={address.id} className="border p-4 rounded-md flex justify-between items-center">
+              <div>
+                <p>{address.street}</p>
+                <p>{address.city}, {address.state} {address.zip}</p>
+              </div>
+              <Button variant="destructive" onClick={() => handleDeleteAddress(address.id)}>Delete</Button>
             </div>
           ))}
         </div>
