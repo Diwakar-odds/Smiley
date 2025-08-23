@@ -141,21 +141,42 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl p-6">
-      <Card className="shadow-xl rounded-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>My Profile</span>
+    <div className="container mx-auto max-w-3xl p-6 font-sans relative">
+      {/* Animated SVG background */}
+      <svg className="absolute top-0 left-0 w-full h-full -z-10" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="650" cy="100" r="80" fill="url(#grad1)" opacity="0.25">
+          <animate attributeName="r" values="80;100;80" dur="6s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="200" cy="500" r="60" fill="url(#grad2)" opacity="0.2">
+          <animate attributeName="r" values="60;80;60" dur="8s" repeatCount="indefinite" />
+        </circle>
+        <defs>
+          <radialGradient id="grad1" cx="0.5" cy="0.5" r="1" gradientTransform="rotate(90 .5 .5) scale(1)">
+            <stop offset="0%" stopColor="#F59E42" />
+            <stop offset="100%" stopColor="#F472B6" />
+          </radialGradient>
+          <radialGradient id="grad2" cx="0.5" cy="0.5" r="1" gradientTransform="rotate(90 .5 .5) scale(1)">
+            <stop offset="0%" stopColor="#F472B6" />
+            <stop offset="100%" stopColor="#F59E42" />
+          </radialGradient>
+        </defs>
+      </svg>
+      <Card className="shadow-2xl rounded-3xl border-0 bg-white/60 backdrop-blur-lg animate-fadein">
+        <CardHeader className="bg-gradient-to-r from-orange-400 via-pink-400 to-red-400 rounded-t-3xl py-6 px-8">
+          <CardTitle className="flex items-center justify-between text-white text-3xl font-extrabold tracking-tight">
+            <span className="flex items-center gap-2">
+              <Heart className="w-7 h-7 text-pink-200 animate-bounce" /> My Profile
+            </span>
             <div className="flex space-x-2">
               <Button
-                variant="outline"
+                className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow-md hover:scale-110 active:scale-95 transition-transform duration-200 ripple"
                 size="sm"
                 onClick={handleLogoutAll}
               >
                 <LogOut className="w-4 h-4 mr-2" /> Logout All
               </Button>
               <Button
-                variant="destructive"
+                className="bg-gradient-to-r from-red-400 to-pink-400 text-white font-bold shadow-md hover:scale-110 active:scale-95 transition-transform duration-200 ripple"
                 size="sm"
                 onClick={handleLogout}
               >
@@ -165,9 +186,9 @@ const Profile: React.FC = () => {
           </CardTitle>
         </CardHeader>
 
-        <CardContent>
-          <p className="text-center text-gray-600 mb-4">
-            Welcome, <span className="font-semibold">{profile.username}</span> 👋
+        <CardContent className="p-8">
+          <p className="text-center text-gray-700 mb-4 text-lg font-medium">
+            Welcome, <span className="font-semibold text-orange-500">{profile.username}</span> <span className="animate-wave">👋</span>
           </p>
 
           <div className="flex flex-col items-center space-y-3 mb-6">
@@ -176,17 +197,17 @@ const Profile: React.FC = () => {
                 <img
                   src={profile.profilePic}
                   alt="Profile"
-                  className="w-24 h-24 rounded-full object-cover border"
+                  className="w-28 h-28 rounded-full object-cover border-4 border-pink-300 shadow-lg transition-transform duration-300 hover:scale-110 active:scale-95"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                  <Camera className="w-6 h-6" />
+                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-orange-200 via-pink-200 to-red-200 flex items-center justify-center text-gray-500 shadow-lg">
+                  <Camera className="w-8 h-8 animate-pulse" />
                 </div>
               )}
               <div className="flex justify-center mt-2 space-x-2">
-                <Button size="sm">Upload / Change</Button>
+                <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple">Upload / Change</Button>
                 {profile.profilePic && (
-                  <Button size="sm" variant="destructive">
+                  <Button size="sm" variant="destructive" className="font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple">
                     Remove
                   </Button>
                 )}
@@ -194,13 +215,13 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-          <Tabs defaultValue="info">
-            <TabsList className="grid grid-cols-5">
-              <TabsTrigger value="info">Profile Info</TabsTrigger>
-              <TabsTrigger value="orders">My Orders</TabsTrigger>
-              <TabsTrigger value="addresses">Addresses</TabsTrigger>
-              <TabsTrigger value="payment">Payment</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+          <Tabs defaultValue="info" className="animate-fadein">
+            <TabsList className="grid grid-cols-5 bg-gradient-to-r from-orange-200 via-pink-200 to-red-200 rounded-xl mb-4">
+              <TabsTrigger value="info" className="font-bold text-orange-600 transition-all duration-200 hover:text-pink-600">Profile Info</TabsTrigger>
+              <TabsTrigger value="orders" className="font-bold text-pink-600 transition-all duration-200 hover:text-orange-600">My Orders</TabsTrigger>
+              <TabsTrigger value="addresses" className="font-bold text-red-600 transition-all duration-200 hover:text-orange-600">Addresses</TabsTrigger>
+              <TabsTrigger value="payment" className="font-bold text-orange-600 transition-all duration-200 hover:text-pink-600">Payment</TabsTrigger>
+              <TabsTrigger value="settings" className="font-bold text-pink-600 transition-all duration-200 hover:text-orange-600">Settings</TabsTrigger>
             </TabsList>
 
             <TabsContent value="info">
@@ -210,38 +231,42 @@ const Profile: React.FC = () => {
                   value={profile.fullName}
                   onChange={handleProfileChange}
                   placeholder="Full Name"
+                  className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
                 />
                 <Input
                   name="username"
                   value={profile.username}
                   onChange={handleProfileChange}
                   placeholder="Username"
+                  className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
                 />
                 <Input
                   name="phone"
                   value={profile.phone}
                   onChange={handleProfileChange}
                   placeholder="Phone (optional)"
+                  className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
                 />
                 <Input
                   name="location"
                   value={profile.location}
                   onChange={handleProfileChange}
                   placeholder="Location"
+                  className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
                 />
-                <Button className="w-full" onClick={handleSaveChanges}>Save Changes</Button>
+                <Button className="w-full bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple" onClick={handleSaveChanges}>Save Changes</Button>
               </div>
             </TabsContent>
 
             <TabsContent value="orders">
               <div className="mt-4 space-y-3">
                 {orders.map((order) => (
-                  <Card key={order.id} className="p-3 flex items-center justify-between">
+                  <Card key={order.id} className="p-3 flex items-center justify-between bg-gradient-to-r from-orange-100 via-pink-100 to-red-100 shadow rounded-xl backdrop-blur-md">
                     <div className="flex items-center space-x-2">
-                      <ShoppingBag className="w-5 h-5 text-red-500" />
-                      <span>Order #{order.id} - {order.status}</span>
+                      <ShoppingBag className="w-5 h-5 text-pink-500 animate-bounce" />
+                      <span className="font-semibold text-orange-700">Order #{order.id} - {order.status}</span>
                     </div>
-                    <Button size="sm" onClick={() => setSelectedOrder(order)}>View Details</Button>
+                    <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple" onClick={() => setSelectedOrder(order)}>View Details</Button>
                   </Card>
                 ))}
               </div>
@@ -259,15 +284,15 @@ const Profile: React.FC = () => {
               <div className="mt-4 space-y-6">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center space-x-2">
-                    {darkMode ? <Moon /> : <Sun />}
-                    <span>Dark Mode</span>
+                    {darkMode ? <Moon className="text-pink-500 animate-spin" /> : <Sun className="text-orange-400 animate-spin" />}
+                    <span className="font-bold">Dark Mode</span>
                   </span>
                   <Switch checked={darkMode} onCheckedChange={(payload) => dispatch({ type: 'SET_DARK_MODE', payload })} />
                 </div>
 
                 <div>
-                  <h3 className="font-medium mb-2 flex items-center">
-                    <Bell className="w-4 h-4 mr-2" /> Notifications
+                  <h3 className="font-bold mb-2 flex items-center text-orange-600">
+                    <Bell className="w-4 h-4 mr-2 animate-pulse" /> Notifications
                   </h3>
                   <div className="space-y-2">
                     {Object.keys(notifications).map((key) => (
@@ -275,7 +300,7 @@ const Profile: React.FC = () => {
                         key={key}
                         className="flex items-center justify-between"
                       >
-                        <span>{key.toUpperCase()}</span>
+                        <span className="font-semibold text-pink-600">{key.toUpperCase()}</span>
                         <Switch
                           checked={notifications[key as keyof typeof notifications]}
                           onCheckedChange={(val) =>
@@ -291,8 +316,8 @@ const Profile: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-medium mb-2 flex items-center">
-                    <Heart className="w-4 h-4 mr-2 text-red-500" /> Saved Items
+                  <h3 className="font-bold mb-2 flex items-center text-pink-600">
+                    <Heart className="w-4 h-4 mr-2 text-pink-500 animate-bounce" /> Saved Items
                   </h3>
                   <ul className="list-disc list-inside text-gray-600">
                     <li>Pizza Hut - Farmhouse Pizza</li>
