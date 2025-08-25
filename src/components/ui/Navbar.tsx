@@ -1,3 +1,4 @@
+import smileyLogo from '../../assets/smiley-logo.png';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -84,7 +85,7 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
             className="flex items-center space-x-2"
             whileHover={{ scale: 1.05 }}
           >
-            <span className="text-2xl">😊</span>
+            <img src={smileyLogo} alt="Smiley Brand Logo" style={{ height: '40px', width: '40px', borderRadius: '50%', boxShadow: '0 2px 8px #f59e42', border: '2px solid #f59e42', background: '#fff', padding: '4px' }} />
             <span className="font-poppins font-bold text-xl bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
               Smiley Food
             </span>

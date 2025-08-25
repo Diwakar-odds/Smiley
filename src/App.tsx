@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import smileyLogo from './assets/smiley-logo.png';
 const LoginRegister = React.lazy(() => import('./pages/LoginRegister'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Inventory = React.lazy(() => import('./pages/Inventory'));
@@ -7,8 +8,10 @@ const Orders = React.lazy(() => import('./pages/Orders'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
 const StoreProfile = React.lazy(() => import('./pages/StoreProfile'));
 const AdminMenu = React.lazy(() => import('./pages/AdminMenu'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 import { motion } from 'framer-motion';
 import Navbar from './components/ui/Navbar';
+import BottomNavbar from './components/ui/BottomNavbar';
 import Hero from './components/ui/Hero';
 import MenuSection from './pages/Menu';
 import AboutSection from './components/ui/AboutSection';
@@ -49,7 +52,7 @@ const LoadingSpinner = () => (
       }}
       className="text-6xl"
     >
-      😊
+      <img src={smileyLogo} alt="Smiley Brand Logo" className="h-16 w-16 rounded-full shadow-lg border-2 border-orange-300 bg-white p-2 animate-spin" />
     </motion.div>
   </motion.div>
 );
@@ -113,6 +116,7 @@ const App = () => {
       )}
       <React.Suspense fallback={<LoadingSpinner />}>
         <Routes>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/login" element={<LoginRegister />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/inventory" element={<Inventory />} />
@@ -124,7 +128,14 @@ const App = () => {
             path="/"
             element={
               <div className="min-h-screen">
-                <Navbar cart={cart} toggleCart={() => setShowCart(!showCart)} />
+                {/* Top Navbar for desktop */}
+                <div className="hidden md:block">
+                  <Navbar cart={cart} toggleCart={() => setShowCart(!showCart)} />
+                </div>
+                {/* Bottom Navbar for mobile */}
+                <div className="md:hidden">
+                  <BottomNavbar />
+                </div>
                 <Hero />
                 <MenuSection addToCart={addToCart} />
                 <AboutSection />

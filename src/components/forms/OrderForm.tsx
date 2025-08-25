@@ -139,7 +139,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
             'Authorization': `Bearer ${jwtToken}`
           },
           body: JSON.stringify({
-            items: cart,
+            items: cart.map(item => ({ menuItemId: item._id, quantity: item.quantity })),
             name: formData.name,
             phone: formData.phone,
             address: formData.address,
@@ -156,6 +156,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           clearCart();
           setTimeout(() => setShowSuccess(false), 5000);
         } else {
+          const errorData = await response.json();
           alert('Failed to submit order. Please try again.');
         }
       } catch {

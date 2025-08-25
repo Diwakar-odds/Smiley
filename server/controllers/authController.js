@@ -72,12 +72,36 @@ import jwt from "jsonwebtoken";
 // @route   POST /api/auth/register
 // @access  Public
 export const register = async (req, res) => {
-  const { name, email, mobile, password } = req.body;
+  const { name, email, mobile, password, address, dateOfBirth } = req.body;
+
+  // Basic validation
+  if (!name || !password || (!email && !mobile)) {
+    return res.status(400).json({
+      message: "Name, password, and either email or mobile are required.",
+    });
+  }
+  if (email && typeof email !== "string") {
+    return res.status(400).json({ message: "Invalid email format." });
+  }
+  if (mobile && typeof mobile !== "string") {
+    return res.status(400).json({ message: "Invalid mobile format." });
+  }
 
   try {
-    // Check if user already exists
-    let user = await User.findOne({ $or: [{ email }, { mobile }] });
+    // Check if user already exists (only if email/mobile are provided and not empty)
+    let user = await User.findOne({
+      $or: [...(email ? [{ email }] : []), ...(mobile ? [{ mobile }] : [])],
+    });
     if (user) {
+      // More specific error message
+      if (email && user.email === email) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+      if (mobile && user.mobile === mobile) {
+        return res
+          .status(400)
+          .json({ message: "Mobile number already registered" });
+      }
       return res.status(400).json({ message: "User already exists" });
     }
 
@@ -87,6 +111,8 @@ export const register = async (req, res) => {
       email,
       mobile,
       password,
+      address,
+      dateOfBirth,
     });
 
     // Hash password
@@ -98,6 +124,18 @@ export const register = async (req, res) => {
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error(error.message);
+    // Handle duplicate key error from MongoDB
+    if (error.code === 11000) {
+      if (error.keyPattern && error.keyPattern.email) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+      if (error.keyPattern && error.keyPattern.mobile) {
+        return res
+          .status(400)
+          .json({ message: "Mobile number already registered" });
+      }
+      return res.status(400).json({ message: "User already exists" });
+    }
     res.status(500).send("Server error");
   }
 };
@@ -122,40 +160,22 @@ export const login = async (req, res) => {
     }
 
     // For admin, require both password and OTP
-    if (user.role === "admin") {
-      if (!password || !otp) {
-        return res
-          .status(400)
-          .json({ message: "Admin login requires both password and OTP." });
-      }
+    // For admin and normal users, allow password OR OTP
+    if (password) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({ message: "Invalid credentials" });
       }
-      const otpEntry = await Otp.findOne({ mobile: user.mobile, otp });
+    } else if (otp) {
+      const otpEntry = await Otp.findOne({ mobile, otp });
       if (!otpEntry) {
         return res.status(400).json({ message: "Invalid OTP" });
       }
-      // Clear OTPs once successfully verified
-      await Otp.deleteMany({ mobile: user.mobile });
+      await Otp.deleteMany({ mobile });
     } else {
-      // For normal users, allow password OR OTP
-      if (password) {
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-          return res.status(400).json({ message: "Invalid credentials" });
-        }
-      } else if (otp) {
-        const otpEntry = await Otp.findOne({ mobile, otp });
-        if (!otpEntry) {
-          return res.status(400).json({ message: "Invalid OTP" });
-        }
-        await Otp.deleteMany({ mobile });
-      } else {
-        return res
-          .status(400)
-          .json({ message: "Please provide password or OTP" });
-      }
+      return res
+        .status(400)
+        .json({ message: "Please provide password or OTP" });
     }
 
     // Create and return JWT token
@@ -166,7 +186,10 @@ export const login = async (req, res) => {
 
     jwt.sign(payload, "your_jwt_secret", { expiresIn: 3600 }, (err, token) => {
       if (err) throw err;
-      res.json({ token });
+      // Remove password from user object before sending
+      const userObj = user.toObject();
+      delete userObj.password;
+      res.json({ token, user: userObj });
     });
   } catch (error) {
     console.error(error.message);

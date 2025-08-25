@@ -8,11 +8,20 @@ const createOrder = async (req, res) => {
   const user = req.user._id;
 
   try {
-    // Calculate totalPrice on the backend to prevent tampering
-    const totalPrice = items.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0
-    );
+    // Fetch prices for each menuItemId
+    const MenuItem = (await import("../models/MenuItem.js")).default;
+    let totalPrice = 0;
+    const orderItems = [];
+    for (const item of items) {
+      const menuItem = await MenuItem.findById(item.menuItemId);
+      if (!menuItem) {
+        return res
+          .status(400)
+          .json({ message: `Menu item not found: ${item.menuItemId}` });
+      }
+      totalPrice += menuItem.price * item.quantity;
+      orderItems.push({ menuItemId: item.menuItemId, quantity: item.quantity });
+    }
 
     const order = new Order({
       userId: user,
@@ -20,10 +29,7 @@ const createOrder = async (req, res) => {
       phone,
       address,
       specialRequests,
-      items: items.map((item) => ({
-        mealId: item._id,
-        quantity: item.quantity,
-      })),
+      items: orderItems,
       totalPrice,
     });
 

@@ -5,33 +5,23 @@ import axios from 'axios';
 import { menuData, MenuItemData } from '../data/menuData';
 
 const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void }) => {
-  const [menuItems, setMenuItems] = useState<MenuItemData[]>(menuData); // start with local data
+  const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState('all');
 
   useEffect(() => {
     const fetchMenuItems = async () => {
-      let combinedItems: MenuItemData[] = [...menuData]; // Start with local data
-
       try {
         const { data: dbItems } = await axios.get('/api/menu');
-        // Combine and remove duplicates (preference to DB items)
-        const itemMap = new Map<string, MenuItemData>();
-        combinedItems.forEach(item => itemMap.set(item.name, item));
-        dbItems.forEach((item: MenuItemData) => itemMap.set(item.name, item));
-        combinedItems = Array.from(itemMap.values());
+        setMenuItems(dbItems);
         setError(null);
-      // @ts-ignore
       } catch (error) {
-        console.warn("API failed, using local menuData instead.");
-        setError("DB data not loaded. Displaying local data.");
+        setError("Failed to load menu items from database.");
       } finally {
-        setMenuItems(combinedItems);
         setLoading(false);
       }
     };
-
     fetchMenuItems();
   }, []);
 

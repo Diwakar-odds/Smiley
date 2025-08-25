@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema({
   specialRequests: { type: String },
   items: [
     {
-      mealId: { type: mongoose.Schema.Types.ObjectId, ref: "Meal" },
+      menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "MenuItem" },
       quantity: { type: Number, required: true },
     },
   ],

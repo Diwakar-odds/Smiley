@@ -25,8 +25,10 @@ interface Order {
   createdAt: string;
 }
 
+
 const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [menuItems, setMenuItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,6 +36,7 @@ const Orders = () => {
 
   useEffect(() => {
     fetchOrders();
+    fetchMenuItems();
   }, []);
 
   const fetchOrders = async () => {
@@ -53,6 +56,15 @@ const Orders = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMenuItems = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:5000/api/menu");
+      setMenuItems(data);
+    } catch (err) {
+      console.error("Failed to fetch menu items", err);
     }
   };
 
@@ -103,11 +115,23 @@ const Orders = () => {
                     </td>
                     <td className="py-2 px-4 border-b">
                       <ul>
-                        {order.items.map((item, index) => (
-                          <li key={index}>
-                            {item.name} (x{item.quantity}) - ₹{item.price}
-                          </li>
-                        ))}
+                        {order.items.map((item, index) => {
+                          // Try to find the menu item from the fetched menuItems
+                          const menuItem = menuItems.find((m) => m._id === (item.menuItemId || item.menuItem?._id));
+                          return (
+                            <li key={index}>
+                              {menuItem ? (
+                                <>
+                                  {menuItem.name} (x{item.quantity}) - ₹{menuItem.price}
+                                </>
+                              ) : (
+                                <>
+                                  {item.name || "Unknown Item"} (x{item.quantity}) - ₹{item.price}
+                                </>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </td>
                     <td className="py-2 px-4 border-b">₹{order.totalPrice}</td>
@@ -152,11 +176,22 @@ const Orders = () => {
                     <div>Special Requests: {order.specialRequests}</div>
                   )}
                   <ul className="mt-2">
-                    {order.items.map((item, idx) => (
-                      <li key={idx}>
-                        {item.name} (x{item.quantity}) - ₹{item.price}
-                      </li>
-                    ))}
+                    {order.items.map((item, idx) => {
+                      const menuItem = menuItems.find((m) => m._id === (item.menuItemId || item.menuItem?._id));
+                      return (
+                        <li key={idx}>
+                          {menuItem ? (
+                            <>
+                              {menuItem.name} (x{item.quantity}) - ₹{menuItem.price}
+                            </>
+                          ) : (
+                            <>
+                              {item.name || "Unknown Item"} (x{item.quantity}) - ₹{item.price}
+                            </>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </li>
               ))}
