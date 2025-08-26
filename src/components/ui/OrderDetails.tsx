@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface Order {
-  id: string;
-  date: string;
-  status: string;
-  total: number;
-  items: { name: string; quantity: number; price: number }[];
+  _id: string;
+  createdAt: string;
+  status?: string;
+  totalPrice: number;
+  items: { name?: string; quantity: number; price?: number; menuItemId?: string }[];
 }
 
 interface OrderDetailsProps {
@@ -29,17 +29,17 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ order, onBack }) => {
       <CardContent>
         <div className="space-y-4">
           <div>
-            <h3 className="font-semibold">Order ID: {order.id}</h3>
-            <p className="text-sm text-gray-500">Date: {order.date}</p>
-            <p className="text-sm text-gray-500">Status: {order.status}</p>
-            <p className="text-sm text-gray-500">Total: ${order.total.toFixed(2)}</p>
+            <h3 className="font-semibold">Order ID: {order._id}</h3>
+            <p className="text-sm text-gray-500">Date: {new Date(order.createdAt).toLocaleString()}</p>
+            <p className="text-sm text-gray-500">Status: {order.status || 'N/A'}</p>
+            <p className="text-sm text-gray-500">Total: ₹{order.totalPrice?.toFixed ? order.totalPrice.toFixed(2) : order.totalPrice}</p>
           </div>
           <div>
             <h3 className="font-semibold">Items</h3>
             <ul className="list-disc list-inside">
               {order.items.map((item, index) => (
                 <li key={index}>
-                  {item.name} (x{item.quantity}) - ${item.price.toFixed(2)}
+                  {(item.name || item.menuItemId || 'Unknown Item')} (x{item.quantity}) - ₹{item.price?.toFixed ? item.price.toFixed(2) : (item.price || 'N/A')}
                 </li>
               ))}
             </ul>

@@ -3,9 +3,19 @@ import axios from "axios";
 import { motion } from "framer-motion";
 
 interface OrderItem {
-  name: string;
+  name?: string;
   quantity: number;
+  price?: number;
+  menuItemId?: string;
+}
+
+interface MenuItem {
+  _id: string;
+  name: string;
+  description: string;
   price: number;
+  imageUrl?: string;
+  category: string;
 }
 
 interface Order {
@@ -28,7 +38,7 @@ interface Order {
 
 const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -117,7 +127,7 @@ const Orders = () => {
                       <ul>
                         {order.items.map((item, index) => {
                           // Try to find the menu item from the fetched menuItems
-                          const menuItem = menuItems.find((m) => m._id === (item.menuItemId || item.menuItem?._id));
+                          const menuItem = menuItems.find((m) => m._id === item.menuItemId);
                           return (
                             <li key={index}>
                               {menuItem ? (
@@ -177,7 +187,7 @@ const Orders = () => {
                   )}
                   <ul className="mt-2">
                     {order.items.map((item, idx) => {
-                      const menuItem = menuItems.find((m) => m._id === (item.menuItemId || item.menuItem?._id));
+                      const menuItem = menuItems.find((m) => m._id === item.menuItemId);
                       return (
                         <li key={idx}>
                           {menuItem ? (

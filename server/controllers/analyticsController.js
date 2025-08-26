@@ -27,7 +27,7 @@ export async function getTopItems(req, res) {
       { $unwind: "$items" },
       {
         $group: {
-          _id: "$items.mealId",
+          _id: "$items.menuItemId",
           count: { $sum: "$items.quantity" },
         },
       },

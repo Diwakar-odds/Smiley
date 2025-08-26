@@ -319,9 +319,29 @@ const Profile: React.FC = () => {
                   <h3 className="font-bold mb-2 flex items-center text-pink-600">
                     <Heart className="w-4 h-4 mr-2 text-pink-500 animate-bounce" /> Saved Items
                   </h3>
-                  <ul className="list-disc list-inside text-gray-600">
-                    <li>Pizza Hut - Farmhouse Pizza</li>
-                    <li>Biryani by Kilo - Chicken Biryani</li>
+                  <ul className="flex flex-col gap-2">
+                    {[{ name: "Pizza Hut - Farmhouse Pizza", id: 1 }, { name: "Biryani by Kilo - Chicken Biryani", id: 2 }].map((item) => (
+                      <li key={item.id} className="flex items-center justify-between bg-gradient-to-r from-orange-100 via-pink-100 to-red-100 rounded-lg px-4 py-2 shadow hover:scale-105 transition-transform">
+                        <span className="font-semibold text-orange-700">{item.name}</span>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-gradient-to-r from-pink-400 to-orange-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple"
+                            onClick={() => alert(`Reorder placed for ${item.name}!`)}
+                          >
+                            <ShoppingBag className="w-4 h-4 mr-1" /> Reorder
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-pink-400 text-pink-600 font-bold shadow hover:bg-pink-100 hover:scale-110 active:scale-95 transition-transform duration-200 ripple"
+                            onClick={() => alert(`${item.name} added to favorites!`)}
+                          >
+                            <Heart className="w-4 h-4 mr-1 text-pink-500" /> Favorite
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 </div>
                 <ChangePassword />
