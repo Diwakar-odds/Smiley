@@ -29,6 +29,8 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 app.use("/api/addresses", addressRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
+import offerRoutes from "./routes/offerRoutes.js";
+app.use("/api/offers", offerRoutes);
 
 const PORT = process.env.PORT || 5000;
 

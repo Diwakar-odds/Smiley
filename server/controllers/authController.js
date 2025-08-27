@@ -144,8 +144,7 @@ export const register = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 export const login = async (req, res) => {
-  const { name, email, mobile, password, otp } = req.body;
-
+  const { email, mobile, password, otp } = req.body;
   try {
     let user;
     // Find user by email or mobile
@@ -154,43 +153,37 @@ export const login = async (req, res) => {
     } else if (mobile) {
       user = await User.findOne({ mobile });
     }
-
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-
-    // For admin, require both password and OTP
-    // For admin and normal users, allow password OR OTP
+    // Password or OTP authentication
+    let authenticated = false;
     if (password) {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Invalid credentials" });
-      }
+      authenticated = await bcrypt.compare(password, user.password);
     } else if (otp) {
       const otpEntry = await Otp.findOne({ mobile, otp });
-      if (!otpEntry) {
-        return res.status(400).json({ message: "Invalid OTP" });
+      if (otpEntry) {
+        authenticated = true;
+        await Otp.deleteMany({ mobile });
       }
-      await Otp.deleteMany({ mobile });
-    } else {
-      return res
-        .status(400)
-        .json({ message: "Please provide password or OTP" });
     }
-
-    // Create and return JWT token
+    if (!authenticated) {
+      return res.status(400).json({ message: "Invalid credentials or OTP" });
+    }
+    // JWT payload includes _id, role, name, email, mobile
     const payload = {
       _id: user._id,
       role: user.role,
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
     };
-
-    jwt.sign(payload, "your_jwt_secret", { expiresIn: 3600 }, (err, token) => {
-      if (err) throw err;
-      // Remove password from user object before sending
-      const userObj = user.toObject();
-      delete userObj.password;
-      res.json({ token, user: userObj });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "1h",
     });
+    const userObj = user.toObject();
+    delete userObj.password;
+    res.json({ token, user: userObj });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Server error");

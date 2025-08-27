@@ -34,23 +34,29 @@ export async function getInventoryByMeal(req, res) {
   }
 }
 
-// 👉 Add or update stock for a meal
+// 👉 Update inventory item
 export async function updateStock(req, res) {
   try {
-    const { mealId } = req.params;
-    const { stock } = req.body;
+    const { inventoryId } = req.params;
+    const { stock, threshold } = req.body;
 
-    if (stock == null)
-      return res.status(400).json({ message: "Stock value is required" });
+    if (stock == null && threshold == null)
+      return res.status(400).json({ message: "Stock or threshold value is required" });
 
-    let inventory = await Inventory.findOne({ mealId });
+    let inventory = await Inventory.findById(inventoryId);
     if (!inventory) {
-      // Create new record if not exists
-      inventory = await Inventory.create({ mealId, stock });
-    } else {
+      return res.status(404).json({ message: "Inventory item not found" });
+    } 
+    
+    // Update only provided fields
+    if (stock != null) {
       inventory.stock = stock;
-      await inventory.save();
     }
+    if (threshold != null) {
+      inventory.threshold = threshold;
+    }
+    
+    await inventory.save();
 
     res.json({ message: "Stock updated", inventory });
   } catch (error) {

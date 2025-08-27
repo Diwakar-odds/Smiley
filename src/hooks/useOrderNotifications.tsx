@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import client from "../api/client";
 
 export interface OrderNotification {
     _id: string;
@@ -17,9 +17,7 @@ export function useOrderNotifications(token: string | null) {
         if (!token) return;
         const fetchOrders = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/orders", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const res = await client.get("/orders");
                 setNotifications(res.data);
                 setError(null);
             } catch (err) {

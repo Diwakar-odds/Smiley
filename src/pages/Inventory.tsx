@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import client from '../api/client';
 import { motion } from 'framer-motion';
 
 interface InventoryItem {
@@ -26,7 +26,7 @@ const Inventory = () => {
   const fetchInventory = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get<InventoryItem[]>('/api/inventory');
+      const { data } = await client.get<InventoryItem[]>('/inventory');
       setInventory(data);
       setError(null);
     } catch (err) {
@@ -39,7 +39,7 @@ const Inventory = () => {
 
   const handleUpdateStock = async (mealId: string) => {
     try {
-      await axios.patch(`/api/inventory/${mealId}`, { stock: newStockValue });
+      await client.patch(`/inventory/${mealId}`, { stock: newStockValue });
       setEditingStock(null);
       setNewStockValue(0);
       fetchInventory(); // Re-fetch to get updated data
