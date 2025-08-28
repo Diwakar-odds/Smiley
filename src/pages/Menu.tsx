@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import MenuItem from '../components/ui/MenuItem';
-import axios from 'axios';
+import client from '../api/client';
 import { menuData, MenuItemData } from '../data/menuData';
 
 const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void }) => {
@@ -13,7 +13,7 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
-        const { data: dbItems } = await axios.get('/api/menu');
+        const { data: dbItems } = await client.get('/menu');
         setMenuItems(dbItems);
         setError(null);
       } catch (error) {

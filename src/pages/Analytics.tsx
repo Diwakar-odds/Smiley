@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import client from '../api/client';
 import { motion } from 'framer-motion';
 
 interface SalesOverview {
@@ -27,12 +27,12 @@ const Analytics = () => {
 
   useEffect(() => {
     const fetchAnalytics = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const [salesRes, topItemsRes, customerRes] = await Promise.all([
-          axios.get<SalesOverview>('/api/analytics/sales-overview'),
-          axios.get<{ topItems: TopItem[]; details: { _id: string; name: string }[] }>('/api/analytics/top-items'),
-          axios.get<CustomerBehavior>('/api/analytics/customer-behavior'),
+        const [salesRes, itemsRes, customerRes] = await Promise.all([
+          client.get('/analytics/sales-overview'),
+          client.get('/analytics/top-items'),
+          client.get('/analytics/customer-behavior'),
         ]);
 
         setSalesOverview(salesRes.data);

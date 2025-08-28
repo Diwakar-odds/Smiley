@@ -1,14 +1,17 @@
-import MenuItem from '../models/MenuItem.js';
+import MenuItem from "../models/MenuItem.js";
 
 // @desc    Get all menu items
 // @route   GET /api/menu
 // @access  Public
 const getMenuItems = async (req, res) => {
   try {
-    const menuItems = await MenuItem.find({}, '_id name description price imageUrl category');
+    const menuItems = await MenuItem.find(
+      {},
+      "_id name description price imageUrl category"
+    );
     res.json(menuItems);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -30,7 +33,7 @@ const createMenuItem = async (req, res) => {
     const createdMenuItem = await menuItem.save();
     res.status(201).json(createdMenuItem);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -53,10 +56,10 @@ const updateMenuItem = async (req, res) => {
       const updatedMenuItem = await menuItem.save();
       res.json(updatedMenuItem);
     } else {
-      res.status(404).json({ message: 'Menu item not found' });
+      res.status(404).json({ message: "Menu item not found" });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -69,18 +72,13 @@ const deleteMenuItem = async (req, res) => {
 
     if (menuItem) {
       await menuItem.remove();
-      res.json({ message: 'Menu item removed' });
+      res.json({ message: "Menu item removed" });
     } else {
-      res.status(404).json({ message: 'Menu item not found' });
+      res.status(404).json({ message: "Menu item not found" });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export {
-  getMenuItems,
-  createMenuItem,
-  updateMenuItem,
-  deleteMenuItem,
-};
+export { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem };
