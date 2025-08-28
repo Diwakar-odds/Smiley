@@ -40,6 +40,8 @@ mongoose
   })
   .then(() => {
     console.log("MongoDB connected");
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    // Listen on all network interfaces so Codespaces / container port forwarding works
+    const HOST = process.env.HOST || '0.0.0.0';
+    app.listen(PORT, HOST, () => console.log(`🚀 Server running on ${HOST}:${PORT}`));
   })
   .catch((err) => console.error("MongoDB connection error:", err));
