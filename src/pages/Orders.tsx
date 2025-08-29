@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { client } from "../api/client";
+import client from "../api/client";
 import { motion } from "framer-motion";
 
 interface OrderItem {
