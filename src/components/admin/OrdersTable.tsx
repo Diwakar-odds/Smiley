@@ -55,34 +55,40 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white shadow-lg rounded-xl p-6 mb-8 overflow-x-auto"
+            className="bg-gradient-to-br from-white to-indigo-50 shadow-xl rounded-2xl p-6 mb-8 overflow-x-auto border border-indigo-100/40"
         >
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Recent Orders</h2>
+            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600 mb-6">Recent Orders</h2>
 
             {orders.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No orders found</p>
             ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-indigo-100 rounded-xl overflow-hidden">
+                    <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
                         <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-indigo-600 uppercase tracking-wider">ID</th>
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-indigo-600 uppercase tracking-wider">Customer</th>
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-indigo-600 uppercase tracking-wider">Date</th>
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-indigo-600 uppercase tracking-wider">Status</th>
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-indigo-600 uppercase tracking-wider">Total</th>
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-indigo-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                         {orders.map((order) => (
-                            <tr key={order._id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    #{order._id.slice(-6)}
+                            <motion.tr 
+                                key={order._id} 
+                                className="hover:bg-indigo-50/50 transition-all duration-150"
+                                whileHover={{ backgroundColor: "rgba(79, 70, 229, 0.06)" }}
+                            >
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="font-mono text-sm font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-md">
+                                        #{order._id.slice(-6)}
+                                    </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
                                     {order.user?.name || 'Anonymous'}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     {new Date(order.createdAt).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -118,11 +124,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
                                     ) : (
                                         <div className="flex items-center">
                                             <span className={`
-                        px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                        ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
-                        ${order.status === 'processing' ? 'bg-blue-100 text-blue-800' : ''}
-                        ${order.status === 'delivered' ? 'bg-green-100 text-green-800' : ''}
-                        ${order.status === 'cancelled' ? 'bg-red-100 text-red-800' : ''}
+                        px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm
+                        ${order.status === 'pending' ? 'bg-gradient-to-r from-yellow-400 to-amber-400 text-white' : ''}
+                        ${order.status === 'processing' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white' : ''}
+                        ${order.status === 'delivered' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white' : ''}
+                        ${order.status === 'cancelled' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white' : ''}
                       `}>
                                                 {order.status || 'Unknown'}
                                             </span>
@@ -139,19 +145,21 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
                                         </div>
                                     )}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ₹{order.totalPrice.toFixed(2)}
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="font-semibold text-gray-800">₹{order.totalPrice.toFixed(2)}</span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
                                         onClick={() => onSelectOrder(order)}
-                                        className="text-indigo-600 hover:text-indigo-900 mr-3"
+                                        className="px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white text-sm font-medium rounded-md shadow hover:shadow-md transition-all duration-200"
                                         aria-label="View order details"
                                     >
                                         View Details
-                                    </button>
+                                    </motion.button>
                                 </td>
-                            </tr>
+                            </motion.tr>
                         ))}
                     </tbody>
                 </table>

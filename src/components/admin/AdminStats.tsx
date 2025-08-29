@@ -59,12 +59,13 @@ interface StatCardProps {
 
 const StatCard = ({ icon, title, value, color }: StatCardProps) => (
     <motion.div
-        className={`bg-gradient-to-br ${color} shadow-lg rounded-xl p-6 flex items-center space-x-4 transition-all duration-300`}
-        whileHover={{ scale: 1.03 }}
+        className={`bg-gradient-to-br ${color} shadow-lg hover:shadow-xl hover:shadow-${color.split('-')[1]}-500/20 rounded-2xl p-6 flex items-center space-x-5 transition-all duration-300`}
+        whileHover={{ scale: 1.03, y: -3 }}
+        whileTap={{ scale: 0.98 }}
     >
-        <div className="text-4xl text-white drop-shadow-lg">{icon}</div>
+        <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm text-4xl text-white drop-shadow-lg">{icon}</div>
         <div>
-            <p className="text-white/80 font-inter text-sm">{title}</p>
+            <p className="text-white/80 font-medium text-sm mb-1">{title}</p>
             <p className="text-2xl font-bold text-white">{value}</p>
         </div>
     </motion.div>

@@ -9,7 +9,6 @@ const Analytics = React.lazy(() => import('./pages/Analytics'));
 const StoreProfile = React.lazy(() => import('./pages/StoreProfile'));
 const AdminMenu = React.lazy(() => import('./pages/AdminMenu'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
-const EnhancedAdminDashboard = React.lazy(() => import('./pages/EnhancedAdminDashboard'));
 import { motion } from 'framer-motion';
 import Navbar from './components/ui/Navbar';
 import BottomNavbar from './components/ui/BottomNavbar';
@@ -117,8 +116,7 @@ const App = () => {
       )}
       <React.Suspense fallback={<LoadingSpinner />}>
         <Routes>
-          <Route path="/admin/dashboard" element={<EnhancedAdminDashboard />} />
-          <Route path="/admin/dashboard-old" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/login" element={<LoginRegister />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/inventory" element={<Inventory />} />
