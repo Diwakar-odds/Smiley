@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import client from "../api/client";
+import { client } from "../api/client";
 import { motion } from "framer-motion";
 
 interface OrderItem {
@@ -49,17 +49,16 @@ const Orders = () => {
     fetchMenuItems();
   }, []);
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const jwtToken = localStorage.getItem("jwtToken");
-      const { data } = await client.get<Order[]>("/orders");
-      headers: { Authorization: `Bearer ${jwtToken}` },
-    }
-      );
-setOrders(data);
-setError(null);
-    } catch (err) {
+const fetchOrders = async () => {
+  try {
+    setLoading(true);
+    const jwtToken = localStorage.getItem("jwtToken");
+    const { data } = await client.get<Order[]>("/orders", {
+      headers: { Authorization: `Bearer ${jwtToken}` }
+    });
+    setOrders(data);
+    setError(null);
+  } catch (err) {
   setError("Failed to fetch orders.");
   console.error(err);
 } finally {
