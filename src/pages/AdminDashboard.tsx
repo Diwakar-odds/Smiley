@@ -378,7 +378,7 @@ const AdminDashboard: React.FC = () => {
                         exit="exit"
                         variants={tabVariants}
                     >
-                        <div className="flex flex-col md:flex-row justify-between items-start mb-8">
+                        {/* <div className="flex flex-col md:flex-row justify-between items-start mb-8">
                             <h1 className="text-3xl font-bold mb-4 md:mb-0 bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600 drop-shadow-sm">Dashboard Overview</h1>
                             <div className="flex space-x-3">
                                 <button
@@ -388,7 +388,7 @@ const AdminDashboard: React.FC = () => {
                                     Refresh Data
                                 </button>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Stats Cards */}
                         <AdminStats

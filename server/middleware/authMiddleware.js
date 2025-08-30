@@ -1,30 +1,46 @@
 import jwt from "jsonwebtoken";
+import { User } from "../models/sequelize/index.js";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || "abc123";
 
-export function protect(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+export const protect = async (req, res, next) => {
+  let token;
 
-  if (!token) {
-    return res.status(401).json({ message: "Access token required" });
+  // Check if token exists in Authorization header
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    try {
+      // Get token from header
+      token = req.headers.authorization.split(" ")[1];
+
+      // Verify token
+      const decoded = jwt.verify(token, JWT_SECRET);
+
+      // Find user by ID from token payload
+      req.user = await User.findByPk(decoded.id, {
+        attributes: { exclude: ["password"] },
+      });
+
+      next();
+    } catch (error) {
+      console.error("Token verification error:", error);
+      res.status(401).json({ message: "Not authorized, token failed" });
+    }
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid or expired token" });
-    }
-    req.user = user;
-    next();
-  });
-}
+  if (!token) {
+    return res.status(401).json({ message: "Not authorized, no token" });
+  }
+};
 
-export function admin(req, res, next) {
+export const admin = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     next();
   } else {
     res.status(403).json({ message: "Not authorized as an admin" });
   }
-}
+};
 
 export default protect;

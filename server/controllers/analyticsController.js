@@ -1,66 +1,140 @@
-// This is just demo logic – replace with real DB queries later
-import Order from "../models/Order.js";
-import Meal from "../models/MenuItem.js";
-import User from "../models/User.js";
+// Analytics controller for PostgreSQL
+import { sequelize } from "../config/sqlDb.js";
+import { Order, MenuItem, User } from "../models/sequelize/index.js";
+import { Op } from "sequelize";
 
 // 📊 Sales Overview
 export async function getSalesOverview(req, res) {
   try {
-    const totalOrders = await Order.countDocuments();
-    const totalRevenue = await Order.aggregate([
-      { $group: { _id: null, revenue: { $sum: "$totalPrice" } } },
-    ]);
+    const totalOrders = await Order.count();
+
+    // Calculate total revenue
+    const totalRevenue = await Order.sum("totalPrice");
+
+    // Get sales by date for trends (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const dailySales = await Order.findAll({
+      attributes: [
+        [sequelize.fn("date_trunc", "day", sequelize.col("createdAt")), "date"],
+        [sequelize.fn("count", sequelize.col("id")), "orderCount"],
+        [sequelize.fn("sum", sequelize.col("totalPrice")), "dailyRevenue"],
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: thirtyDaysAgo,
+        },
+      },
+      group: [sequelize.fn("date_trunc", "day", sequelize.col("createdAt"))],
+      order: [
+        [sequelize.fn("date_trunc", "day", sequelize.col("createdAt")), "ASC"],
+      ],
+      raw: true,
+    });
 
     res.json({
       totalOrders,
-      totalRevenue: totalRevenue[0]?.revenue || 0,
+      totalRevenue: totalRevenue || 0,
+      dailySales,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching sales overview", error });
-  }
-}
-
-// 🥗 Top Items
-export async function getTopItems(req, res) {
-  try {
-    const topItems = await Order.aggregate([
-      { $unwind: "$items" },
-      {
-        $group: {
-          _id: "$items.menuItemId",
-          count: { $sum: "$items.quantity" },
-        },
-      },
-      { $sort: { count: -1 } },
-      { $limit: 5 },
-    ]);
-
-    const populated = await Meal.find({
-      _id: { $in: topItems.map((i) => i._id) },
-    });
-
-    res.json({ topItems, details: populated });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching top items", error });
-  }
-}
-
-// 👥 Customer Behavior
-export async function getCustomerBehavior(req, res) {
-  try {
-    const totalUsers = await User.countDocuments();
-    const repeatCustomers = await Order.aggregate([
-      { $group: { _id: "$userId", orders: { $sum: 1 } } },
-      { $match: { orders: { $gt: 1 } } },
-    ]);
-
-    res.json({
-      totalUsers,
-      repeatCustomers: repeatCustomers.length,
-    });
-  } catch (error) {
+    console.error("Error fetching sales overview:", error);
     res
       .status(500)
-      .json({ message: "Error fetching customer behavior", error });
+      .json({ message: "Error fetching sales overview", error: error.message });
+  }
+}
+
+// 🥗 Top-selling items
+export async function getTopItems(req, res) {
+  try {
+    // We need to use a join with the OrderItems junction table
+    const topItems = await sequelize.query(
+      `
+      SELECT 
+        mi."id", 
+        mi."name", 
+        mi."category",
+        mi."price",
+        SUM(oi."quantity") as "totalSold", 
+        SUM(oi."quantity" * oi."price") as "revenue"
+      FROM "MenuItems" mi
+      JOIN "OrderItems" oi ON mi."id" = oi."menuItemId"
+      JOIN "Orders" o ON oi."orderId" = o."id"
+      GROUP BY mi."id", mi."name", mi."category", mi."price"
+      ORDER BY "totalSold" DESC
+      LIMIT 10
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
+
+    res.json(topItems);
+  } catch (error) {
+    console.error("Error fetching top items:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching top items", error: error.message });
+  }
+}
+
+// 👥 Customer behavior analytics
+export async function getCustomerBehavior(req, res) {
+  try {
+    // Count of users
+    const userCount = await User.count();
+
+    // Average order value
+    const averageOrderValue = await Order.findOne({
+      attributes: [
+        [sequelize.fn("AVG", sequelize.col("totalPrice")), "average"],
+      ],
+      raw: true,
+    });
+
+    // Orders per user
+    const ordersPerUser = await sequelize.query(
+      `
+      SELECT 
+        u."id", 
+        u."name", 
+        COUNT(o."id") as "orderCount",
+        SUM(o."totalPrice") as "totalSpent"
+      FROM "Users" u
+      LEFT JOIN "Orders" o ON u."id" = o."userId"
+      GROUP BY u."id", u."name"
+      ORDER BY "orderCount" DESC
+      LIMIT 10
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
+
+    // Most popular order times (hour of day)
+    const orderTimes = await sequelize.query(
+      `
+      SELECT 
+        EXTRACT(HOUR FROM "createdAt") as "hour",
+        COUNT(*) as "orderCount"
+      FROM "Orders"
+      GROUP BY EXTRACT(HOUR FROM "createdAt")
+      ORDER BY "hour"
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
+
+    res.json({
+      userCount,
+      averageOrderValue: averageOrderValue?.average || 0,
+      ordersPerUser,
+      orderTimes,
+    });
+  } catch (error) {
+    console.error("Error fetching customer behavior:", error);
+    res
+      .status(500)
+      .json({
+        message: "Error fetching customer behavior",
+        error: error.message,
+      });
   }
 }

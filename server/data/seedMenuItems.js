@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-import MenuItem from "../models/MenuItem.js";
+import { sequelize, MenuItem, Store } from "../models/sequelize/index.js";
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 
@@ -40,15 +39,40 @@ const menuItems = [
 
 async function seedMenu() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected to MongoDB");
-    await MenuItem.deleteMany({});
-    await MenuItem.insertMany(menuItems);
+    // Connect to database
+    await sequelize.authenticate();
+    console.log("Connected to PostgreSQL");
+
+    // Create a default store if none exists
+    let store = await Store.findOne();
+    if (!store) {
+      store = await Store.create({
+        name: "Smiley Foods Main Branch",
+        address: "123 Main St, Foodville",
+        phone: "555-123-4567",
+        email: "contact@smileyfoods.com",
+        description: "Our flagship store serving all your favorite foods.",
+        imageUrl: "https://source.unsplash.com/400x300/?restaurant",
+      });
+      console.log("Default store created");
+    }
+
+    // Clear existing menu items
+    await MenuItem.destroy({ where: { storeId: store.id } });
+
+    // Add storeId to each menu item
+    const menuItemsWithStore = menuItems.map((item) => ({
+      ...item,
+      storeId: store.id,
+    }));
+
+    // Insert menu items
+    await MenuItem.bulkCreate(menuItemsWithStore);
     console.log("Menu items seeded!");
   } catch (error) {
-    console.error("MongoDB connection or seeding error:", error);
+    console.error("PostgreSQL connection or seeding error:", error);
   } finally {
-    mongoose.disconnect();
+    await sequelize.close();
   }
 }
 

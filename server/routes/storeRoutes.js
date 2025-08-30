@@ -11,5 +11,4 @@ router
   .get(getStoreProfile)
   .put(protect, admin, updateStoreProfile);
 
-
 export default router;

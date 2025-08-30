@@ -4,6 +4,7 @@ import {
   getInventoryByMeal,
   updateStock,
   getLowStock,
+  createInventoryItem,
 } from "../controllers/inventoryController.js";
 
 const router = express.Router();
@@ -14,8 +15,11 @@ router.get("/", getInventory);
 // GET low stock items - specific routes should come before parameter routes
 router.get("/alerts/low-stock", getLowStock);
 
-// GET inventory by mealId
-router.get("/:mealId", getInventoryByMeal);
+// POST create new inventory item
+router.post("/", createInventoryItem);
+
+// GET inventory by menuItemId (renamed from mealId)
+router.get("/:menuItemId", getInventoryByMeal);
 
 // PATCH update inventory item
 router.patch("/:inventoryId", updateStock);

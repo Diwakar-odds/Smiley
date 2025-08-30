@@ -1,52 +1,86 @@
-import Offer from "../models/Offer.js";
+import { Offer } from "../models/sequelize/index.js";
 
 // Create a new offer
 export const createOffer = async (req, res) => {
   try {
-    const offer = new Offer(req.body);
-    await offer.save();
+    const offer = await Offer.create(req.body);
     res.status(201).json(offer);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error creating offer:", error);
+    res
+      .status(500)
+      .json({ message: "Error creating offer", error: error.message });
   }
 };
 
 // Get all offers
 export const getOffers = async (req, res) => {
   try {
-    const offers = await Offer.find();
+    const offers = await Offer.findAll();
     res.json(offers);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching offers:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching offers", error: error.message });
+  }
+};
+
+// Get offer by ID
+export const getOfferById = async (req, res) => {
+  try {
+    const offer = await Offer.findByPk(req.params.id);
+
+    if (!offer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    res.json(offer);
+  } catch (error) {
+    console.error("Error fetching offer:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching offer", error: error.message });
   }
 };
 
 // Update an offer
 export const updateOffer = async (req, res) => {
   try {
-    const offer = await Offer.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+    const [updated] = await Offer.update(req.body, {
+      where: { id: req.params.id },
     });
-    if (!offer) return res.status(404).json({ error: "Offer not found" });
-    res.json(offer);
+
+    if (updated) {
+      const updatedOffer = await Offer.findByPk(req.params.id);
+      return res.json(updatedOffer);
+    }
+
+    return res.status(404).json({ message: "Offer not found" });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error updating offer:", error);
+    res
+      .status(500)
+      .json({ message: "Error updating offer", error: error.message });
   }
 };
 
 // Delete an offer
 export const deleteOffer = async (req, res) => {
   try {
-    const offer = await Offer.findByIdAndDelete(req.params.id);
-    if (!offer) return res.status(404).json({ error: "Offer not found" });
-    res.json({ message: "Offer deleted" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+    const deleted = await Offer.destroy({
+      where: { id: req.params.id },
+    });
 
-// Import offers (scaffold)
-export const importOffers = async (req, res) => {
-  // To be implemented: bulk import logic
-  res.status(501).json({ error: "Not implemented" });
+    if (deleted) {
+      return res.json({ message: "Offer deleted" });
+    }
+
+    return res.status(404).json({ message: "Offer not found" });
+  } catch (error) {
+    console.error("Error deleting offer:", error);
+    res
+      .status(500)
+      .json({ message: "Error deleting offer", error: error.message });
+  }
 };
