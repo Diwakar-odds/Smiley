@@ -30,7 +30,8 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
     { id: 'softy', name: 'Softy', icon: '🍦' },
     { id: 'patties', name: 'Patties', icon: '🥟' },
     { id: 'shakes', name: 'Shakes', icon: '🥤' },
-    { id: 'Corn', name: 'Corns', icon: '🌽' },
+    { id: 'corn', name: 'Corns', icon: '🌽' },
+    { id: 'pastry', name: 'Pastry', icon: '🍰' },
     { id: 'combos', name: 'Combos', icon: '🎁' },
   ];
 

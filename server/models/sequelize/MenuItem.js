@@ -21,8 +21,9 @@ export default function MenuItemModel(sequelize) {
           "softy",
           "patties",
           "shakes",
-          "Corns",
-          "combos"
+          "corn",
+          "combos",
+          "pastry"
         ),
         allowNull: false,
       },
