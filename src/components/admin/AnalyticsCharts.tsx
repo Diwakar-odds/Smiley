@@ -151,11 +151,14 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
                     </h2>
 
                     <div className="flex items-center space-x-2">
-                        <FiCalendar className="text-gray-500" />
+                        <label htmlFor="time-range" className="sr-only">Select Time Range</label>
+                        <FiCalendar className="text-gray-500" aria-hidden="true" />
                         <select
+                            id="time-range"
                             value={timeRange}
                             onChange={(e) => onTimeRangeChange && onTimeRangeChange(e.target.value as any)}
                             className="text-sm border rounded px-2 py-1"
+                            aria-label="Select Time Range"
                         >
                             <option value="daily">Daily</option>
                             <option value="weekly">Weekly</option>

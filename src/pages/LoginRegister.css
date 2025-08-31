@@ -1,0 +1,23 @@
+.strength-indicator-bar {
+  height: 100%;
+  border-radius: 9999px; /* equivalent to rounded-full */
+}
+
+.strength-level-0 {
+  width: 0%;
+}
+.strength-level-1 {
+  width: 20%;
+}
+.strength-level-2 {
+  width: 40%;
+}
+.strength-level-3 {
+  width: 60%;
+}
+.strength-level-4 {
+  width: 80%;
+}
+.strength-level-5 {
+  width: 100%;
+}

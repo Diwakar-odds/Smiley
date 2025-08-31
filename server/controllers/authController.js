@@ -1,182 +1,131 @@
-import jwt from "jsonwebtoken";
+import User from "../models/sequelize/User.js";
+import Otp from "../models/sequelize/Otp.js";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
-import nodemailer from "nodemailer";
-import { User } from "../models/sequelize/index.js";
+import jwt from "jsonwebtoken";
+import twilio from "twilio";
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
 export const register = async (req, res) => {
-  const { name, email, mobile, password } = req.body;
-
   try {
-    // Check if user already exists
-    const userExists = await User.findOne({
-      where: email ? { email } : { mobile },
-    });
-
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
+    const { name, email, mobile, password } = req.body;
+    if (!name || !email || !mobile || !password) {
+      return res
+        .status(400)
+        .json({ message: "Name, email, mobile, and password are required." });
     }
 
-    // Create new user
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email already registered." });
+    }
+
+    const existingMobile = await User.findOne({ where: { mobile } });
+    if (existingMobile) {
+      return res.status(400).json({ message: "Mobile already registered." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const user = await User.create({
       name,
       email,
       mobile,
-      password, // Password will be hashed by the model hooks
-      role: "user",
+      password: hashedPassword,
     });
 
-    if (user) {
-      res.status(201).json({
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    res.status(201).json({
+      user: {
         id: user.id,
         name: user.name,
         email: user.email,
         mobile: user.mobile,
         role: user.role,
-        token: generateToken(user.id),
-      });
-    } else {
-      res.status(400).json({ message: "Invalid user data" });
-    }
+      },
+      token,
+    });
   } catch (error) {
-    console.error("Registration error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Registration failed", error: error.message });
   }
 };
 
-// @desc    Auth user & get token
-// @route   POST /api/auth/login
-// @access  Public
-export const login = async (req, res) => {
-  const { email, mobile, password } = req.body;
-
+export const sendOtp = async (req, res) => {
   try {
-    // Find user by email or mobile
-    const user = await User.findOne({
-      where: email ? { email } : { mobile },
+    const { mobile } = req.body;
+    if (!mobile)
+      return res.status(400).json({ message: "Mobile is required." });
+
+    const user = await User.findOne({ where: { mobile } });
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60000);
+
+    await Otp.create({ mobile, otp, expiresAt });
+
+    const client = twilio(
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_AUTH_TOKEN
+    );
+    await client.messages.create({
+      body: `Your Smiley Food OTP is: ${otp}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: mobile.startsWith("+") ? mobile : `+${mobile}`,
     });
 
-    if (user && (await user.matchPassword(password))) {
-      res.json({
+    res
+      .status(200)
+      .json({
+        message: "OTP sent",
+        otp: process.env.NODE_ENV === "development" ? otp : undefined,
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to send OTP", error: error.message });
+  }
+};
+
+export const verifyOtp = async (req, res) => {
+  try {
+    const { mobile, otp } = req.body;
+    if (!mobile || !otp)
+      return res.status(400).json({ message: "Mobile and OTP required." });
+
+    const record = await Otp.findOne({ where: { mobile, otp } });
+    if (!record || record.expiresAt < new Date()) {
+      return res.status(400).json({ message: "Invalid or expired OTP." });
+    }
+
+    const user = await User.findOne({ where: { mobile } });
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    res.status(200).json({
+      user: {
         id: user.id,
         name: user.name,
         email: user.email,
         mobile: user.mobile,
         role: user.role,
-        token: generateToken(user.id),
-      });
-    } else {
-      res.status(401).json({ message: "Invalid credentials" });
-    }
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// @desc    Get user profile
-// @route   GET /api/auth/profile
-// @access  Private
-export const getUserProfile = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ["password"] }, // Don't return password
+      },
+      token,
     });
-
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ message: "User not found" });
-    }
   } catch (error) {
-    console.error("Get profile error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "OTP verification failed", error: error.message });
   }
-};
-
-// @desc    Update user profile
-// @route   PUT /api/auth/profile
-// @access  Private
-export const updateUserProfile = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id);
-
-    if (user) {
-      user.name = req.body.name || user.name;
-      user.email = req.body.email || user.email;
-      user.mobile = req.body.mobile || user.mobile;
-
-      if (req.body.password) {
-        user.password = req.body.password;
-      }
-
-      const updatedUser = await user.save();
-
-      res.json({
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        mobile: updatedUser.mobile,
-        role: updatedUser.role,
-        token: generateToken(updatedUser.id),
-      });
-    } else {
-      res.status(404).json({ message: "User not found" });
-    }
-  } catch (error) {
-    console.error("Update profile error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// @desc    Request password reset
-// @route   POST /api/auth/request-reset
-// @access  Public
-export const requestPasswordReset = async (req, res) => {
-  const { email, mobile } = req.body;
-  try {
-    const user = await User.findOne({
-      where: email ? { email } : { mobile },
-    });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    user.resetToken = resetToken;
-    user.resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
-    await user.save();
-
-    // Send token via email (or SMS)
-    if (email) {
-      // Setup nodemailer (use your SMTP config)
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: { user: "your_email@gmail.com", pass: "your_email_password" },
-      });
-      await transporter.sendMail({
-        from: "your_email@gmail.com",
-        to: email,
-        subject: "Password Reset",
-        text: `Your password reset token: ${resetToken}`,
-      });
-    }
-    // TODO: Add SMS sending for mobile
-    res.json({ message: "Password reset token sent" });
-  } catch (error) {
-    console.error("Reset request error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// Generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || "abc123", {
-    expiresIn: "30d",
-  });
 };

@@ -132,7 +132,7 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 // @desc    Get logged in user's orders
-// @route   GET /api/orders/myorders
+// @route   GET /api/orders/myorders or /api/orders/user
 // @access  Private
 export const getMyOrders = async (req, res) => {
   try {
@@ -153,6 +153,9 @@ export const getMyOrders = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// Alias for getMyOrders to maintain compatibility with routes
+export const getUserOrders = getMyOrders;
 
 // @desc    Get all orders
 // @route   GET /api/orders

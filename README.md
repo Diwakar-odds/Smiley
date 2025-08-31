@@ -1,4 +1,5 @@
 # Smiley Food - Full-Stack Food Ordering App
+
 [![Netlify Status](https://api.netlify.com/api/v1/badges/f718aa0c-9340-4e67-996c-83d35a318bd8/deploy-status)](https://app.netlify.com/projects/smileyfood/deploys)
 
 A modern, responsive one-page web application for Smiley Food, featuring delicious soft serves, crispy patties, and refreshing shakes.
@@ -16,6 +17,7 @@ A modern, responsive one-page web application for Smiley Food, featuring delicio
 ## Tech Stack
 
 ### Frontend
+
 - React 18 with TypeScript
 - Tailwind CSS for styling
 - Framer Motion for animations
@@ -23,6 +25,7 @@ A modern, responsive one-page web application for Smiley Food, featuring delicio
 - Vite for build tooling
 
 ### Backend
+
 - Node.js with Express.js
 - CORS for cross-origin requests
 - In-memory storage for orders (demo purposes)
@@ -43,19 +46,25 @@ smiley-food/
 └── tailwind.config.js
 ```
 
+## Documentation
+
+- [Twilio SMS OTP Integration](./docs/twilio-integration.md)
+
 ## Setup Instructions
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd smiley-food
    ```
 
 2. **Install dependencies**
+
    ```bash
    # Install main dependencies
    npm install
-   
+
    # Install server dependencies
    cd server
    npm install
@@ -63,16 +72,18 @@ smiley-food/
    ```
 
 3. **Start the development servers**
+
    ```bash
    # Start both frontend and backend concurrently
    npm run dev
    ```
 
    Or run them separately:
+
    ```bash
    # Terminal 1: Start backend server
    npm run server:dev
-   
+
    # Terminal 2: Start frontend
    npm run client:dev
    ```
@@ -84,9 +95,11 @@ smiley-food/
 ## API Endpoints
 
 ### GET /api/menu
+
 Returns all menu items categorized by type (softy, patties, shakes).
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -102,9 +115,11 @@ Returns all menu items categorized by type (softy, patties, shakes).
 ```
 
 ### POST /api/orders
+
 Creates a new order.
 
 **Request Body:**
+
 ```json
 {
   "name": "Customer Name",
@@ -122,6 +137,7 @@ Creates a new order.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -132,21 +148,25 @@ Creates a new order.
 ```
 
 ### GET /api/orders
+
 Returns all orders (admin endpoint for demonstration).
 
 ## Design Features
 
 ### Color Palette
+
 - Primary: Orange gradient (#f97316 to #ea580c)
 - Secondary: Pink gradient (#ec4899 to #db2777)
 - Accent: Yellow (#fbbf24)
 - Background: Warm gradients and soft pastels
 
 ### Typography
+
 - **Headings**: Poppins (400-800 weight)
 - **Body Text**: Inter (300-700 weight)
 
 ### Animations
+
 - Loading spinner with bouncing smiley
 - Smooth scroll navigation
 - Hover effects on cards and buttons
@@ -154,6 +174,7 @@ Returns all orders (admin endpoint for demonstration).
 - Micro-interactions throughout
 
 ### Responsive Breakpoints
+
 - Mobile: < 768px
 - Tablet: 768px - 1024px
 - Desktop: > 1024px
@@ -161,6 +182,7 @@ Returns all orders (admin endpoint for demonstration).
 ## Development
 
 ### Scripts
+
 - `npm run dev` - Start both frontend and backend
 - `npm run client:dev` - Start frontend only
 - `npm run server:dev` - Start backend only
@@ -168,16 +190,19 @@ Returns all orders (admin endpoint for demonstration).
 - `npm run lint` - Run ESLint
 
 ### Environment Variables
+
 No environment variables required for basic setup. The frontend is configured to proxy API requests to the backend during development.
 
 ## Production Deployment
 
 1. **Build the frontend**
+
    ```bash
    npm run build
    ```
 
 2. **Deploy the backend**
+
    - Deploy the `server/` directory to your preferred hosting platform
    - Ensure Node.js runtime is available
 

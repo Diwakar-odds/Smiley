@@ -1,9 +1,10 @@
 import React, { useReducer, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../hooks/useAuth";
+import { AuthState, AuthAction, ToastState } from "./types";
+import "./LoginRegister.css";
 
-const initialState = {
+const initialState: AuthState = {
   isLogin: true,
   name: "",
   email: "",
@@ -13,14 +14,13 @@ const initialState = {
   otp: "",
   address: "",
   dateOfBirth: "",
-  loginWith: "email", // 'email' or 'mobile'
-  registerWith: "email", // 'email' or 'mobile'
+  otpSent: false,
 };
 
-function reducer(state, action) {
+function reducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case "SET_FIELD":
-      return { ...state, [action.field]: action.payload };
+      return action.field ? { ...state, [action.field]: action.payload } : state;
     case "TOGGLE_FORM":
       return { ...state, isLogin: !state.isLogin, name: "", email: "", mobile: "", password: "", confirmPassword: "", otp: "", address: "", dateOfBirth: "" };
     default:
@@ -28,8 +28,12 @@ function reducer(state, action) {
   }
 }
 
-const StrengthIndicator = ({ password }) => {
-  const getStrength = () => {
+interface StrengthIndicatorProps {
+  password: string;
+}
+
+const StrengthIndicator: React.FC<StrengthIndicatorProps> = ({ password }) => {
+  const getStrength = (): number => {
     let score = 0;
     if (!password) return score;
     if (password.length >= 8) score++;
@@ -48,8 +52,7 @@ const StrengthIndicator = ({ password }) => {
     <div className="flex items-center gap-2 mt-1">
       <div className="w-full h-2 bg-gray-200 rounded-full">
         <div
-          className={`h-full rounded-full ${color[strength - 1] || ''}`}
-          style={{ width: `${(strength / 5) * 100}%` }}
+          className={`strength-indicator-bar ${color[strength - 1] || ''} ${strength ? `strength-level-${strength}` : 'strength-level-0'}`}
         ></div>
       </div>
       <span className="text-xs text-gray-500 w-20 text-right">{label[strength - 1] || ''}</span>
@@ -58,8 +61,18 @@ const StrengthIndicator = ({ password }) => {
 };
 
 
-const LoginForm = ({ dispatch, state, handleLogin, loading, sendOtp, otpSent, sendingOtp }) => {
-  const { loginWith, email, mobile, password, otp } = state;
+interface LoginFormProps {
+  dispatch: React.Dispatch<AuthAction>;
+  state: AuthState;
+  handleLogin: () => Promise<void>;
+  loading: boolean;
+  sendOtp: () => Promise<void>;
+  sendingOtp: boolean;
+  otpSent?: boolean;
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ dispatch, state, handleLogin, loading, sendOtp, sendingOtp }) => {
+  const { mobile, otp, otpSent } = state;
 
   return (
     <motion.div
@@ -71,42 +84,29 @@ const LoginForm = ({ dispatch, state, handleLogin, loading, sendOtp, otpSent, se
       className="w-full px-10"
     >
       <h2 className="font-bold text-3xl mb-4 text-center text-gray-800">Welcome Back</h2>
-      <p className="text-center text-gray-500 mb-8">Login to access your account</p>
+      <p className="text-center text-gray-500 mb-8">Login with your mobile number</p>
       <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
-        <div className="flex justify-center gap-4 mb-4">
-          <button type="button" onClick={() => dispatch({ type: 'SET_FIELD', field: 'loginWith', payload: 'email' })} className={`font-semibold pb-2 border-b-2 ${loginWith === 'email' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500'}`}>Email</button>
-          <button type="button" onClick={() => dispatch({ type: 'SET_FIELD', field: 'loginWith', payload: 'mobile' })} className={`font-semibold pb-2 border-b-2 ${loginWith === 'mobile' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500'}`}>Mobile</button>
+        <div>
+          <label htmlFor="loginMobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
+          <div className="flex items-center gap-2">
+            <motion.input whileFocus={{ scale: 1.02 }} id="loginMobile" type="tel" value={mobile} onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              onClick={sendOtp}
+              className={`px-4 py-3 rounded-lg font-semibold text-white bg-yellow-500 hover:bg-yellow-600 transition shadow-md ${sendingOtp || (otpSent && !mobile) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={sendingOtp || (!mobile)}
+            >
+              {sendingOtp ? 'Sending...' : (otpSent ? 'Resend' : 'Send OTP')}
+            </motion.button>
+          </div>
         </div>
-
-        {loginWith === 'email' ? (
-          <>
-            <div>
-              <label htmlFor="loginEmail" className="block text-sm font-medium text-gray-700">Email Address</label>
-              <motion.input whileFocus={{ scale: 1.02 }} id="loginEmail" type="email" value={email} onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
-            </div>
-            <div>
-              <label htmlFor="loginPassword" className="block text-sm font-medium text-gray-700">Password</label>
-              <motion.input whileFocus={{ scale: 1.02 }} id="loginPassword" type="password" value={password} onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
-            </div>
-          </>
-        ) : (
-          <>
-            <div>
-              <label htmlFor="loginMobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
-              <div className="flex items-center gap-2">
-                <motion.input whileFocus={{ scale: 1.02 }} id="loginMobile" type="tel" value={mobile} onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} type="button" onClick={sendOtp} className={`px-4 py-3 rounded-lg font-semibold text-white bg-yellow-500 hover:bg-yellow-600 transition shadow-md ${sendingOtp || otpSent ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={sendingOtp || otpSent}>
-                  {sendingOtp ? 'Sending...' : (otpSent ? 'Sent' : 'Send OTP')}
-                </motion.button>
-              </div>
-            </div>
-            {otpSent && (
-              <div>
-                <label htmlFor="loginOtp" className="block text-sm font-medium text-gray-700">Enter OTP</label>
-                <motion.input whileFocus={{ scale: 1.02 }} id="loginOtp" type="text" value={otp} onChange={e => dispatch({ type: 'SET_FIELD', field: 'otp', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
-              </div>
-            )}
-          </>
+        {otpSent && (
+          <div>
+            <label htmlFor="loginOtp" className="block text-sm font-medium text-gray-700">Enter OTP</label>
+            <motion.input whileFocus={{ scale: 1.02 }} id="loginOtp" type="text" value={otp} onChange={e => dispatch({ type: 'SET_FIELD', field: 'otp', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+          </div>
         )}
 
         <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} type="submit" className={`w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition shadow-md ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
@@ -117,10 +117,17 @@ const LoginForm = ({ dispatch, state, handleLogin, loading, sendOtp, otpSent, se
   );
 };
 
-const RegisterForm = ({ dispatch, state, handleRegister, loading }) => {
-  const { registerWith, name, email, mobile, password, confirmPassword, address, dateOfBirth } = state;
+interface RegisterFormProps {
+  dispatch: React.Dispatch<AuthAction>;
+  state: AuthState;
+  handleRegister: () => Promise<void>;
+  loading: boolean;
+}
 
-  const requiredFilled = name && password && (registerWith === 'email' ? email : mobile);
+const RegisterForm: React.FC<RegisterFormProps> = ({ dispatch, state, handleRegister, loading }) => {
+  const { name, email, mobile, password, confirmPassword, address, dateOfBirth } = state;
+
+  const requiredFilled = name && email && mobile && password && confirmPassword;
   return (
     <motion.div
       key="register"
@@ -138,22 +145,15 @@ const RegisterForm = ({ dispatch, state, handleRegister, loading }) => {
           <motion.input whileFocus={{ scale: 1.02 }} id="regName" type="text" value={name} onChange={e => dispatch({ type: 'SET_FIELD', field: 'name', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
         </div>
 
-        <div className="flex justify-center gap-4 mb-2">
-          <button type="button" onClick={() => dispatch({ type: 'SET_FIELD', field: 'registerWith', payload: 'email' })} className={`font-semibold pb-2 border-b-2 ${registerWith === 'email' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500'}`}>Email</button>
-          <button type="button" onClick={() => dispatch({ type: 'SET_FIELD', field: 'registerWith', payload: 'mobile' })} className={`font-semibold pb-2 border-b-2 ${registerWith === 'mobile' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500'}`}>Mobile</button>
+        <div>
+          <label htmlFor="regEmail" className="block text-sm font-medium text-gray-700">Email Address</label>
+          <motion.input whileFocus={{ scale: 1.02 }} id="regEmail" type="email" value={email} onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
         </div>
 
-        {registerWith === 'email' ? (
-          <div>
-            <label htmlFor="regEmail" className="block text-sm font-medium text-gray-700">Email Address</label>
-            <motion.input whileFocus={{ scale: 1.02 }} id="regEmail" type="email" value={email} onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
-          </div>
-        ) : (
-          <div>
-            <label htmlFor="regMobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
-            <motion.input whileFocus={{ scale: 1.02 }} id="regMobile" type="tel" value={mobile} onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
-          </div>
-        )}
+        <div>
+          <label htmlFor="regMobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
+          <motion.input whileFocus={{ scale: 1.02 }} id="regMobile" type="tel" value={mobile} onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+        </div>
 
         <div>
           <label htmlFor="regAddress" className="block text-sm font-medium text-gray-700">Address (Optional)</label>
@@ -188,7 +188,12 @@ const RegisterForm = ({ dispatch, state, handleRegister, loading }) => {
   );
 };
 
-const Toast = ({ message, type, onDismiss }) => (
+interface ToastProps {
+  message: string;
+  type: 'success' | 'error';
+}
+
+const Toast: React.FC<ToastProps> = ({ message, type }) => (
   <motion.div
     initial={{ opacity: 0, y: -50 }}
     animate={{ opacity: 1, y: 0 }}
@@ -200,18 +205,17 @@ const Toast = ({ message, type, onDismiss }) => (
   </motion.div>
 );
 
-const LoginRegister = () => {
+const LoginRegister: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { login, register, sendOtp: authSendOtp } = useAuth();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState(null);
-  const [sendingOtp, setSendingOtp] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [sendingOtp, setSendingOtp] = useState<boolean>(false);
+  const [otpSent, setOtpSent] = useState<boolean>(false);
 
   const { isLogin } = state;
 
-  const showToast = (message, type) => {
+  const showToast = (message: string, type: 'success' | 'error'): void => {
     setToast({ message, type });
   };
 
@@ -224,50 +228,60 @@ const LoginRegister = () => {
     }
   }, [toast]);
 
-  const handleLogin = async () => {
+  const handleLogin = async (): Promise<void> => {
+    if (!state.mobile || !state.otp) {
+      showToast("Please enter mobile number and OTP", "error");
+      return;
+    }
+
     setLoading(true);
     try {
-      let loginPayload;
-      if (state.loginWith === 'email') {
-        loginPayload = { email: state.email, password: state.password };
-      } else {
-        loginPayload = { mobile: state.mobile, otp: state.otp };
-      }
+      const loginPayload = {
+        mobile: state.mobile,
+        otp: state.otp
+      };
       await login(loginPayload);
       showToast("Login successful!", "success");
       // Navigation handled in useAuth based on role
-    } catch (error) {
+    } catch (error: any) {
       showToast(error.response?.data?.message || "Login failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRegister = async () => {
+  const handleRegister = async (): Promise<void> => {
     if (state.password !== state.confirmPassword) {
       showToast("Passwords do not match.", "error");
       return;
     }
+
+    if (!state.name || !state.email || !state.mobile || !state.password) {
+      showToast("Please fill all required fields.", "error");
+      return;
+    }
+
     setLoading(true);
     try {
       const registerPayload = {
         name: state.name,
+        email: state.email,
+        mobile: state.mobile,
         password: state.password,
-        ...(state.registerWith === 'email' ? { email: state.email } : { mobile: state.mobile }),
         ...(state.address && { address: state.address }),
         ...(state.dateOfBirth && { dateOfBirth: state.dateOfBirth }),
       };
       await register(registerPayload);
-      showToast("Registration successful! Please login.", "success");
+      showToast("Registration successful! Please login with your mobile.", "success");
       dispatch({ type: 'TOGGLE_FORM' });
-    } catch (error) {
+    } catch (error: any) {
       showToast(error.response?.data?.message || "Registration failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSendOtp = async () => {
+  const handleSendOtp = async (): Promise<void> => {
     if (!state.mobile) {
       showToast("Please enter a mobile number.", "error");
       return;
@@ -276,8 +290,9 @@ const LoginRegister = () => {
     try {
       await authSendOtp(state.mobile);
       setOtpSent(true);
+      dispatch({ type: 'SET_FIELD', field: 'otpSent', payload: true });
       showToast("OTP sent successfully!", "success");
-    } catch (error) {
+    } catch (error: any) {
       showToast(error.response?.data?.message || "Failed to send OTP.", "error");
     } finally {
       setSendingOtp(false);
@@ -287,14 +302,14 @@ const LoginRegister = () => {
   return (
     <>
       <AnimatePresence>
-        {toast && <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
+        {toast && <Toast message={toast.message} type={toast.type} />}
       </AnimatePresence>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-100 to-red-50 font-sans">
         <div className="relative w-full max-w-4xl h-[650px] bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex">
 
           {/* Form Panels */}
           <div className="w-1/2 h-full flex items-center justify-center">
-            <LoginForm dispatch={dispatch} state={state} handleLogin={handleLogin} loading={loading} sendOtp={handleSendOtp} otpSent={otpSent} sendingOtp={sendingOtp} />
+            <LoginForm dispatch={dispatch} state={state} handleLogin={handleLogin} loading={loading} sendOtp={handleSendOtp} sendingOtp={sendingOtp} otpSent={otpSent} />
           </div>
           <div className="w-1/2 h-full flex items-center justify-center">
             <RegisterForm dispatch={dispatch} state={state} handleRegister={handleRegister} loading={loading} />

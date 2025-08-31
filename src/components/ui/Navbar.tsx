@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, X, ShoppingCart } from 'lucide-react';
+import './NavBar.css';
 
 interface MenuItem {
   id: number;
@@ -85,7 +86,7 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
             className="flex items-center space-x-2"
             whileHover={{ scale: 1.05 }}
           >
-            <img src={smileyLogo} alt="Smiley Brand Logo" style={{ height: '40px', width: '40px', borderRadius: '50%', boxShadow: '0 2px 8px #f59e42', border: '2px solid #f59e42', background: '#fff', padding: '4px' }} />
+            <img src={smileyLogo} alt="Smiley Brand Logo" className="navbar-logo" />
             <span className="font-poppins font-bold text-xl bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
               Smiley Food
             </span>
@@ -156,9 +157,11 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
           <button
             className="md:hidden"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle Menu"
             title="Toggle Menu"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
+            <span className="sr-only">Toggle Menu</span>
           </button>
         </div>
 
@@ -172,9 +175,11 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
             <button
               className="absolute top-4 right-4 text-white hover:text-gray-900"
               onClick={() => setIsOpen(false)}
+              aria-label="Close Menu"
               title="Close Menu"
             >
-              <X size={24} />
+              <X size={24} aria-hidden="true" />
+              <span className="sr-only">Close Menu</span>
             </button>
             {isAdmin && (
               <a

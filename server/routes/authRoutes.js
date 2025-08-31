@@ -1,18 +1,10 @@
 import express from "express";
+import { register, sendOtp, verifyOtp } from "../controllers/authController.js";
+
 const router = express.Router();
-import {
-  register,
-  login,
-  getUserProfile,
-  updateUserProfile,
-  requestPasswordReset,
-} from "../controllers/authController.js";
-import { protect } from "../middleware/authMiddleware.js";
 
 router.post("/register", register);
-router.post("/login", login);
-router.get("/profile", protect, getUserProfile);
-router.put("/profile", protect, updateUserProfile);
-router.post("/request-reset", requestPasswordReset);
+router.post("/send-otp", sendOtp);
+router.post("/verify-otp", verifyOtp);
 
 export default router;

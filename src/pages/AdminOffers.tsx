@@ -109,10 +109,20 @@ const AdminOffers: React.FC = () => {
                     <Input name="description" value={form.description} onChange={handleChange} placeholder="Description" required />
                     <Input name="startDate" value={form.startDate} onChange={handleChange} placeholder="Start Date (YYYY-MM-DD)" required type="date" />
                     <Input name="endDate" value={form.endDate} onChange={handleChange} placeholder="End Date (YYYY-MM-DD)" required type="date" />
-                    <select name="discountType" value={form.discountType} onChange={handleChange} className="border p-2 rounded">
+                    <div>
+                      <label htmlFor="discountType" className="block font-medium text-gray-700 mb-2">Discount Type</label>
+                      <select 
+                        id="discountType" 
+                        name="discountType" 
+                        value={form.discountType} 
+                        onChange={handleChange} 
+                        className="border p-2 rounded w-full"
+                        aria-label="Select discount type"
+                      >
                         <option value="percentage">Percentage</option>
                         <option value="flat">Flat</option>
-                    </select>
+                      </select>
+                    </div>
                     <Input name="discountValue" value={form.discountValue} onChange={handleChange} placeholder="Discount Value" required type="number" />
                     <Button type="submit">{editingId ? 'Update Offer' : 'Create Offer'}</Button>
                     {editingId && <Button type="button" onClick={() => { setForm(defaultOffer); setEditingId(null); }} variant="secondary">Cancel Edit</Button>}

@@ -1,5 +1,26 @@
 import { Offer } from "../models/sequelize/index.js";
 
+// Import multiple offers
+export const importOffers = async (req, res) => {
+  try {
+    const offersData = req.body;
+
+    if (!Array.isArray(offersData)) {
+      return res
+        .status(400)
+        .json({ message: "Request body must be an array of offers" });
+    }
+
+    const createdOffers = await Offer.bulkCreate(offersData);
+    res.status(201).json(createdOffers);
+  } catch (error) {
+    console.error("Error importing offers:", error);
+    res
+      .status(500)
+      .json({ message: "Error importing offers", error: error.message });
+  }
+};
+
 // Create a new offer
 export const createOffer = async (req, res) => {
   try {
