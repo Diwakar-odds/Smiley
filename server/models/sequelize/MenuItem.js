@@ -18,12 +18,11 @@ export default function MenuItemModel(sequelize) {
       },
       category: {
         type: DataTypes.ENUM(
-          "Breakfast",
-          "Lunch",
-          "Dinner",
-          "Snack",
-          "Drink",
-          "Dessert"
+          "softy",
+          "patties",
+          "shakes",
+          "Corns",
+          "combos"
         ),
         allowNull: false,
       },

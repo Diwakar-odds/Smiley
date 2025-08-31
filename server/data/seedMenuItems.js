@@ -3,38 +3,36 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 
 const menuItems = [
-  {
-    name: "Classic Burger",
-    category: "Lunch",
-    description: "Juicy beef patty with lettuce, tomato, and cheese.",
-    price: 199,
-    imageUrl: "https://source.unsplash.com/400x300/?burger",
-    available: true,
-  },
-  {
-    name: "Veggie Pizza",
-    category: "Dinner",
-    description: "Loaded with fresh veggies and mozzarella cheese.",
-    price: 249,
-    imageUrl: "https://source.unsplash.com/400x300/?pizza",
-    available: true,
-  },
-  {
-    name: "Masala Dosa",
-    category: "Breakfast",
-    description: "Crispy dosa stuffed with spicy potato filling.",
-    price: 120,
-    imageUrl: "https://source.unsplash.com/400x300/?dosa",
-    available: true,
-  },
-  {
-    name: "Cold Coffee",
-    category: "Drink",
-    description: "Chilled coffee with ice cream and chocolate syrup.",
-    price: 99,
-    imageUrl: "https://source.unsplash.com/400x300/?coffee",
-    available: true,
-  },
+  // Softy (Ice Cream)
+  { name: "Vanilla", category: "softy", description: "Classic vanilla softy cone.", price: 30, imageUrl: "https://source.unsplash.com/400x300/?icecream", available: true },
+  { name: "Strawberry", category: "softy", description: "Strawberry softy cone.", price: 30, imageUrl: "https://source.unsplash.com/400x300/?icecream", available: true },
+  { name: "Chocolate", category: "softy", description: "Chocolate softy cone.", price: 30, imageUrl: "https://source.unsplash.com/400x300/?icecream", available: true },
+  { name: "Blueberry", category: "softy", description: "Blueberry softy cone.", price: 30, imageUrl: "https://source.unsplash.com/400x300/?icecream", available: true },
+  { name: "All Mix Flavour", category: "softy", description: "All mix flavour softy cone.", price: 30, imageUrl: "https://source.unsplash.com/400x300/?icecream", available: true },
+
+  // Pastries
+  { name: "Chocolate Pastry", category: "softy", description: "Chocolate pastry slice.", price: 40, imageUrl: "https://source.unsplash.com/400x300/?pastry", available: true },
+  { name: "Vanilla Pastry", category: "softy", description: "Vanilla pastry slice.", price: 40, imageUrl: "https://source.unsplash.com/400x300/?pastry", available: true },
+  { name: "Strawberry Pastry", category: "softy", description: "Strawberry pastry slice.", price: 40, imageUrl: "https://source.unsplash.com/400x300/?pastry", available: true },
+
+  // Corns
+  { name: "Large Cup Corn", category: "Corns", description: "Large cup of sweet corn.", price: 50, imageUrl: "https://source.unsplash.com/400x300/?corn", available: true },
+  { name: "Small Cup Corn", category: "Corns", description: "Small cup of sweet corn.", price: 30, imageUrl: "https://source.unsplash.com/400x300/?corn", available: true },
+
+  // Patties
+  { name: "Aloo Patties", category: "patties", description: "Classic aloo patties.", price: 20, imageUrl: "https://source.unsplash.com/400x300/?patties", available: true },
+  { name: "Masala Patties", category: "patties", description: "Spicy masala patties.", price: 30, imageUrl: "https://source.unsplash.com/400x300/?patties", available: true },
+  { name: "Paneer Patties", category: "patties", description: "Paneer stuffed patties.", price: 50, imageUrl: "https://source.unsplash.com/400x300/?patties", available: true },
+
+  // Shakes (Cold Coffee)
+  { name: "Cold Coffee", category: "shakes", description: "Chilled cold coffee.", price: 40, imageUrl: "https://source.unsplash.com/400x300/?coffee", available: true },
+
+  // Combos
+  { name: "Combo Package (KIT Special Offer)", category: "combos", description: "Ice Cream Cone + Pastry", price: 59, imageUrl: "https://source.unsplash.com/400x300/?combo", available: true },
+  { name: "Smiley Best Combo (New Package)", category: "combos", description: "Aloo Patties or Sweet Corn + Cold Coffee", price: 49, imageUrl: "https://source.unsplash.com/400x300/?combo", available: true },
+  { name: "Smiley Special Combo", category: "combos", description: "Pastry + Patties", price: 50, imageUrl: "https://source.unsplash.com/400x300/?combo", available: true },
+  { name: "Smiley Best Combo", category: "combos", description: "Pastry + Ice Cream (Softy Cone) + Cold Coffee", price: 89, imageUrl: "https://source.unsplash.com/400x300/?combo", available: true },
+  { name: "Smiley Combo Menu", category: "combos", description: "Aloo Patties or Sweet Corn + Ice Cream (Softy Cone) + Cold Coffee", price: 79, imageUrl: "https://source.unsplash.com/400x300/?combo", available: true },
 ];
 
 async function seedMenu() {
