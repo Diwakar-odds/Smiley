@@ -41,8 +41,8 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
 
   return (
     <section id="menu" className="py-20 bg-gradient-to-br from-orange-50 to-pink-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="px-4 sm:px-6 lg:px-8 w-full">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -86,7 +86,7 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
           {loading ? (
             <div className="text-center">Loading...</div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
               {filteredItems.map((item) => (
                 <MenuItem key={item._id} {...item} addToCart={addToCart} />
               ))}

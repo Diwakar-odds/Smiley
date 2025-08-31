@@ -71,7 +71,7 @@ const StoreProfile = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8 w-full">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -80,10 +80,10 @@ const StoreProfile = () => {
         Store Profile
       </motion.h1>
 
-      <div className="bg-white shadow-md rounded-lg p-6">
+      <div className="bg-white shadow-md rounded-lg p-4 sm:p-6 lg:p-8 w-full">
         {profile && !isEditing ? (
           <div>
-            <img src={profile.imageUrl} alt={profile.name} className="w-32 h-32 rounded-full mx-auto mb-4 object-cover" />
+            <img src={profile.imageUrl} alt={profile.name} className="w-24 h-24 sm:w-32 sm:h-32 rounded-full mx-auto mb-4 object-cover" />
             <h2 className="text-2xl font-semibold text-center mb-2">{profile.name}</h2>
             <p className="text-center text-gray-600 mb-4">{profile.description}</p>
             <div className="space-y-2">

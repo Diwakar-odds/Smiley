@@ -11,7 +11,7 @@ import PaymentMethodModel from "./PaymentMethod.js";
 import ReviewModel from "./Review.js";
 import OrderItemModel from "./OrderItem.js";
 
-import { sequelize } from '../../config/sqlDb.js';
+import { sequelize } from "../../config/sqlDb.js";
 const User = UserModel(sequelize);
 const Order = OrderModel(sequelize);
 const Store = StoreModel(sequelize);
@@ -63,7 +63,6 @@ OrderItem.belongsTo(MenuItem, { foreignKey: "menuItemId" });
 
 Store.hasMany(Order, { foreignKey: "storeId" });
 Order.belongsTo(Store, { foreignKey: "storeId" });
-
 
 // Utility to sync all models
 async function syncModels(options = {}) {

@@ -141,7 +141,7 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl p-6 font-sans relative">
+    <div className="container mx-auto max-w-3xl p-4 sm:p-6 lg:p-8 w-full font-sans relative bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50 min-h-screen">
       {/* Animated SVG background */}
       <svg className="absolute top-0 left-0 w-full h-full -z-10" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="650" cy="100" r="80" fill="url(#grad1)" opacity="0.25">
@@ -161,8 +161,8 @@ const Profile: React.FC = () => {
           </radialGradient>
         </defs>
       </svg>
-      <Card className="shadow-2xl rounded-3xl border-0 bg-white/60 backdrop-blur-lg animate-fadein">
-        <CardHeader className="bg-gradient-to-r from-orange-400 via-pink-400 to-red-400 rounded-t-3xl py-6 px-8">
+      <Card className="shadow-2xl rounded-3xl border-0 bg-white/80 backdrop-blur-lg animate-fadein">
+        <CardHeader className="bg-gradient-to-r from-orange-500 to-pink-500 rounded-t-3xl py-6 px-8">
           <CardTitle className="flex items-center justify-between text-white text-3xl font-extrabold tracking-tight">
             <span className="flex items-center gap-2">
               <Heart className="w-7 h-7 text-pink-200 animate-bounce" /> My Profile
@@ -197,7 +197,7 @@ const Profile: React.FC = () => {
                 <img
                   src={profile.profilePic}
                   alt="Profile"
-                  className="w-28 h-28 rounded-full object-cover border-4 border-pink-300 shadow-lg transition-transform duration-300 hover:scale-110 active:scale-95"
+                  className="w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-pink-300 shadow-lg transition-transform duration-300 hover:scale-110 active:scale-95"
                 />
               ) : (
                 <div className="w-28 h-28 rounded-full bg-gradient-to-br from-orange-200 via-pink-200 to-red-200 flex items-center justify-center text-gray-500 shadow-lg">

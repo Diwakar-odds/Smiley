@@ -1,4 +1,3 @@
-
 import { DataTypes } from "sequelize";
 
 export default function PaymentMethodModel(sequelize) {

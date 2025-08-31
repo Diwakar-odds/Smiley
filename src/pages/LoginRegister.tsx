@@ -95,7 +95,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ dispatch, state, handleLogin, loa
               whileTap={{ scale: 0.97 }}
               type="button"
               onClick={sendOtp}
-              className={`px-4 py-3 rounded-lg font-semibold text-white bg-yellow-500 hover:bg-yellow-600 transition shadow-md ${sendingOtp || (otpSent && !mobile) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`px-3 py-2 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-md hover:from-orange-600 hover:to-pink-600 transition ${sendingOtp || (otpSent && !mobile) ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={sendingOtp || (!mobile)}
             >
               {sendingOtp ? 'Sending...' : (otpSent ? 'Resend' : 'Send OTP')}
@@ -109,7 +109,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ dispatch, state, handleLogin, loa
           </div>
         )}
 
-        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} type="submit" className={`w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition shadow-md ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} type="submit" className={`w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-lg font-bold shadow-md hover:from-orange-600 hover:to-pink-600 transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
           {loading ? 'Logging in...' : 'LOGIN'}
         </motion.button>
       </form>
@@ -178,7 +178,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ dispatch, state, handleRegi
           whileHover={{ scale: requiredFilled && !loading ? 1.03 : 1 }}
           whileTap={{ scale: requiredFilled && !loading ? 0.97 : 1 }}
           type="submit"
-          className={`w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition shadow-md ${(!requiredFilled || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-lg font-bold shadow-md hover:from-orange-600 hover:to-pink-600 transition ${(!requiredFilled || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={!requiredFilled || loading}
         >
           {loading ? 'Registering...' : 'REGISTER'}
@@ -299,50 +299,105 @@ const LoginRegister: React.FC = () => {
     }
   }
 
+  // Responsive: detect mobile view
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <>
       <AnimatePresence>
         {toast && <Toast message={toast.message} type={toast.type} />}
       </AnimatePresence>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-100 to-red-50 font-sans">
-        <div className="relative w-full max-w-4xl h-[650px] bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex">
-
+        <div className={`relative w-full max-w-sm mx-auto bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex ${isMobile ? 'flex-col h-auto' : 'h-[650px]'}`}>
           {/* Form Panels */}
-          <div className="w-1/2 h-full flex items-center justify-center">
-            <LoginForm dispatch={dispatch} state={state} handleLogin={handleLogin} loading={loading} sendOtp={handleSendOtp} sendingOtp={sendingOtp} otpSent={otpSent} />
-          </div>
-          <div className="w-1/2 h-full flex items-center justify-center">
-            <RegisterForm dispatch={dispatch} state={state} handleRegister={handleRegister} loading={loading} />
-          </div>
-
-          {/* Overlay Container */}
-          <motion.div
-            className="absolute top-0 left-0 w-1/2 h-full z-20 flex flex-col items-center justify-center p-10 bg-gradient-to-br from-yellow-400 to-orange-500 text-white text-center"
-            animate={{ x: isLogin ? '100%' : '0%' }}
-            transition={{ duration: 0.7, ease: "easeInOut" }}
-          >
-            <motion.div
-              key={isLogin ? "login" : "register"}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <h2 className="font-extrabold text-3xl mb-2">
-                {isLogin ? "Hello, Friend!" : "Welcome Back!"}
-              </h2>
-              <p className="mb-6">
-                {isLogin ? "Enter your personal details and start your journey with us" : "To keep connected with us please login with your personal info"}
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white/20 backdrop-blur-sm text-white px-8 py-3 rounded-full font-semibold shadow-md hover:bg-white/30 transition"
-                onClick={() => dispatch({ type: 'TOGGLE_FORM' })}
+          {isMobile ? (
+            <>
+              <motion.div
+                key={isLogin ? 'login' : 'register'}
+                initial={{ opacity: 0, y: isLogin ? 0 : '-100%' }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: isLogin ? 0 : '-100%' }}
+                transition={{ duration: 0.5 }}
+                className="w-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-12"
+                style={{ minHeight: '400px' }}
               >
-                {isLogin ? "SIGN UP" : "LOGIN"}
-              </motion.button>
-            </motion.div>
-          </motion.div>
+                <div className="w-full">
+                  {isLogin ? (
+                    <LoginForm dispatch={dispatch} state={state} handleLogin={handleLogin} loading={loading} sendOtp={handleSendOtp} sendingOtp={sendingOtp} otpSent={otpSent} />
+                  ) : (
+                    <RegisterForm dispatch={dispatch} state={state} handleRegister={handleRegister} loading={loading} />
+                  )}
+                </div>
+              </motion.div>
+              {/* Overlay Container: show toggle button at bottom */}
+              <motion.div
+                className="w-full flex flex-col items-center justify-center p-6 bg-gradient-to-t from-yellow-400 to-orange-500 text-white text-center rounded-b-3xl shadow-lg"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                style={{ minHeight: '160px' }}
+              >
+                <h2 className="font-extrabold text-2xl mb-2 drop-shadow-lg">
+                  {isLogin ? "Hello, Friend!" : "Welcome Back!"}
+                </h2>
+                <p className="mb-4 text-sm opacity-90">
+                  {isLogin ? "Enter your personal details and start your journey with us" : "To keep connected with us please login with your personal info"}
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.07 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="bg-white/80 text-orange-500 px-8 py-3 rounded-full font-bold shadow-md hover:bg-white transition-all duration-200"
+                  onClick={() => dispatch({ type: 'TOGGLE_FORM' })}
+                  style={{ fontSize: '1.1rem', letterSpacing: '0.02em' }}
+                >
+                  {isLogin ? "SIGN UP" : "LOGIN"}
+                </motion.button>
+              </motion.div>
+            </>
+          ) : (
+            <>
+              <div className="w-1/2 h-full flex items-center justify-center">
+                <LoginForm dispatch={dispatch} state={state} handleLogin={handleLogin} loading={loading} sendOtp={handleSendOtp} sendingOtp={sendingOtp} otpSent={otpSent} />
+              </div>
+              <div className="w-1/2 h-full flex items-center justify-center">
+                <RegisterForm dispatch={dispatch} state={state} handleRegister={handleRegister} loading={loading} />
+              </div>
+              {/* Overlay Container */}
+              <motion.div
+                className="absolute top-0 left-0 w-1/2 h-full z-20 flex flex-col items-center justify-center p-10 bg-gradient-to-br from-yellow-400 to-orange-500 text-white text-center"
+                animate={{ x: isLogin ? '100%' : '0%' }}
+                transition={{ duration: 0.7, ease: "easeInOut" }}
+              >
+                <motion.div
+                  key={isLogin ? "login" : "register"}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <h2 className="font-extrabold text-3xl mb-2">
+                    {isLogin ? "Hello, Friend!" : "Welcome Back!"}
+                  </h2>
+                  <p className="mb-6">
+                    {isLogin ? "Enter your personal details and start your journey with us" : "To keep connected with us please login with your personal info"}
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-white/20 backdrop-blur-sm text-white px-8 py-3 rounded-full font-semibold shadow-md hover:bg-white/30 transition"
+                    onClick={() => dispatch({ type: 'TOGGLE_FORM' })}
+                  >
+                    {isLogin ? "SIGN UP" : "LOGIN"}
+                  </motion.button>
+                </motion.div>
+              </motion.div>
+            </>
+          )}
         </div>
       </div>
     </>
