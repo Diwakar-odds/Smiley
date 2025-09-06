@@ -1,6 +1,6 @@
 // src/data/menuData.ts
 export interface MenuItemData {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -10,7 +10,7 @@ export interface MenuItemData {
 
 export const menuData: MenuItemData[] = [
   {
-    _id: "1",
+    id: "1",
     name: "Aloo Patty",
     description: "Crispy aloo filled with tangy tomato",
     price: 30,
@@ -18,7 +18,7 @@ export const menuData: MenuItemData[] = [
     category: "patties",
   },
   {
-    _id: "2",
+    id: "2",
     name: "Chocolate Shake",
     description: "Rich creamy shake with chocolate syrup",
     price: 80,
@@ -26,7 +26,7 @@ export const menuData: MenuItemData[] = [
     category: "shakes",
   },
   {
-    _id: "3",
+    id: "3",
     name: "Vanilla Softy",
     description: "Classic vanilla soft-serve cone",
     price: 25,
@@ -34,7 +34,7 @@ export const menuData: MenuItemData[] = [
     category: "softy",
   },
   {
-    _id: "4",
+    id: "4",
     name: "Combo Pack",
     description: "Patty + Shake + Softy at a special price",
     price: 120,
@@ -42,7 +42,7 @@ export const menuData: MenuItemData[] = [
     category: "combos",
   },
   {
-    _id: "5",
+    id: "5",
     name: "Corn Cheese",
     description: "Sweet corn with melted cheese",
     price: 50,
@@ -50,7 +50,7 @@ export const menuData: MenuItemData[] = [
     category: "corn",
   },
   {
-    _id: "6",
+    id: "6",
     name: "Strawberry Pastry",
     description: "Soft pastry with strawberry flavor",
     price: 40,
@@ -58,7 +58,7 @@ export const menuData: MenuItemData[] = [
     category: "pastry",
   },
   {
-    _id: "7",
+    id: "7",
     name: "Deluxe Combo",
     description: "All-in-one combo for foodies",
     price: 200,

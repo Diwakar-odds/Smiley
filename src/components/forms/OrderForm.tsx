@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
 interface CartItem {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -139,7 +139,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
             'Authorization': `Bearer ${jwtToken}`
           },
           body: JSON.stringify({
-            items: cart.map(item => ({ menuItemId: item._id, quantity: item.quantity })),
+            items: cart.map(item => ({ menuItemId: item.id, quantity: item.quantity })),
             name: formData.name,
             phone: formData.phone,
             address: formData.address,

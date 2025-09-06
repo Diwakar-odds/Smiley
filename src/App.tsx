@@ -21,7 +21,7 @@ import Footer from './components/ui/Footer';
 import Cart from './components/ui/Cart';
 
 interface MenuItem {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -69,10 +69,10 @@ const App = () => {
 
   const addToCart = (item: MenuItem) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem._id === item._id);
+      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
       if (existingItem) {
         return prevCart.map(cartItem =>
-          cartItem._id === item._id
+          cartItem.id === item.id
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
@@ -83,15 +83,15 @@ const App = () => {
 
   const removeFromCart = (item: MenuItem) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem._id === item._id);
+      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
       if (existingItem && existingItem.quantity > 1) {
         return prevCart.map(cartItem =>
-          cartItem._id === item._id
+          cartItem.id === item.id
             ? { ...cartItem, quantity: cartItem.quantity - 1 }
             : cartItem
         );
       }
-      return prevCart.filter(cartItem => cartItem._id !== item._id);
+      return prevCart.filter(cartItem => cartItem.id !== item.id);
     });
   };
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 interface MenuItemData {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -13,8 +13,8 @@ interface MenuItemProps extends MenuItemData {
   addToCart: (item: MenuItemData) => void;
 }
 
-const MenuItem = ({ _id, name, description, price, imageUrl, category, addToCart }: MenuItemProps) => {
-  const item = { _id, name, description, price, imageUrl, category };
+const MenuItem = ({ id, name, description, price, imageUrl, category, addToCart }: MenuItemProps) => {
+  const item = { id, name, description, price, imageUrl, category };
   const [isAdded, setIsAdded] = useState(false); // Re-introduce useState
 
   return (
@@ -33,9 +33,8 @@ const MenuItem = ({ _id, name, description, price, imageUrl, category, addToCart
               setIsAdded(true);
               setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds
             }}
-            className={`font-bold py-2 px-4 rounded ${
-              isAdded ? 'bg-green-500 text-white' : 'bg-blue-500 hover:bg-blue-700 text-white'
-            }`}
+            className={`font-bold py-2 px-4 rounded ${isAdded ? 'bg-green-500 text-white' : 'bg-blue-500 hover:bg-blue-700 text-white'
+              }`}
             disabled={isAdded} // Disable button while "Added" is shown
           >
             {isAdded ? 'Added!' : 'Add to Cart'}

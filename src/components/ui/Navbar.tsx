@@ -6,11 +6,11 @@ import { Menu, X, ShoppingCart } from 'lucide-react';
 import './NavBar.css';
 
 interface MenuItem {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
-  image: string;
+  imageUrl: string;
   category: string;
 }
 

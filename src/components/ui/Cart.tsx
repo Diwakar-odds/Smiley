@@ -4,7 +4,7 @@ import { X, Trash2, Plus, Minus } from 'lucide-react';
 import OrderForm from '../forms/OrderForm';
 
 interface MenuItem {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -59,7 +59,7 @@ const Cart = ({ cart, onClose, clearCart, addToCart, removeFromCart }: CartProps
           ) : (
             <div className="flex-grow overflow-y-auto p-4 space-y-4">
               {cart.map(item => (
-                <div key={item._id} className="flex items-center space-x-4">
+                <div key={item.id} className="flex items-center space-x-4">
                   <img src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
                   <div className="flex-grow">
                     <h3 className="font-semibold">{item.name}</h3>
