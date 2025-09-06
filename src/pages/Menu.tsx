@@ -41,7 +41,7 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
       : menuItems.filter((item) => item.category === activeCategory);
 
   return (
-    <section id="menu" className="py-20 bg-gradient-to-br from-orange-50 to-pink-50">
+    <section id="menu" className="py-20 bg-gradient-to-br from-orange-200 to-pink-50">
       <div className="max-w-7xl mx-auto w-full">
         <div className="px-4 sm:px-6 lg:px-8 w-full">
           <motion.div
@@ -50,7 +50,7 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
             transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <h2 className="font-poppins font-bold text-4xl md:text-5xl mb-4 bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+            <h2 className="font-poppins font-bold text-4xl md:text-7xl mb-4 bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
               Our Menu
             </h2>
             <p className="font-inter text-gray-600 text-lg">

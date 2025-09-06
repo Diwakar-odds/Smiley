@@ -31,7 +31,7 @@ const MenuItem = ({ id, name, description, price, imageUrl, category, addToCart 
             onClick={() => {
               addToCart(item);
               setIsAdded(true);
-              setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds
+              setTimeout(() => setIsAdded(false), 3000); // Reset after 3 seconds
             }}
             className={`font-bold py-2 px-4 rounded ${isAdded ? 'bg-green-500 text-white' : 'bg-blue-500 hover:bg-blue-700 text-white'
               }`}

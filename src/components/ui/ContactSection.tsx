@@ -25,7 +25,7 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="bg-gradient-to-br from-orange-50 to-pink-50 p-8 rounded-2xl">
+            <div className="bg-gradient-to-br from-orange-100 to-pink-200 p-8 rounded-2xl">
               <h3 className="font-poppins font-semibold text-2xl mb-6 text-gray-800">
                 Contact Information
               </h3>
@@ -52,7 +52,7 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="bg-gradient-to-br from-orange-50 to-pink-50 p-8 rounded-2xl">
+            <div className="bg-gradient-to-br from-orange-100 to-pink-200 p-8 rounded-2xl">
               <h3 className="font-poppins font-semibold text-2xl mb-6 text-gray-800">
                 Get in Touch
               </h3>
