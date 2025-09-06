@@ -24,7 +24,7 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-20 bg-gradient-to-br from-pink-50 to-yellow-50">
+    <section id="testimonials" className="py-20 bg-gradient-to-br from-pink-200 to-yellow-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
