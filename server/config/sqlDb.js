@@ -1,7 +1,5 @@
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
-import fs from "fs";
-
 dotenv.config({ path: "../.env" });
 
 let sequelize;
@@ -69,7 +67,8 @@ const connectDB = async () => {
     console.log("✅ PostgreSQL connection established successfully.");
   } catch (error) {
     console.error("❌ Unable to connect to PostgreSQL database:", error);
-    process.exit(1);
+    // In dev we won't exit the process; let the caller decide. In production you might still want to exit.
+    if (process.env.NODE_ENV === "production") process.exit(1);
   }
 };
 

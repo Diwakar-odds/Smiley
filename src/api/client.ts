@@ -1,6 +1,9 @@
 import axios, { AxiosInstance } from "axios";
 
-const API_BASE_URL = "http://localhost:5000/api";
+// Use Vite environment variable VITE_API_BASE_URL when provided, otherwise
+// fall back to a relative '/api' path so browsers on different machines
+// call the host serving the frontend (not their own localhost).
+const API_BASE_URL = (import.meta as any)?.env?.VITE_API_BASE_URL ?? '/api';
 
 const client: AxiosInstance = axios.create({
 	baseURL: API_BASE_URL,
