@@ -46,7 +46,7 @@ const Cart = ({ cart, onClose, clearCart, addToCart, removeFromCart }: CartProps
         >
           <div className="flex justify-between items-center p-4 border-b">
             <h2 className="text-2xl font-bold">Your Cart</h2>
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200">
+            <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200" title="Close Cart">
               <X size={24} />
             </button>
           </div>
@@ -60,21 +60,21 @@ const Cart = ({ cart, onClose, clearCart, addToCart, removeFromCart }: CartProps
             <div className="flex-grow overflow-y-auto p-4 space-y-4">
               {cart.map(item => (
                 <div key={item._id} className="flex items-center space-x-4">
-                  <img src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover rounded-lg"/>
+                  <img src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
                   <div className="flex-grow">
                     <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-sm text-gray-500">₹{item.price.toFixed(2)}</p>
+                    <p className="text-sm text-gray-500">₹{Number(item.price).toFixed(2)}</p>
                     <div className="flex items-center space-x-2 mt-2">
-                      <button onClick={() => removeFromCart(item)} className="p-1 rounded-full bg-gray-200 hover:bg-gray-300">
+                      <button onClick={() => removeFromCart(item)} className="p-1 rounded-full bg-gray-200 hover:bg-gray-300" title="Remove from Cart">
                         <Minus size={16} />
                       </button>
                       <span>{item.quantity}</span>
-                      <button onClick={() => addToCart(item)} className="p-1 rounded-full bg-gray-200 hover:bg-gray-300">
+                      <button onClick={() => addToCart(item)} className="p-1 rounded-full bg-gray-200 hover:bg-gray-300" title="Add to Cart">
                         <Plus size={16} />
                       </button>
                     </div>
                   </div>
-                  <p className="font-bold">₹{(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-bold">₹{(Number(item.price) * item.quantity).toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -84,7 +84,7 @@ const Cart = ({ cart, onClose, clearCart, addToCart, removeFromCart }: CartProps
             <div className="p-4 border-t space-y-4">
               <div className="flex justify-between font-bold text-xl">
                 <span>Total</span>
-                <span>₹{total.toFixed(2)}</span>
+                <span>₹{Number(total).toFixed(2)}</span>
               </div>
               <OrderForm cart={cart} total={total} clearCart={clearCart} />
               <div className="flex space-x-2">

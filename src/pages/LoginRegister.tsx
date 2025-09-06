@@ -71,8 +71,8 @@ interface LoginFormProps {
   otpSent?: boolean;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ dispatch, state, handleLogin, loading, sendOtp, sendingOtp }) => {
-  const { mobile, otp, otpSent } = state;
+const LoginForm: React.FC<LoginFormProps> = ({ dispatch, state, handleLogin, loading, sendOtp, sendingOtp, otpSent }) => {
+  const { mobile, otp } = state;
 
   return (
     <motion.div
@@ -233,7 +233,6 @@ const LoginRegister: React.FC = () => {
       showToast("Please enter mobile number and OTP", "error");
       return;
     }
-
     setLoading(true);
     try {
       const loginPayload = {
@@ -244,7 +243,7 @@ const LoginRegister: React.FC = () => {
       showToast("Login successful!", "success");
       // Navigation handled in useAuth based on role
     } catch (error: any) {
-      showToast(error.response?.data?.message || "Login failed. Please try again.", "error");
+      showToast(error.message || "Login failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -255,12 +254,10 @@ const LoginRegister: React.FC = () => {
       showToast("Passwords do not match.", "error");
       return;
     }
-
     if (!state.name || !state.email || !state.mobile || !state.password) {
       showToast("Please fill all required fields.", "error");
       return;
     }
-
     setLoading(true);
     try {
       const registerPayload = {
@@ -272,10 +269,10 @@ const LoginRegister: React.FC = () => {
         ...(state.dateOfBirth && { dateOfBirth: state.dateOfBirth }),
       };
       await register(registerPayload);
-      showToast("Registration successful! Please login with your mobile.", "success");
+      showToast("Registration successful! Please login.", "success");
       dispatch({ type: 'TOGGLE_FORM' });
     } catch (error: any) {
-      showToast(error.response?.data?.message || "Registration failed. Please try again.", "error");
+      showToast(error.message || "Registration failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -283,21 +280,21 @@ const LoginRegister: React.FC = () => {
 
   const handleSendOtp = async (): Promise<void> => {
     if (!state.mobile) {
-      showToast("Please enter a mobile number.", "error");
+      showToast("Please enter your mobile number", "error");
       return;
     }
     setSendingOtp(true);
+    setOtpSent(false);
     try {
       await authSendOtp(state.mobile);
-      setOtpSent(true);
-      dispatch({ type: 'SET_FIELD', field: 'otpSent', payload: true });
       showToast("OTP sent successfully!", "success");
+      setOtpSent(true);
     } catch (error: any) {
-      showToast(error.response?.data?.message || "Failed to send OTP.", "error");
+      showToast(error.message || "Failed to send OTP. Please try again.", "error");
     } finally {
       setSendingOtp(false);
     }
-  }
+  };
 
   // Responsive: detect mobile view
   const [isMobile, setIsMobile] = useState(false);

@@ -45,7 +45,7 @@ const startServer = async () => {
     await connectDB();
 
     // Sync all models with the database
-    await syncModels();
+    await syncModels({ alter: true });
 
     // Listen on all network interfaces so Codespaces / container port forwarding works
     const HOST = process.env.HOST || "0.0.0.0";
