@@ -1,8 +1,9 @@
-import { User } from "../models/sequelize/index.js";
-import Otp from "../models/sequelize/Otp.js";
+import { User, Otp } from "../models/sequelize/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import twilio from "twilio";
+import { TWILIO_CONFIG } from "../config/twilioConfig.js";
+import { generateOtp as generateOtpSvc, verifyOtp as verifyOtpSvc } from "../services/otpService.js";
 
 // Register a new user
 export const register = async (req, res) => {
@@ -91,22 +92,22 @@ export const sendOtp = async (req, res) => {
       return res.status(400).json({ message: "Mobile is required." });
     const user = await User.findOne({ where: { mobile } });
     if (!user) return res.status(404).json({ message: "User not found." });
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60000);
-    await Otp.create({ mobile, otp, expiresAt });
-    const client = twilio(
-      process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_AUTH_TOKEN
-    );
-    await client.messages.create({
-      body: `Your Smiley Food OTP is: ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: mobile.startsWith("+") ? mobile : `+${mobile}`,
-    });
-    res.status(200).json({
-      message: "OTP sent",
-      otp: process.env.NODE_ENV === "development" ? otp : undefined,
-    });
+    const client = twilio(TWILIO_CONFIG.accountSid, TWILIO_CONFIG.authToken);
+    const to = mobile.startsWith("+91") ? mobile : `+91${mobile}`;
+    if (TWILIO_CONFIG.verifyServiceSid) {
+      // Use Twilio Verify Service
+      await client.verify.v2
+        .services(TWILIO_CONFIG.verifyServiceSid)
+        .verifications.create({ to, channel: "sms" });
+      return res.status(200).json({ message: "OTP sent via Verify" });
+    } else {
+      // Fallback: use our service to generate+persist OTP and try to send via Messages API.
+      const otp = await generateOtpSvc(mobile);
+      return res.status(200).json({
+        message: "OTP sent",
+        otp: process.env.NODE_ENV === "development" ? otp : undefined,
+      });
+    }
   } catch (error) {
     res
       .status(500)
@@ -120,9 +121,20 @@ export const verifyOtp = async (req, res) => {
     const { mobile, otp } = req.body;
     if (!mobile || !otp)
       return res.status(400).json({ message: "Mobile and OTP required." });
-    const record = await Otp.findOne({ where: { mobile, otp } });
-    if (!record || record.expiresAt < new Date()) {
-      return res.status(400).json({ message: "Invalid or expired OTP." });
+    const to = mobile.startsWith("+91") ? mobile : `+91${mobile}`;
+    if (TWILIO_CONFIG.verifyServiceSid) {
+      // Verify via Twilio Verify Service
+      const client = twilio(TWILIO_CONFIG.accountSid, TWILIO_CONFIG.authToken);
+      const check = await client.verify.v2
+        .services(TWILIO_CONFIG.verifyServiceSid)
+        .verificationChecks.create({ to, code: otp });
+      if (check.status !== "approved") {
+        return res.status(400).json({ message: "Invalid or expired OTP." });
+      }
+    } else {
+      // Fallback: verify via our service + cleanup handled inside service
+      const ok = await verifyOtpSvc(mobile, otp);
+      if (!ok) return res.status(400).json({ message: "Invalid or expired OTP." });
     }
     const user = await User.findOne({ where: { mobile } });
     if (!user) return res.status(404).json({ message: "User not found." });

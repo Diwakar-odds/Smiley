@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "/api/auth";
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
@@ -10,7 +10,7 @@ export const useAuth = () => {
   const login = async (credentials: any) => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch(`${API_URL}/verify-otp`, {
+  const res = await fetch(`${API_URL}/verify-otp`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
