@@ -5,8 +5,8 @@ export default function MenuItemModel(sequelize) {
     "MenuItem",
     {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
       },
       name: {
@@ -42,7 +42,7 @@ export default function MenuItemModel(sequelize) {
         defaultValue: true,
       },
       storeId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "Stores",

@@ -146,7 +146,9 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
             specialRequests: formData.specialRequests,
             paymentMethod,
             paymentStatus,
-            razorpayPaymentId
+            razorpayPaymentId,
+            storeId: "00000000-0000-0000-0000-000000000001", // Default storeId, replace as needed
+            totalPrice: total
           }),
         });
 

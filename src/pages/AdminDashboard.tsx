@@ -234,16 +234,24 @@ const AdminDashboard: React.FC = () => {
                 setSalesOverview(salesRes.data);
                 setCustomerBehavior(customerRes.data);
 
-                // Process top items data
-                const processedTopItems = topItemsRes.data.topItems.map((item: TopItemResponse) => {
-                    const details = topItemsRes.data.details.find((d: ItemDetails) => d._id === item._id);
-                    return {
-                        _id: item._id,
-                        name: details?.name || 'Unknown Item',
-                        count: item.count
-                    };
-                });
-
+                // Defensive: handle both array and object API responses
+                let processedTopItems: TopItem[] = [];
+                if (Array.isArray(topItemsRes.data)) {
+                    processedTopItems = topItemsRes.data.map((item: any) => ({
+                        _id: item.id || item._id,
+                        name: item.name || 'Unknown Item',
+                        count: item.totalSold || item.count || 0
+                    }));
+                } else if (topItemsRes.data?.topItems) {
+                    processedTopItems = topItemsRes.data.topItems.map((item: any) => {
+                        const details = topItemsRes.data.details?.find((d: any) => d._id === item._id);
+                        return {
+                            _id: item._id,
+                            name: details?.name || 'Unknown Item',
+                            count: item.count
+                        };
+                    });
+                }
                 setTopItems(processedTopItems);
                 setOrders(ordersRes.data);
                 setError(null);
@@ -281,16 +289,24 @@ const AdminDashboard: React.FC = () => {
                 setSalesOverview(salesRes.data);
                 setCustomerBehavior(customerRes.data);
 
-                // Process top items data
-                const processedTopItems = topItemsRes.data.topItems.map((item: TopItemResponse) => {
-                    const details = topItemsRes.data.details.find((d: ItemDetails) => d._id === item._id);
-                    return {
-                        _id: item._id,
-                        name: details?.name || 'Unknown Item',
-                        count: item.count
-                    };
-                });
-
+                // Defensive: handle both array and object API responses
+                let processedTopItems: TopItem[] = [];
+                if (Array.isArray(topItemsRes.data)) {
+                    processedTopItems = topItemsRes.data.map((item: any) => ({
+                        _id: item.id || item._id,
+                        name: item.name || 'Unknown Item',
+                        count: item.totalSold || item.count || 0
+                    }));
+                } else if (topItemsRes.data?.topItems) {
+                    processedTopItems = topItemsRes.data.topItems.map((item: any) => {
+                        const details = topItemsRes.data.details?.find((d: any) => d._id === item._id);
+                        return {
+                            _id: item._id,
+                            name: details?.name || 'Unknown Item',
+                            count: item.count
+                        };
+                    });
+                }
                 setTopItems(processedTopItems);
                 setOrders(ordersRes.data);
                 setShowNotif(false); // Hide notifications after refresh

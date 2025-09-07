@@ -5,21 +5,21 @@ export default function InventoryModel(sequelize) {
     "Inventory",
     {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
       },
       menuItemId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "MenuItems",
           key: "id",
         },
-        field: "menuItemId", // renamed from mealId to be consistent
+        field: "menuItemId",
       },
       storeId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "Stores",

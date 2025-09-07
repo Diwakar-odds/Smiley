@@ -1,20 +1,19 @@
 import express from "express";
-import * as offerController from "../controllers/offerController.js";
 const router = express.Router();
+import {
+  getOffers,
+  createOffer,
+  updateOffer,
+  deleteOffer,
+  getOfferById,
+} from "../controllers/offerController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
 
-// Create a new offer
-router.post("/", offerController.createOffer);
-
-// Get all offers
-router.get("/", offerController.getOffers);
-
-// Update an offer
-router.put("/:id", offerController.updateOffer);
-
-// Delete an offer
-router.delete("/:id", offerController.deleteOffer);
-
-// Import offers (scaffold)
-router.post("/import", offerController.importOffers);
+router.route("/").get(getOffers).post(protect, admin, createOffer);
+router
+  .route("/:id")
+  .get(getOfferById)
+  .put(protect, admin, updateOffer)
+  .delete(protect, admin, deleteOffer);
 
 export default router;

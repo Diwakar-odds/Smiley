@@ -5,12 +5,12 @@ export default function OrderModel(sequelize) {
     "Order",
     {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
       },
       userId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "Users",
@@ -18,7 +18,7 @@ export default function OrderModel(sequelize) {
         },
       },
       storeId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "Stores",

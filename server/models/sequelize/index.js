@@ -55,9 +55,20 @@ Review.belongsTo(MenuItem, { foreignKey: "menuItemId" });
 Store.hasMany(Review, { foreignKey: "storeId" });
 Review.belongsTo(Store, { foreignKey: "storeId" });
 
+// Order <-> MenuItem many-to-many through OrderItem
+Order.belongsToMany(MenuItem, {
+  through: OrderItem,
+  foreignKey: "orderId",
+  otherKey: "menuItemId",
+});
+MenuItem.belongsToMany(Order, {
+  through: OrderItem,
+  foreignKey: "menuItemId",
+  otherKey: "orderId",
+});
+
 Order.hasMany(OrderItem, { foreignKey: "orderId" });
 OrderItem.belongsTo(Order, { foreignKey: "orderId" });
-
 MenuItem.hasMany(OrderItem, { foreignKey: "menuItemId" });
 OrderItem.belongsTo(MenuItem, { foreignKey: "menuItemId" });
 

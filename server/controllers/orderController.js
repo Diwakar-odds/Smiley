@@ -7,17 +7,38 @@ export const createOrder = async (req, res) => {
   const { name, phone, address, items, totalPrice, specialRequests, storeId } =
     req.body;
 
-  if (!items || items.length === 0) {
-    return res.status(400).json({ message: "No order items" });
+  // Validate required fields
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: "No order items provided" });
+  }
+  if (!name || !phone || !address) {
+    return res
+      .status(400)
+      .json({ message: "Name, phone, and address are required" });
+  }
+  if (!storeId) {
+    return res.status(400).json({ message: "Store ID is required" });
+  }
+  if (!totalPrice || isNaN(Number(totalPrice))) {
+    return res
+      .status(400)
+      .json({ message: "Total price is required and must be a number" });
   }
 
   try {
     // Use a transaction to ensure all operations succeed or fail together
     const result = await sequelize.transaction(async (t) => {
       // Create the order
+      // Ensure userId is correct type (UUID or INT)
+      let userId = req.user && req.user.id ? req.user.id : null;
+      if (!userId) {
+        throw new Error(
+          "User ID not found in request. User may not be authenticated."
+        );
+      }
       const order = await Order.create(
         {
-          userId: req.user.id,
+          userId,
           name,
           phone,
           address,
@@ -31,14 +52,15 @@ export const createOrder = async (req, res) => {
 
       // Create order items in the junction table
       for (const item of items) {
+        if (!item.menuItemId || !item.quantity) {
+          throw new Error("Each item must have menuItemId and quantity");
+        }
         const menuItem = await MenuItem.findByPk(item.menuItemId, {
           transaction: t,
         });
-
         if (!menuItem) {
           throw new Error(`Menu item with ID ${item.menuItemId} not found`);
         }
-
         await order.addMenuItem(menuItem, {
           through: {
             quantity: item.quantity,
@@ -69,7 +91,14 @@ export const createOrder = async (req, res) => {
     res.status(201).json(result);
   } catch (error) {
     console.error("Error creating order:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    // Provide more detailed error for debugging
+    res
+      .status(500)
+      .json({
+        message: "Server error",
+        error: error.message,
+        stack: error.stack,
+      });
   }
 };
 

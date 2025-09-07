@@ -5,48 +5,43 @@ export default function OfferModel(sequelize) {
     "Offer",
     {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
       },
-      title: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
       },
       description: {
         type: DataTypes.TEXT,
       },
-      imageUrl: {
+      bannerImage: {
         type: DataTypes.STRING,
-      },
-      discount: {
-        type: DataTypes.STRING,
-      },
-      externalUrl: {
-        type: DataTypes.STRING,
+        allowNull: false,
       },
       startDate: {
         type: DataTypes.DATE,
+        allowNull: false,
       },
       endDate: {
         type: DataTypes.DATE,
+        allowNull: false,
       },
-      categories: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-      },
-      locales: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-      },
-      priority: {
+      discountPercentage: {
         type: DataTypes.INTEGER,
-        defaultValue: 0,
-      },
-      isActive: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+        allowNull: false,
+        validate: {
+          min: 0,
+          max: 100,
+        },
       },
       storeId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
+        allowNull: false,
         references: {
           model: "Stores",
           key: "id",

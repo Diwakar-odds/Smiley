@@ -4,8 +4,17 @@ import MenuItem from '../components/ui/MenuItem';
 import client from '../api/client';
 import { menuData, MenuItemData } from '../data/menuData';
 
+interface Offer {
+  id: string;
+  name: string;
+  description: string;
+  bannerImage: string;
+  discountPercentage: number;
+}
+
 const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void }) => {
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState('all');
@@ -22,7 +31,16 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
         setLoading(false);
       }
     };
+    const fetchOffers = async () => {
+      try {
+        const { data } = await client.get('/offers');
+        setOffers(data);
+      } catch (error) {
+        console.error("Failed to load offers.");
+      }
+    };
     fetchMenuItems();
+    fetchOffers();
   }, []);
 
   const categories = [
@@ -58,7 +76,30 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
             </p>
           </motion.div>
 
-          {/* Categories */}
+          {/* Offers */}
+          {offers.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="mb-12"
+            >
+              <h3 className="text-2xl font-bold text-center mb-6">Special Offers</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {offers.map((offer) => (
+                  <div key={offer.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src={offer.bannerImage} alt={offer.name} className="w-full h-48 object-cover" />
+                    <div className="p-4">
+                      <h4 className="font-bold text-lg">{offer.name}</h4>
+                      <p className="text-gray-600">{offer.description}</p>
+                      <div className="mt-2 font-bold text-pink-500">{offer.discountPercentage}% OFF</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           {/* Categories */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}

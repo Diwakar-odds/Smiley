@@ -5,12 +5,12 @@ export default function AddressModel(sequelize) {
     "Address",
     {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
       },
       userId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "Users",

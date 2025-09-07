@@ -3,16 +3,16 @@ import { DataTypes } from "sequelize";
 export default (sequelize) => {
   return sequelize.define("OrderItem", {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     orderId: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     menuItemId: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     quantity: {

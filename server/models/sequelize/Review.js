@@ -5,12 +5,12 @@ export default function ReviewModel(sequelize) {
     "Review",
     {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
       },
       userId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "Users",
@@ -18,7 +18,7 @@ export default function ReviewModel(sequelize) {
         },
       },
       menuItemId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "MenuItems",
@@ -26,7 +26,7 @@ export default function ReviewModel(sequelize) {
         },
       },
       storeId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "Stores",
