@@ -5,7 +5,7 @@ export interface MenuItemData {
   description: string;
   price: number;
   imageUrl: string;
-  category: string;
+  category: "softy" | "patties" | "shakes" | "corn" | "combos" | "pastry"; // Match backend enum
 }
 
 export const menuData: MenuItemData[] = [

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import smileyLogo from './assets/smiley-logo.png';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { ToastProvider } from './contexts/ToastContext';
+import { CartItem, MenuItemData } from './types/cart';
 const LoginRegister = React.lazy(() => import('./pages/LoginRegister'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Inventory = React.lazy(() => import('./pages/Inventory'));
@@ -8,7 +11,7 @@ const Orders = React.lazy(() => import('./pages/Orders'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
 const StoreProfile = React.lazy(() => import('./pages/StoreProfile'));
 const AdminMenu = React.lazy(() => import('./pages/AdminMenu'));
-const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard').then(module => ({ default: module.default })));
 import { motion } from 'framer-motion';
 import Navbar from './components/ui/Navbar';
 import BottomNavbar from './components/ui/BottomNavbar';
@@ -19,19 +22,6 @@ import TestimonialsSection from './components/ui/TestimonialsSection';
 import ContactSection from './components/ui/ContactSection';
 import Footer from './components/ui/Footer';
 import Cart from './components/ui/Cart';
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  category: string;
-}
-
-interface CartItem extends MenuItem {
-  quantity: number;
-}
 
 const LoadingSpinner = () => (
   <motion.div
@@ -67,7 +57,7 @@ const App = () => {
     setTimeout(() => setIsLoading(false), 2000);
   }, []);
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = (item: MenuItemData) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
       if (existingItem) {
@@ -81,7 +71,7 @@ const App = () => {
     });
   };
 
-  const removeFromCart = (item: MenuItem) => {
+  const removeFromCart = (item: MenuItemData) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
       if (existingItem && existingItem.quantity > 1) {
@@ -151,4 +141,14 @@ const App = () => {
   );
 };
 
-export default App;
+const AppWithProviders: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <ToastProvider>
+        <App />
+      </ToastProvider>
+    </ThemeProvider>
+  );
+};
+
+export default AppWithProviders;

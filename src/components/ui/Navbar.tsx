@@ -3,20 +3,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, X, ShoppingCart } from 'lucide-react';
+import { CartItem } from '../../types/cart';
 import './NavBar.css';
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  category: string;
-}
-
-interface CartItem extends MenuItem {
-  quantity: number;
-}
 
 const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void }) => {
   const navigate = useNavigate();

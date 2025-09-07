@@ -1,10 +1,10 @@
 // Define types for the state
 export interface ProfileState {
-  fullName: string;
-  username: string;
-  phone: string;
-  location: string;
-  profilePic: string;
+  name: string; // Changed from fullName to match backend
+  email: string; // Changed from username to match backend
+  mobile: string; // Changed from phone to match backend
+  address: string; // Changed from location to match backend
+  profilePic: string; // Keep for future use
 }
 
 export interface NotificationsState {
@@ -53,10 +53,10 @@ import client from "../api/client";
 export const fetchUserProfile = async (): Promise<ProfileState> => {
   const { data } = await client.get("/users/profile");
   return {
-    fullName: data.name || "",
-    username: data.username || data.email || "",
-    phone: data.mobile || "",
-    location: data.address || "",
+    name: data.name || "",
+    email: data.email || "",
+    mobile: data.mobile || "",
+    address: data.address || "",
     profilePic: data.profilePic || "",
   };
 };

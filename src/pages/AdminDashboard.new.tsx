@@ -485,8 +485,6 @@ const AdminDashboard: React.FC = () => {
                         <button
                             className="lg:hidden p-2 hover:bg-indigo-700 rounded-full transition-all duration-200"
                             onClick={() => setSidebarOpen(false)}
-                            aria-label="Close sidebar"
-                            title="Close sidebar"
                         >
                             <FiX size={20} />
                         </button>

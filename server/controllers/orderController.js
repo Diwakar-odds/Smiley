@@ -25,6 +25,14 @@ export const createOrder = async (req, res) => {
       .json({ message: "Total price is required and must be a number" });
   }
 
+  // Validate price precision (2 decimal places max)
+  const priceNum = Number(totalPrice);
+  if (Math.round(priceNum * 100) !== priceNum * 100) {
+    return res
+      .status(400)
+      .json({ message: "Price must have at most 2 decimal places" });
+  }
+
   try {
     // Use a transaction to ensure all operations succeed or fail together
     const result = await sequelize.transaction(async (t) => {
@@ -92,13 +100,11 @@ export const createOrder = async (req, res) => {
   } catch (error) {
     console.error("Error creating order:", error);
     // Provide more detailed error for debugging
-    res
-      .status(500)
-      .json({
-        message: "Server error",
-        error: error.message,
-        stack: error.stack,
-      });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+      stack: error.stack,
+    });
   }
 };
 
@@ -144,6 +150,14 @@ export const getOrderById = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
+
+    // Validate status value
+    const validStatuses = ["pending", "accepted", "rejected", "completed"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status. Must be one of: " + validStatuses.join(", "),
+      });
+    }
 
     const order = await Order.findByPk(req.params.id);
 

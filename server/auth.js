@@ -43,7 +43,9 @@ router.post("/login", async (req, res) => {
       const user = await User.findOne({ mobile, name });
       if (!user) return res.status(401).json({ message: "User not found" });
 
-      const token = jwt.sign({ name, mobile }, JWT_SECRET, { expiresIn: "1h" });
+      const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
+        expiresIn: "1h",
+      });
       await Otp.deleteMany({ mobile });
       return res.json({ token });
     }
@@ -57,7 +59,9 @@ router.post("/login", async (req, res) => {
       if (!isMatch)
         return res.status(401).json({ message: "Invalid credentials" });
 
-      const token = jwt.sign({ name, mobile }, JWT_SECRET, { expiresIn: "1h" });
+      const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
+        expiresIn: "1h",
+      });
       return res.json({ token });
     }
 
@@ -70,7 +74,9 @@ router.post("/login", async (req, res) => {
       if (!isMatch)
         return res.status(401).json({ message: "Invalid credentials" });
 
-      const token = jwt.sign({ name, email }, JWT_SECRET, { expiresIn: "1h" });
+      const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
+        expiresIn: "1h",
+      });
       return res.json({ token });
     }
 

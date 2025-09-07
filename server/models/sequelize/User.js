@@ -38,6 +38,10 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      profilePic: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       dateOfBirth: {
         type: DataTypes.DATE,
         allowNull: true,

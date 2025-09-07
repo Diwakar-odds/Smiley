@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import client from '../../api/client.js';
 import { motion } from 'framer-motion';
 import { FiCheck, FiX, FiEdit } from 'react-icons/fi';
+import { OrderStatus } from '../../types/schema';
 
 interface Order {
-    _id: string;
+    id: number;          // Changed from _id: string to match backend
     user: {
         name: string;
-        _id: string;
+        id: number;      // Changed from _id: string to match backend
     };
-    status: string;
+    status: OrderStatus; // ✅ Now using typed enum instead of string
     totalPrice: number;
     createdAt: string;
     items: {
@@ -33,14 +34,14 @@ interface OrdersTableProps {
 }
 
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefresh }) => {
-    const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-    const [newStatus, setNewStatus] = useState<string>('');
+    const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
+    const [newStatus, setNewStatus] = useState<OrderStatus>('pending'); // ✅ Using OrderStatus type
 
-    const handleStatusChange = async (orderId: string, status: string) => {
+    const handleStatusChange = async (orderId: number, status: OrderStatus) => { // ✅ Using OrderStatus type
         try {
             setUpdatingStatus(orderId);
-            await client.patch(`/orders/${orderId}`, { status });
-            setNewStatus('');
+            await client.put(`/orders/${orderId}/status`, { status });
+            setNewStatus('pending'); // Reset to default OrderStatus value
             onRefresh(); // Refresh orders after update
         } catch (error) {
             console.error('Failed to update order status:', error);
@@ -76,13 +77,13 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
                     <tbody className="bg-white divide-y divide-gray-200">
                         {orders.map((order) => (
                             <motion.tr 
-                                key={order._id} 
+                                key={order.id} 
                                 className="hover:bg-indigo-50/50 transition-all duration-150"
                                 whileHover={{ backgroundColor: "rgba(79, 70, 229, 0.06)" }}
                             >
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className="font-mono text-sm font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-md">
-                                        #{order._id.slice(-6)}
+                                        #{order.id}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
@@ -92,22 +93,21 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
                                     {new Date(order.createdAt).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    {updatingStatus === order._id ? (
+                                    {updatingStatus === order.id ? (
                                         <div className="flex items-center space-x-2">
                                             <select
                                                 value={newStatus}
-                                                onChange={(e) => setNewStatus(e.target.value)}
+                                                onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
                                                 className="text-sm border rounded px-2 py-1"
                                                 aria-label="Change order status"
                                             >
-                                                <option value="">Select Status</option>
                                                 <option value="pending">Pending</option>
-                                                <option value="processing">Processing</option>
-                                                <option value="delivered">Delivered</option>
-                                                <option value="cancelled">Cancelled</option>
+                                                <option value="accepted">Accepted</option>
+                                                <option value="completed">Completed</option>
+                                                <option value="rejected">Rejected</option>
                                             </select>
                                             <button
-                                                onClick={() => handleStatusChange(order._id, newStatus)}
+                                                onClick={() => handleStatusChange(order.id, newStatus)}
                                                 className="text-green-500 hover:text-green-700"
                                                 aria-label="Save status change"
                                             >
@@ -125,17 +125,17 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
                                         <div className="flex items-center">
                                             <span className={`
                         px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm
-                        ${order.status === 'pending' ? 'bg-gradient-to-r from-yellow-400 to-amber-400 text-white' : ''}
-                        ${order.status === 'processing' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white' : ''}
-                        ${order.status === 'delivered' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white' : ''}
-                        ${order.status === 'cancelled' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white' : ''}
+                                        ${order.status === 'pending' ? 'bg-gradient-to-r from-yellow-400 to-amber-400 text-white' : ''}
+                        ${order.status === 'accepted' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white' : ''}
+                        ${order.status === 'completed' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white' : ''}
+                        ${order.status === 'rejected' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white' : ''}
                       `}>
                                                 {order.status || 'Unknown'}
                                             </span>
                                             <button
                                                 className="ml-2 text-gray-400 hover:text-blue-600"
                                                 onClick={() => {
-                                                    setUpdatingStatus(order._id);
+                                                    setUpdatingStatus(order.id);
                                                     setNewStatus(order.status);
                                                 }}
                                                 aria-label="Edit order status"

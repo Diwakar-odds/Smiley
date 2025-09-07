@@ -1,13 +1,14 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { OrderStatus } from "../../types/schema";
 
 interface Order {
-  _id: string;
+  id: number;           // Changed from _id: string
   createdAt: string;
-  status?: string;
+  status?: OrderStatus; // ✅ Now using typed enum instead of string
   totalPrice: number;
-  items: { name?: string; quantity: number; price?: number; menuItemId?: string }[];
+  items: { name?: string; quantity: number; price?: number; menuItemId?: number }[];  // Changed menuItemId to number
 }
 
 interface OrderDetailsProps {
@@ -29,7 +30,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ order, onBack }) => {
       <CardContent>
         <div className="space-y-4">
           <div>
-            <h3 className="font-semibold">Order ID: {order._id}</h3>
+            <h3 className="font-semibold">Order ID: {order.id}</h3>
             <p className="text-sm text-gray-500">Date: {new Date(order.createdAt).toLocaleString()}</p>
             <p className="text-sm text-gray-500">Status: {order.status || 'N/A'}</p>
             <p className="text-sm text-gray-500">Total: ₹{order.totalPrice?.toFixed ? order.totalPrice.toFixed(2) : order.totalPrice}</p>

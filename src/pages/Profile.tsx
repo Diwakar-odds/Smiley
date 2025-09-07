@@ -3,6 +3,7 @@ import React, { useEffect, useReducer, useState } from "react";
 import { motion } from "framer-motion";
 import client from "../api/client";
 import { useNavigate } from "react-router-dom";
+import { OrderStatus } from "../types/schema";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
@@ -33,14 +34,14 @@ interface OrderItem {
   name?: string;
   quantity: number;
   price?: number;
-  menuItemId?: string;
+  menuItemId?: number;  // Changed from string to number
 }
 
 interface Order {
-  _id: string;
+  id: number;           // Changed from _id: string to id: number
   items: OrderItem[];
   totalPrice: number;
-  status: string;
+  status: OrderStatus;  // ✅ Now using typed enum instead of string
   createdAt: string;
 }
 
@@ -51,10 +52,10 @@ interface SavedItem {
 
 const initialState: AppState = {
   profile: {
-    fullName: "",
-    username: "",
-    phone: "",
-    location: "",
+    name: "",
+    email: "",
+    mobile: "",
+    address: "",
     profilePic: "",
   },
   notifications: {
@@ -214,7 +215,7 @@ const Profile: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
             >
-              Welcome, <span className="font-semibold text-orange-500">{profile.username}</span> <span className="animate-wave">👋</span>
+              Welcome, <span className="font-semibold text-orange-500">{profile.name}</span> <span className="animate-wave">👋</span>
             </motion.p>
 
             <motion.div
@@ -259,28 +260,28 @@ const Profile: React.FC = () => {
                 <div className="space-y-4 mt-4">
                   <Input
                     name="fullName"
-                    value={profile.fullName}
+                    value={profile.name}
                     onChange={handleProfileChange}
                     placeholder="Full Name"
                     className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
                   />
                   <Input
                     name="username"
-                    value={profile.username}
+                    value={profile.email}
                     onChange={handleProfileChange}
                     placeholder="Username"
                     className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
                   />
                   <Input
                     name="phone"
-                    value={profile.phone}
+                    value={profile.mobile}
                     onChange={handleProfileChange}
                     placeholder="Phone (optional)"
                     className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
                   />
                   <Input
                     name="location"
-                    value={profile.location}
+                    value={profile.address}
                     onChange={handleProfileChange}
                     placeholder="Location"
                     className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
@@ -295,10 +296,10 @@ const Profile: React.FC = () => {
                     <div className="text-center text-gray-500">No orders found.</div>
                   ) : (
                     orders.map((order) => (
-                      <Card key={order._id} className="p-3 flex items-center justify-between bg-gradient-to-r from-orange-100 via-pink-100 to-red-100 shadow rounded-xl backdrop-blur-md">
+                      <Card key={order.id} className="p-3 flex items-center justify-between bg-gradient-to-r from-orange-100 via-pink-100 to-red-100 shadow rounded-xl backdrop-blur-md">
                         <div className="flex items-center space-x-2">
                           <ShoppingBag className="w-5 h-5 text-pink-500 animate-bounce" />
-                          <span className="font-semibold text-orange-700">Order #{order._id} - {order.status}</span>
+                          <span className="font-semibold text-orange-700">Order #{order.id} - {order.status}</span>
                         </div>
                         <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple" onClick={() => setSelectedOrder(order)}>View Details</Button>
                       </Card>

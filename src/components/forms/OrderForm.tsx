@@ -2,16 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-
-interface CartItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  category: string;
-  quantity: number;
-}
+import { CartItem } from '../../types/cart';
 
 interface OrderFormProps {
   cart: CartItem[];
@@ -158,7 +149,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           clearCart();
           setTimeout(() => setShowSuccess(false), 5000);
         } else {
-          const errorData = await response.json();
+          await response.json(); // Read the error response but don't use it
           alert('Failed to submit order. Please try again.');
         }
       } catch {
