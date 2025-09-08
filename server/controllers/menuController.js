@@ -26,6 +26,18 @@ export const getMenuItems = async (req, res) => {
 
     const menuItems = await MenuItem.findAll({
       where: queryOptions,
+      attributes: [
+        "id",
+        "name",
+        "category",
+        "description",
+        "price",
+        "imageUrl",
+        "available",
+        "storeId",
+        "createdAt",
+        "updatedAt"
+      ],
       include: [
         {
           model: Store,

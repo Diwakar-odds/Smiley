@@ -76,11 +76,11 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
             {location.pathname !== '/' && (
               <button
                 onClick={() => navigate(-1)}
-                className="mr-2 p-2 rounded-full hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                className="mr-2 p-2 rounded-full bg-white border border-orange-300 shadow hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-300"
                 aria-label="Go back"
                 title="Go back"
               >
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg width="24" height="24" fill="none" stroke="#ea580c" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             )}
             <motion.div

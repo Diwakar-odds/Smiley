@@ -23,7 +23,11 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void })
     const fetchMenuItems = async () => {
       try {
         const { data: dbItems } = await client.get('/menu');
-        setMenuItems(dbItems);
+        // Convert price to number for each item
+        setMenuItems(dbItems.map((item: any) => ({
+          ...item,
+          price: item.price !== null && item.price !== undefined ? Number(item.price) : 0,
+        })));
         setError(null);
       } catch (error) {
         setError("Failed to load menu items from database.");
