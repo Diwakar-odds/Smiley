@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import smileyLogo from './assets/smiley-logo.png';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -15,6 +15,7 @@ const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard').then(mo
 import { motion } from 'framer-motion';
 import Navbar from './components/ui/Navbar';
 import BottomNavbar from './components/ui/BottomNavbar';
+import CartFab from './components/ui/CartFab';
 import Hero from './components/ui/Hero';
 import MenuSection from './pages/Menu';
 import AboutSection from './components/ui/AboutSection';
@@ -51,11 +52,17 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     // Simulate loading for 2 seconds
     setTimeout(() => setIsLoading(false), 2000);
   }, []);
+
+  // Close cart when route changes
+  useEffect(() => {
+    setShowCart(false);
+  }, [location.pathname]);
 
   const addToCart = (item: MenuItemData) => {
     setCart(prevCart => {
@@ -94,7 +101,7 @@ const App = () => {
   }
 
   return (
-    <Router>
+    <>
       {showCart && (
         <Cart
           cart={cart}
@@ -103,6 +110,12 @@ const App = () => {
           addToCart={addToCart}
           removeFromCart={removeFromCart}
         />
+      )}
+      {/* Floating Cart Button for mobile */}
+      {!showCart && (
+        <div className="md:hidden">
+          <CartFab onClick={() => setShowCart(true)} itemCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
+        </div>
       )}
       <React.Suspense fallback={<LoadingSpinner />}>
         <Routes>
@@ -137,7 +150,7 @@ const App = () => {
           />
         </Routes>
       </React.Suspense>
-    </Router>
+    </>
   );
 };
 
@@ -145,7 +158,9 @@ const AppWithProviders: React.FC = () => {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <App />
+        <Router>
+          <App />
+        </Router>
       </ToastProvider>
     </ThemeProvider>
   );

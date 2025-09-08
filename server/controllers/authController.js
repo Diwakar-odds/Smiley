@@ -104,7 +104,7 @@ export const sendOtp = async (req, res) => {
       // Fallback: use our service to generate+persist OTP and try to send via Messages API.
       const otp = await generateOtpSvc(mobile);
       return res.status(200).json({
-        message: "OTP sent",
+        message: "OTP sent (fallback dev)",
         otp: process.env.NODE_ENV === "development" ? otp : undefined,
       });
     }

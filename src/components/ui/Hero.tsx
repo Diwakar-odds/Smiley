@@ -3,13 +3,15 @@ import { motion } from 'framer-motion';
 const Hero = () => (
   <section
     id="home"
-    className="min-h-screen flex items-center justify-center relative overflow-hidden"
+    className="h-full w-full min-h-screen flex items-center justify-center relative overflow-hidden py-8 sm:py-12 md:py-0"
   >
     {/* Background Image */}
     <img
-      src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1500&q=80"
+      src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=60"
       alt="Hero Background"
-      className="absolute inset-0 w-full h-full object-cover"
+      className="absolute inset-0 w-full h-full object-cover object-center"
+      loading="lazy"
+      sizes="100vw"
     />
 
     {/* Gradient Overlay (bottom dark → top transparent) */}
@@ -39,21 +41,21 @@ const Hero = () => (
     </div>
 
     {/* Hero Content */}
-    <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
+  <div className="relative z-10 text-center text-white max-w-2xl mx-auto px-2 sm:px-4">
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.8 }}
         className="mb-6"
       >
-        <span className="text-6xl sm:text-7xl md:text-8xl">😊</span>
+  <span className="text-5xl sm:text-6xl md:text-8xl">😊</span>
       </motion.div>
 
       <motion.h1
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="font-poppins font-bold text-4xl sm:text-5xl md:text-7xl mb-4 text-white"
+  className="font-poppins font-bold text-3xl sm:text-4xl md:text-6xl mb-3 sm:mb-4 text-white"
       >
         Smiley Food
       </motion.h1>
@@ -62,7 +64,7 @@ const Hero = () => (
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="font-inter text-lg sm:text-xl md:text-2xl mb-6 text-gray-200"
+  className="font-inter text-base sm:text-lg md:text-xl mb-4 sm:mb-6 text-gray-200"
       >
         Delicious Softy, Juicy Patties, Refreshing Shakes!
       </motion.p>
@@ -73,7 +75,7 @@ const Hero = () => (
         transition={{ duration: 0.8, delay: 0.6 }}
         whileHover={{ scale: 1.05, boxShadow: "0 20px 25px rgba(0,0,0,0.2)" }}
         whileTap={{ scale: 0.95 }}
-        className="bg-white text-orange-500 font-poppins font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-full text-lg sm:text-xl md:text-2xl shadow-lg"
+  className="bg-white text-orange-500 font-poppins font-semibold px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-base sm:text-lg md:text-xl shadow-lg"
         onClick={() =>
           document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })
         }

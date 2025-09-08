@@ -1,6 +1,6 @@
 import smileyLogo from '../../assets/smiley-logo.png';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, X, ShoppingCart } from 'lucide-react';
 import { CartItem } from '../../types/cart';
@@ -8,6 +8,7 @@ import './NavBar.css';
 
 const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const navItems = ['Home', 'Menu', 'About', 'Testimonials', 'Contact',];
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -70,15 +71,28 @@ const Navbar = ({ cart, toggleCart }: { cart: CartItem[], toggleCart: () => void
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between h-16 px-2 sm:px-4 lg:px-8">
-          <motion.div
-            className="flex items-center space-x-2"
-            whileHover={{ scale: 1.05 }}
-          >
-            <img src={smileyLogo} alt="Smiley Brand Logo" className="navbar-logo" />
-            <span className="font-poppins font-bold text-xl bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
-              Smiley Food
-            </span>
-          </motion.div>
+          <div className="flex items-center space-x-2">
+            {/* Back button, hidden on home page */}
+            {location.pathname !== '/' && (
+              <button
+                onClick={() => navigate(-1)}
+                className="mr-2 p-2 rounded-full hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                aria-label="Go back"
+                title="Go back"
+              >
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+            )}
+            <motion.div
+              className="flex items-center space-x-2"
+              whileHover={{ scale: 1.05 }}
+            >
+              <img src={smileyLogo} alt="Smiley Brand Logo" className="navbar-logo" />
+              <span className="font-poppins font-bold text-xl bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                Smiley Food
+              </span>
+            </motion.div>
+          </div>
           {/* <motion.button
             onClick={() => navigate('/login')}
             className="ml-4 px-6 py-2 rounded-full bg-orange-500 text-white font-semibold shadow hover:bg-orange-600 transition-colors"
