@@ -22,7 +22,7 @@ const PaymentMethodManagement = () => {
   React.useEffect(() => {
     const fetchMethods = async () => {
       const jwtToken = localStorage.getItem('jwtToken');
-      const res = await fetch('http://localhost:5000/api/payments', {
+  const res = await fetch('/api/payments', {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       const data = await res.json();
@@ -38,7 +38,7 @@ const PaymentMethodManagement = () => {
 
   const handleAddPaymentMethod = async () => {
     const jwtToken = localStorage.getItem('jwtToken');
-    const res = await fetch('http://localhost:5000/api/payments', {
+  const res = await fetch('/api/payments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const PaymentMethodManagement = () => {
 
   const handleDeletePaymentMethod = async (id: string) => {
     const jwtToken = localStorage.getItem('jwtToken');
-    await fetch(`http://localhost:5000/api/payments/${id}`, {
+  await fetch(`/api/payments/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwtToken}` }
     });

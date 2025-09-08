@@ -67,7 +67,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           return;
         }
         // Create order on backend for Razorpay
-        const orderRes = await fetch('http://localhost:5000/api/orders/razorpay', {
+  const orderRes = await fetch('/api/orders/razorpay', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
 
     async function submitOrder(paymentStatus: string, razorpayPaymentId: string) {
       try {
-        const response = await fetch('http://localhost:5000/api/orders', {
+  const response = await fetch('/api/orders', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
