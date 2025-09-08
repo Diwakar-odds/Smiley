@@ -19,7 +19,7 @@ const ReviewsRatings = ({ menuItemId }: ReviewsRatingsProps) => {
 
     React.useEffect(() => {
         const fetchReviews = async () => {
-            const res = await fetch(`http://localhost:5000/api/reviews/${menuItemId}`);
+            const res = await fetch(`/api/reviews/${menuItemId}`);
             const data = await res.json();
             setReviews(data.map((r: any) => ({
                 id: r._id,
@@ -33,7 +33,7 @@ const ReviewsRatings = ({ menuItemId }: ReviewsRatingsProps) => {
 
     const handleAddReview = async () => {
         const jwtToken = localStorage.getItem('jwtToken');
-        const res = await fetch('http://localhost:5000/api/reviews', {
+    const res = await fetch('/api/reviews', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const ReviewsRatings = ({ menuItemId }: ReviewsRatingsProps) => {
 
     const handleDeleteReview = async (id: string) => {
         const jwtToken = localStorage.getItem('jwtToken');
-        await fetch(`http://localhost:5000/api/reviews/${id}`, {
+    await fetch(`/api/reviews/${id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${jwtToken}` }
         });

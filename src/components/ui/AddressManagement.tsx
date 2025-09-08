@@ -24,7 +24,7 @@ const AddressManagement = () => {
   React.useEffect(() => {
     const fetchAddresses = async () => {
       const jwtToken = localStorage.getItem('jwtToken');
-      const res = await fetch('http://localhost:5000/api/addresses', {
+  const res = await fetch('/api/addresses', {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       const data = await res.json();
@@ -41,7 +41,7 @@ const AddressManagement = () => {
 
   const handleAddAddress = async () => {
     const jwtToken = localStorage.getItem('jwtToken');
-    const res = await fetch('http://localhost:5000/api/addresses', {
+  const res = await fetch('/api/addresses', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ const AddressManagement = () => {
 
   const handleDeleteAddress = async (id: string): Promise<void> => {
     const jwtToken = localStorage.getItem('jwtToken');
-    await fetch(`http://localhost:5000/api/addresses/${id}`, {
+  await fetch(`/api/addresses/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwtToken}` }
     });
