@@ -9,6 +9,7 @@ export default defineConfig({
     exclude: ["lucide-react"],
   },
   server: {
+    allowedHosts: ['smileyfoood.com'],
     proxy: {
       "/api": {
         target: "http://localhost:5000",
