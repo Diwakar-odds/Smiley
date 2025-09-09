@@ -26,7 +26,7 @@ const MenuItem = ({ id, name, description, price, imageUrl, category, addToCart 
         <h3 className="text-lg font-semibold break-words">{name}</h3>
         <p className="text-gray-600 break-words">{description}</p>
         <div className="flex justify-between items-center mt-4">
-          <span className="text-xl font-bold">₹{price}</span>
+          <span className="text-xl font-bold text-orange-600 bg-white px-2 py-1 rounded shadow-sm border border-orange-100">₹{price}</span>
           <button
             onClick={() => {
               addToCart(item);

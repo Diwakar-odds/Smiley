@@ -33,6 +33,10 @@ export default function MenuItemModel(sequelize) {
       price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
+        get() {
+          const rawValue = this.getDataValue('price');
+          return rawValue !== null && rawValue !== undefined ? Number(rawValue) : null;
+        },
       },
       imageUrl: {
         type: DataTypes.STRING,

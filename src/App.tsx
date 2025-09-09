@@ -100,9 +100,13 @@ const App = () => {
     return <LoadingSpinner />;
   }
 
+  // Hide cart and cart button on login page (and optionally add more routes)
+  const hideCartRoutes = ['/login'];
+  const shouldHideCart = hideCartRoutes.includes(location.pathname);
+
   return (
     <>
-      {showCart && (
+      {!shouldHideCart && showCart && (
         <Cart
           cart={cart}
           onClose={() => setShowCart(false)}
@@ -112,7 +116,7 @@ const App = () => {
         />
       )}
       {/* Floating Cart Button for mobile */}
-      {!showCart && (
+      {!shouldHideCart && !showCart && (
         <div className="md:hidden">
           <CartFab onClick={() => setShowCart(true)} itemCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
         </div>

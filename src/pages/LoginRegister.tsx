@@ -89,7 +89,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ dispatch, state, handleLogin, loa
         <div>
           <label htmlFor="loginMobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
           <div className="flex items-center gap-2">
-            <motion.input whileFocus={{ scale: 1.02 }} id="loginMobile" type="tel" value={mobile} onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+            <motion.input whileFocus={{ scale: 1.02 }} id="loginMobile" type="tel" value={mobile} onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" required placeholder="Enter mobile number" />
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -105,7 +105,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ dispatch, state, handleLogin, loa
         {otpSent && (
           <div>
             <label htmlFor="loginOtp" className="block text-sm font-medium text-gray-700">Enter OTP</label>
-            <motion.input whileFocus={{ scale: 1.02 }} id="loginOtp" type="text" value={otp} onChange={e => dispatch({ type: 'SET_FIELD', field: 'otp', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+            <motion.input whileFocus={{ scale: 1.02 }} id="loginOtp" type="text" value={otp} onChange={e => dispatch({ type: 'SET_FIELD', field: 'otp', payload: e.target.value })} className="w-full mt-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" required placeholder="Enter OTP" />
           </div>
         )}
 
@@ -142,37 +142,37 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ dispatch, state, handleRegi
       <form onSubmit={(e) => { e.preventDefault(); handleRegister(); }} className="space-y-2">
         <div>
           <label htmlFor="regName" className="block text-sm font-medium text-gray-700">Full Name</label>
-          <motion.input whileFocus={{ scale: 1.02 }} id="regName" type="text" value={name} onChange={e => dispatch({ type: 'SET_FIELD', field: 'name', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+          <motion.input whileFocus={{ scale: 1.02 }} id="regName" type="text" value={name} onChange={e => dispatch({ type: 'SET_FIELD', field: 'name', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" required placeholder="Full Name" />
         </div>
 
         <div>
           <label htmlFor="regEmail" className="block text-sm font-medium text-gray-700">Email Address</label>
-          <motion.input whileFocus={{ scale: 1.02 }} id="regEmail" type="email" value={email} onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+          <motion.input whileFocus={{ scale: 1.02 }} id="regEmail" type="email" value={email} onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" required placeholder="Email Address" />
         </div>
 
         <div>
           <label htmlFor="regMobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
-          <motion.input whileFocus={{ scale: 1.02 }} id="regMobile" type="tel" value={mobile} onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+          <motion.input whileFocus={{ scale: 1.02 }} id="regMobile" type="tel" value={mobile} onChange={e => dispatch({ type: 'SET_FIELD', field: 'mobile', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" required placeholder="Mobile Number" />
         </div>
 
         <div>
           <label htmlFor="regAddress" className="block text-sm font-medium text-gray-700">Address (Optional)</label>
-          <motion.input whileFocus={{ scale: 1.02 }} id="regAddress" type="text" value={address} onChange={e => dispatch({ type: 'SET_FIELD', field: 'address', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" />
+          <motion.input whileFocus={{ scale: 1.02 }} id="regAddress" type="text" value={address} onChange={e => dispatch({ type: 'SET_FIELD', field: 'address', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" placeholder="Address (Optional)" />
         </div>
 
         <div>
           <label htmlFor="regDob" className="block text-sm font-medium text-gray-700">Date of Birth (Optional)</label>
-          <motion.input whileFocus={{ scale: 1.02 }} id="regDob" type="date" value={dateOfBirth} onChange={e => dispatch({ type: 'SET_FIELD', field: 'dateOfBirth', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" />
+          <motion.input whileFocus={{ scale: 1.02 }} id="regDob" type="date" value={dateOfBirth} onChange={e => dispatch({ type: 'SET_FIELD', field: 'dateOfBirth', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" placeholder="Date of Birth (Optional)" />
         </div>
 
         <div>
           <label htmlFor="regPassword" className="block text-sm font-medium text-gray-700">Password</label>
-          <motion.input whileFocus={{ scale: 1.02 }} id="regPassword" type="password" value={password} onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+          <motion.input whileFocus={{ scale: 1.02 }} id="regPassword" type="password" value={password} onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" required placeholder="Password" />
           <StrengthIndicator password={password} />
         </div>
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <motion.input whileFocus={{ scale: 1.02 }} id="confirmPassword" type="password" value={confirmPassword} onChange={e => dispatch({ type: 'SET_FIELD', field: 'confirmPassword', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/80 shadow-sm" required />
+          <motion.input whileFocus={{ scale: 1.02 }} id="confirmPassword" type="password" value={confirmPassword} onChange={e => dispatch({ type: 'SET_FIELD', field: 'confirmPassword', payload: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/95 text-black placeholder-gray-400 shadow-sm" required placeholder="Confirm Password" />
         </div>
         <motion.button
           whileHover={{ scale: requiredFilled && !loading ? 1.03 : 1 }}
