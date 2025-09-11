@@ -1,5 +1,6 @@
 // frontend/src/pages/Profile.tsx
 import React, { useEffect, useReducer, useState } from "react";
+import { ContentSkeleton } from "../components/ui/SkeletonLoaders";
 import { motion } from "framer-motion";
 import client from "../api/client";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +14,6 @@ import {
   LogOut,
   Moon,
   Sun,
-  Bell,
   Heart,
   ShoppingBag,
   Camera,
@@ -143,8 +143,18 @@ const Profile: React.FC = () => {
     navigate("/login");
   };
 
+
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Gradient overlay for consistent look */}
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-100/60 via-pink-100/40 to-yellow-100/60 z-10 pointer-events-none animate-pulse" />
+        <div className="relative z-20 w-full max-w-3xl p-4 sm:p-6 lg:p-8 font-sans">
+          <ContentSkeleton />
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -157,27 +167,16 @@ const Profile: React.FC = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Live food video background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0 brightness-75"
-        poster="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80"
-      >
-        <source src="https://www.w3schools.com/howto/rain.mp4" type="video/mp4" />
-        {/* Replace above with a real food video, e.g. donuts/croissants/patties cooking, from Pexels or Coverr */}
-      </video>
-      {/* Animated overlay for extra style */}
+      {/* Gradient overlay for extra style */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-100/60 via-pink-100/40 to-yellow-100/60 z-10 pointer-events-none animate-pulse" />
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-20 w-full max-w-3xl p-4 sm:p-6 lg:p-8 font-sans"
+        className="relative z-20 w-full max-w-3xl p-4 sm:p-8 lg:p-12 font-sans"
+        aria-label="Profile main content"
       >
-        <Card className="shadow-2xl rounded-3xl border-0 bg-white/70 backdrop-blur-2xl animate-fadein">
+        <Card className="shadow-2xl hover:shadow-3xl transition-shadow duration-300 rounded-3xl border-0 bg-white/80 backdrop-blur-2xl animate-fadein">
           <CardHeader className="bg-gradient-to-r from-orange-500 to-pink-500 rounded-t-3xl py-6 px-8 shadow-xl">
             <motion.div
               initial={{ opacity: 0, y: -30 }}
@@ -186,29 +185,31 @@ const Profile: React.FC = () => {
             >
               <CardTitle className="flex items-center justify-between text-white text-3xl font-extrabold tracking-tight">
                 <span className="flex items-center gap-2">
-                  <Heart className="w-7 h-7 text-pink-200 animate-bounce" /> My Profile
+                  <Heart className="w-7 h-7 text-pink-200 animate-bounce" aria-hidden="true" /> My Profile
                 </span>
                 <div className="flex space-x-2">
                   <Button
-                    className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow-md hover:scale-110 active:scale-95 transition-transform duration-200 ripple"
+                    className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow-md hover:scale-110 active:scale-95 focus:ring-2 focus:ring-pink-300 focus:outline-none transition-transform duration-200 ripple"
                     size="sm"
                     onClick={handleLogoutAll}
+                    aria-label="Logout from all devices"
                   >
-                    <LogOut className="w-4 h-4 mr-2" /> Logout All
+                    <LogOut className="w-4 h-4 mr-2" aria-hidden="true" /> Logout All
                   </Button>
                   <Button
-                    className="bg-gradient-to-r from-red-400 to-pink-400 text-white font-bold shadow-md hover:scale-110 active:scale-95 transition-transform duration-200 ripple"
+                    className="bg-gradient-to-r from-red-400 to-pink-400 text-white font-bold shadow-md hover:scale-110 active:scale-95 focus:ring-2 focus:ring-pink-300 focus:outline-none transition-transform duration-200 ripple"
                     size="sm"
                     onClick={handleLogout}
+                    aria-label="Logout"
                   >
-                    <LogOut className="w-4 h-4 mr-2" /> Logout
+                    <LogOut className="w-4 h-4 mr-2" aria-hidden="true" /> Logout
                   </Button>
                 </div>
               </CardTitle>
             </motion.div>
           </CardHeader>
 
-          <CardContent className="p-8">
+          <CardContent className="p-8 sm:p-10 lg:p-12">
             <motion.p
               className="text-center text-gray-700 mb-4 text-lg font-medium"
               initial={{ opacity: 0, y: 20 }}
@@ -233,13 +234,13 @@ const Profile: React.FC = () => {
                   />
                 ) : (
                   <div className="w-28 h-28 rounded-full bg-gradient-to-br from-orange-200 via-pink-200 to-red-200 flex items-center justify-center text-gray-500 shadow-lg">
-                    <Camera className="w-8 h-8 animate-pulse" />
+                    <Camera className="w-8 h-8 animate-pulse" aria-hidden="true" />
                   </div>
                 )}
                 <div className="flex justify-center mt-2 space-x-2">
-                  <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple">Upload / Change</Button>
+                  <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 focus:ring-2 focus:ring-pink-300 focus:outline-none transition-transform duration-200 ripple">Upload / Change</Button>
                   {profile.profilePic && (
-                    <Button size="sm" variant="destructive" className="font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple">
+                    <Button size="sm" variant="destructive" className="font-bold shadow hover:scale-110 active:scale-95 focus:ring-2 focus:ring-pink-300 focus:outline-none transition-transform duration-200 ripple">
                       Remove
                     </Button>
                   )}
@@ -247,46 +248,46 @@ const Profile: React.FC = () => {
               </div>
             </motion.div>
 
-            <Tabs defaultValue="info" className="animate-fadein">
+            <Tabs defaultValue="info" className="animate-fadein" aria-label="Profile sections">
               <TabsList className="grid grid-cols-5 bg-gradient-to-r from-orange-200 via-pink-200 to-red-200 rounded-xl mb-4">
-                <TabsTrigger value="info" className="font-bold text-orange-600 transition-all duration-200 hover:text-pink-600">Profile Info</TabsTrigger>
-                <TabsTrigger value="orders" className="font-bold text-pink-600 transition-all duration-200 hover:text-orange-600">My Orders</TabsTrigger>
-                <TabsTrigger value="addresses" className="font-bold text-red-600 transition-all duration-200 hover:text-orange-600">Addresses</TabsTrigger>
-                <TabsTrigger value="payment" className="font-bold text-orange-600 transition-all duration-200 hover:text-pink-600">Payment</TabsTrigger>
-                <TabsTrigger value="settings" className="font-bold text-pink-600 transition-all duration-200 hover:text-orange-600">Settings</TabsTrigger>
+                <TabsTrigger value="info" className="font-bold text-orange-700 transition-all duration-200 hover:text-pink-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">Profile Info</TabsTrigger>
+                <TabsTrigger value="orders" className="font-bold text-pink-700 transition-all duration-200 hover:text-orange-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">My Orders</TabsTrigger>
+                <TabsTrigger value="addresses" className="font-bold text-red-700 transition-all duration-200 hover:text-orange-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">Addresses</TabsTrigger>
+                <TabsTrigger value="payment" className="font-bold text-orange-700 transition-all duration-200 hover:text-pink-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">Payment</TabsTrigger>
+                <TabsTrigger value="settings" className="font-bold text-pink-700 transition-all duration-200 hover:text-orange-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">Settings</TabsTrigger>
               </TabsList>
 
               <TabsContent value="info">
                 <div className="space-y-4 mt-4">
                   <Input
-                    name="fullName"
+                    name="name"
                     value={profile.name}
                     onChange={handleProfileChange}
                     placeholder="Full Name"
-                    className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
+                    className="rounded-lg border-2 border-orange-300 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 focus:outline-none transition-all"
                   />
                   <Input
-                    name="username"
+                    name="email"
                     value={profile.email}
                     onChange={handleProfileChange}
-                    placeholder="Username"
-                    className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
+                    placeholder="Email"
+                    className="rounded-lg border-2 border-orange-300 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 focus:outline-none transition-all"
                   />
                   <Input
-                    name="phone"
+                    name="mobile"
                     value={profile.mobile}
                     onChange={handleProfileChange}
                     placeholder="Phone (optional)"
-                    className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
+                    className="rounded-lg border-2 border-orange-300 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 focus:outline-none transition-all"
                   />
                   <Input
-                    name="location"
+                    name="address"
                     value={profile.address}
                     onChange={handleProfileChange}
-                    placeholder="Location"
-                    className="rounded-lg border-2 border-orange-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
+                    placeholder="Address"
+                    className="rounded-lg border-2 border-orange-300 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 focus:outline-none transition-all"
                   />
-                  <Button className="w-full bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple" onClick={handleSaveChanges}>Save Changes</Button>
+                  <Button className="w-full bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 focus:ring-2 focus:ring-pink-300 focus:outline-none transition-transform duration-200 ripple" onClick={handleSaveChanges}>Save Changes</Button>
                 </div>
               </TabsContent>
 
@@ -301,7 +302,7 @@ const Profile: React.FC = () => {
                           <ShoppingBag className="w-5 h-5 text-pink-500 animate-bounce" />
                           <span className="font-semibold text-orange-700">Order #{order.id} - {order.status}</span>
                         </div>
-                        <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple" onClick={() => setSelectedOrder(order)}>View Details</Button>
+                        <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple" onClick={() => setSelectedOrder(order)} aria-label={`View details for order #${order.id}`}>View Details</Button>
                       </Card>
                     ))
                   )}
@@ -325,33 +326,26 @@ const Profile: React.FC = () => {
                     </span>
                     <Switch checked={darkMode} onCheckedChange={(payload) => dispatch({ type: 'SET_DARK_MODE', payload })} />
                   </div>
-
-                  <div>
-                    <h3 className="font-bold mb-2 flex items-center text-orange-600">
-                      <Bell className="w-4 h-4 mr-2 animate-pulse" /> Notifications
-                    </h3>
-                    <div className="space-y-2">
-                      {Object.keys(notifications).map((key) => (
-                        <div
-                          key={key}
-                          className="flex items-center justify-between"
-                        >
-                          <span className="font-semibold text-pink-600">{key.toUpperCase()}</span>
-                          <Switch
-                            checked={notifications[key as keyof typeof notifications]}
-                            onCheckedChange={(val) =>
-                              dispatch({
-                                type: 'SET_NOTIFICATIONS',
-                                payload: { ...notifications, [key]: val }
-                              })
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
+                  <div className="space-y-2 mt-6">
+                    {Object.keys(notifications).map((key) => (
+                      <div
+                        key={key}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="font-semibold text-pink-600">{key.toUpperCase()}</span>
+                        <Switch
+                          checked={notifications[key as keyof typeof notifications]}
+                          onCheckedChange={(val) =>
+                            dispatch({
+                              type: 'SET_NOTIFICATIONS',
+                              payload: { ...notifications, [key]: val }
+                            })
+                          }
+                        />
+                      </div>
+                    ))}
                   </div>
-
-                  <div>
+                  <div className="mt-8">
                     <h3 className="font-bold mb-2 flex items-center text-pink-600">
                       <Heart className="w-4 h-4 mr-2 text-pink-500 animate-bounce" /> Saved Items
                     </h3>
@@ -367,16 +361,18 @@ const Profile: React.FC = () => {
                                 size="sm"
                                 className="bg-gradient-to-r from-pink-400 to-orange-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple"
                                 onClick={() => alert(`Reorder placed for ${item.name}!`)}
+                                aria-label={`Reorder ${item.name}`}
                               >
-                                <ShoppingBag className="w-4 h-4 mr-1" /> Reorder
+                                <ShoppingBag className="w-4 h-4 mr-1" aria-hidden="true" /> Reorder
                               </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="border-pink-400 text-pink-600 font-bold shadow hover:bg-pink-100 hover:scale-110 active:scale-95 transition-transform duration-200 ripple"
                                 onClick={() => alert(`${item.name} added to favorites!`)}
+                                aria-label={`Add ${item.name} to favorites`}
                               >
-                                <Heart className="w-4 h-4 mr-1 text-pink-500" /> Favorite
+                                <Heart className="w-4 h-4 mr-1 text-pink-500" aria-hidden="true" /> Favorite
                               </Button>
                             </div>
                           </li>
@@ -384,7 +380,9 @@ const Profile: React.FC = () => {
                       </ul>
                     )}
                   </div>
-                  <ChangePassword />
+                  <div className="mt-8">
+                    <ChangePassword />
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
@@ -393,6 +391,6 @@ const Profile: React.FC = () => {
       </motion.div>
     </div>
   );
-};
+}
 
 export default Profile;

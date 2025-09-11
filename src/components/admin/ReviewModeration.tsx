@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiEdit, FiTrash2, FiCheck, FiX } from 'react-icons/fi';
+import { FiTrash2 } from 'react-icons/fi'; // Removed unused FiEdit, FiCheck, FiX imports
 import client from '../../api/client';
 
 interface Review {

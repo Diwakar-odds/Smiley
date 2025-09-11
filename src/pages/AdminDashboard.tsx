@@ -17,6 +17,41 @@ import { useToast } from '../contexts/ToastContext';
 import { useSessionTimeout } from '../hooks/useSessionTimeout';
 import { ContentSkeleton } from '../components/ui/SkeletonLoaders';
 
+const AdminDashboard = () => {
+
+    // Sidebar and tab state
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('dashboard');
+
+    // Sidebar item component
+    interface SidebarItemProps {
+        icon: React.ReactNode;
+        title: string;
+        active: boolean;
+        onClick: () => void;
+        notificationCount?: number;
+    }
+    const SidebarItem: React.FC<SidebarItemProps> = ({
+        icon,
+        title,
+        active,
+        onClick,
+        notificationCount,
+    }) => (
+        <li>
+            <button
+                className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors duration-200 ${active ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-bold' : 'hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-700 dark:text-gray-200'}`}
+                onClick={onClick}
+            >
+                <span className="mr-3 text-xl">{icon}</span>
+                <span className="flex-1 text-left">{title}</span>
+                {notificationCount && notificationCount > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{notificationCount}</span>
+                )}
+            </button>
+        </li>
+    );
+
 // Lazy load components
 const AdminOffers = React.lazy(() => import('./AdminOffers'));
 const MenuManagement = React.lazy(() => import('../components/admin/MenuManagement'));
@@ -29,7 +64,7 @@ interface Order {
     id: number;
     user: {
         name: string;
-        _id: string;
+        id: number;
     };
     status: OrderStatus;
     totalPrice: number;
@@ -63,56 +98,18 @@ interface TopItem {
     name: string;
     count: number;
 }
-
-// Sidebar Item Component
-const SidebarItem = ({
-    icon,
-    title,
-    active,
-    onClick,
-    notificationCount,
-}: {
-    icon: React.ReactNode;
-    title: string;
-    active: boolean;
-    onClick: () => void;
-    notificationCount?: number;
-}) => {
-    return (
-        <li>
-            <button
-                onClick={onClick}
-                className={`w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${active
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/70 hover:bg-white/10'
-                    }`}
-            >
-                <span className={`text-lg ${active ? 'text-white' : 'text-white/70'}`}>
-                    {icon}
-                </span>
-                <span className={`ml-4 text-sm font-semibold ${active ? 'text-white' : ''}`}>{title}</span>
-                {notificationCount && notificationCount > 0 && (
-                    <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                        {notificationCount}
-                    </span>
-                )}
-            </button>
-        </li>
-    );
-};
-
-const AdminDashboard: React.FC = () => {
-    // State
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'overview' | 'orders' | 'menu' | 'inventory' | 'analytics' | 'users' | 'reviews' | 'offers'>('dashboard');
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    // Adapter for OrdersTable onSelectOrder prop
+
+    const [orderDetailsLoading, setOrderDetailsLoading] = useState(false);
     const [salesOverview, setSalesOverview] = useState<SalesOverview | null>(null);
     const [customerBehavior, setCustomerBehavior] = useState<CustomerBehavior | null>(null);
     const [topItems, setTopItems] = useState<TopItem[]>([]);
     const [timeRange, setTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
+    const [salesChartData, setSalesChartData] = useState<{ labels: string[]; values: number[] }>({ labels: [], values: [] });
     const [showNotif, setShowNotif] = useState<boolean>(true);
 
     // Hooks
@@ -170,6 +167,42 @@ const AdminDashboard: React.FC = () => {
                 ]);
 
                 setSalesOverview(salesRes.data);
+                // Prepare sales chart data for AnalyticsCharts
+                if (salesRes.data && salesRes.data.dailySales) {
+                    // Group daily sales into weeks for 'weekly' view
+                    const daily = salesRes.data.dailySales;
+                    if (timeRange === 'weekly') {
+                        // Assume daily is sorted by date ASC
+                        const weeks: { [key: string]: number } = {};
+                        let weekIndex = 1;
+                        let weekSum = 0;
+                        let dayCount = 0;
+                        daily.forEach((d: any, i: number) => {
+                            weekSum += Number(d.dailyRevenue || 0);
+                            dayCount++;
+                            if (dayCount === 7 || i === daily.length - 1) {
+                                weeks[`Week ${weekIndex}`] = weekSum;
+                                weekIndex++;
+                                weekSum = 0;
+                                dayCount = 0;
+                            }
+                        });
+                        setSalesChartData({ labels: Object.keys(weeks), values: Object.values(weeks) });
+                    } else if (timeRange === 'daily') {
+                        setSalesChartData({
+                            labels: daily.map((d: any) => new Date(d.date).toLocaleDateString()),
+                            values: daily.map((d: any) => Number(d.dailyRevenue || 0)),
+                        });
+                    } else {
+                        // Monthly: group by month
+                        const months: { [key: string]: number } = {};
+                        daily.forEach((d: any) => {
+                            const month = new Date(d.date).toLocaleString('default', { month: 'short', year: 'numeric' });
+                            months[month] = (months[month] || 0) + Number(d.dailyRevenue || 0);
+                        });
+                        setSalesChartData({ labels: Object.keys(months), values: Object.values(months) });
+                    }
+                }
                 setCustomerBehavior(customerRes.data);
 
                 let processedTopItems: TopItem[] = [];
@@ -345,6 +378,7 @@ const AdminDashboard: React.FC = () => {
                             topItems={topItems}
                             timeRange={timeRange}
                             onTimeRangeChange={setTimeRange}
+                            salesData={salesChartData}
                         />
                     </motion.div>
                 );
@@ -360,12 +394,26 @@ const AdminDashboard: React.FC = () => {
                         <h1 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600 drop-shadow-sm">Order Management</h1>
                         {selectedOrder ? (
                             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 mb-8">
-                                <OrderDetails order={selectedOrder} onBack={() => setSelectedOrder(null)} />
+                                {orderDetailsLoading ? (
+                                    <div className="text-center py-8 text-lg text-indigo-600">Loading order details...</div>
+                                ) : (
+                                    <OrderDetails order={selectedOrder} onBack={() => setSelectedOrder(null)} />
+                                )}
                             </div>
                         ) : (
                             <OrdersTable
                                 orders={orders}
-                                onSelectOrder={setSelectedOrder}
+                                onSelectOrder={async (order) => {
+                                    setOrderDetailsLoading(true);
+                                    try {
+                                        const res = await client.get(`/orders/${order.id}`);
+                                        setSelectedOrder(res.data);
+                                    } catch (err) {
+                                        setSelectedOrder(order); // fallback to existing data
+                                    } finally {
+                                        setOrderDetailsLoading(false);
+                                    }
+                                }}
                                 onRefresh={refreshData}
                             />
                         )}
@@ -469,13 +517,13 @@ const AdminDashboard: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100">
             {/* Sidebar */}
             <motion.div
                 initial={false}
                 animate={{ width: sidebarOpen ? '280px' : '0px', opacity: sidebarOpen ? 1 : 0 }}
                 className={`bg-gradient-to-br from-indigo-800 to-purple-700 text-white h-full fixed lg:relative ${sidebarOpen ? 'block shadow-2xl' : 'hidden lg:block lg:shadow-xl'
-                    } lg:w-72 z-50 transition-all duration-300 ease-in-out border-r border-indigo-900/10`}
+                    } lg:w-72 z-50 transition-all duration-300 ease-in-out border-r border-gray-900`}
             >
                 <div className="px-6 py-6">
                     <div className="flex items-center justify-between">
@@ -572,9 +620,9 @@ const AdminDashboard: React.FC = () => {
             </motion.div>
 
             {/* Main Content */}
-            <div className="flex-1 overflow-auto relative bg-gradient-to-br from-white to-indigo-50/30 dark:from-gray-900 dark:to-gray-800/30">
+            <div className="flex-1 overflow-auto relative bg-gradient-to-br from-white to-indigo-50/30 dark:from-gray-900 dark:to-gray-800/30 text-gray-900 dark:text-gray-100">
                 {/* Header */}
-                <header className="sticky top-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg z-40 border-b border-indigo-100/50 dark:border-gray-700/50">
+                <header className="sticky top-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg z-40 border-b border-gray-900 dark:border-gray-100">
                     <div className="px-6 py-4 flex justify-between items-center bg-gradient-to-r from-transparent to-indigo-50/50 dark:to-gray-800/50">
                         <div className="flex items-center">
                             <motion.button
@@ -643,7 +691,7 @@ const AdminDashboard: React.FC = () => {
                 </header>
 
                 {/* Main Content Area */}
-                <div className="p-6 md:p-8">
+                <div className="p-6 md:p-8 text-gray-900 dark:text-gray-100">
                     {showNotif && notifications && notifications.length > 0 && (
                         <AdminNotification
                             message={`You have ${notifications.length} new order${notifications.length !== 1 ? 's' : ''}!`}

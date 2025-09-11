@@ -6,10 +6,10 @@ import { Op } from "sequelize";
 // 📊 Sales Overview
 export async function getSalesOverview(req, res) {
   try {
-    const totalOrders = await Order.count();
+    const totalOrders = await Order.count({ where: { status: 'completed' } });
 
     // Calculate total revenue
-    const totalRevenue = await Order.sum("totalPrice");
+    const totalRevenue = await Order.sum("totalPrice", { where: { status: 'completed' } });
 
     // Get sales by date for trends (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -22,6 +22,7 @@ export async function getSalesOverview(req, res) {
         [sequelize.fn("sum", sequelize.col("totalPrice")), "dailyRevenue"],
       ],
       where: {
+        status: 'completed',
         createdAt: {
           [Op.gte]: thirtyDaysAgo,
         },
@@ -62,6 +63,7 @@ export async function getTopItems(req, res) {
       FROM "MenuItems" mi
       JOIN "OrderItems" oi ON mi."id" = oi."menuItemId"
       JOIN "Orders" o ON oi."orderId" = o."id"
+      WHERE o."status" = 'completed'
       GROUP BY mi."id", mi."name", mi."category", mi."price"
       ORDER BY "totalSold" DESC
       LIMIT 10
@@ -85,14 +87,16 @@ export async function getCustomerBehavior(req, res) {
     const userCount = await User.count();
 
     // Average order value
+
     const averageOrderValue = await Order.findOne({
       attributes: [
         [sequelize.fn("AVG", sequelize.col("totalPrice")), "average"],
       ],
+      where: { status: 'completed' },
       raw: true,
     });
 
-    // Orders per user
+    // Orders per user (only completed orders)
     const ordersPerUser = await sequelize.query(
       `
       SELECT 
@@ -101,7 +105,7 @@ export async function getCustomerBehavior(req, res) {
         COUNT(o."id") as "orderCount",
         SUM(o."totalPrice") as "totalSpent"
       FROM "Users" u
-      LEFT JOIN "Orders" o ON u."id" = o."userId"
+      LEFT JOIN "Orders" o ON u."id" = o."userId" AND o."status" = 'completed'
       GROUP BY u."id", u."name"
       ORDER BY "orderCount" DESC
       LIMIT 10
@@ -109,13 +113,14 @@ export async function getCustomerBehavior(req, res) {
       { type: sequelize.QueryTypes.SELECT }
     );
 
-    // Most popular order times (hour of day)
+    // Most popular order times (hour of day, only completed orders)
     const orderTimes = await sequelize.query(
       `
       SELECT 
         EXTRACT(HOUR FROM "createdAt") as "hour",
         COUNT(*) as "orderCount"
       FROM "Orders"
+      WHERE "status" = 'completed'
       GROUP BY EXTRACT(HOUR FROM "createdAt")
       ORDER BY "hour"
     `,

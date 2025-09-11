@@ -5,16 +5,16 @@ import { FiCheck, FiX, FiEdit } from 'react-icons/fi';
 import { OrderStatus } from '../../types/schema';
 
 interface Order {
-    id: number;          // Changed from _id: string to match backend
+    id: number;
     user: {
         name: string;
-        id: number;      // Changed from _id: string to match backend
+        id: number;
     };
-    status: OrderStatus; // ✅ Now using typed enum instead of string
+    status: OrderStatus;
     totalPrice: number;
     createdAt: string;
     items: {
-        menuItemId: string;
+        menuItemId: number;
         name: string;
         quantity: number;
         price: number;
@@ -50,6 +50,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
             setUpdatingStatus(null);
         }
     };
+
+
 
     return (
         <motion.div
@@ -146,7 +148,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
                                     )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="font-semibold text-gray-800">₹{order.totalPrice.toFixed(2)}</span>
+                                    <span className="font-semibold text-gray-800">₹{Number(order.totalPrice).toFixed(2)}</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <motion.button

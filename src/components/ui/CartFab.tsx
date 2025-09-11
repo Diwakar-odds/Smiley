@@ -2,10 +2,9 @@ import React from "react";
 
 const CartFab = ({ onClick, itemCount }: { onClick: () => void; itemCount: number }) => (
   <button
-    className="fixed bottom-24 right-4 z-50 bg-orange-500 text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center text-3xl md:hidden focus:outline-none focus:ring-2 focus:ring-orange-300 active:scale-95 transition-transform"
+    className="cart-fab-style" // TODO: Move styles to CSS file
     onClick={onClick}
     aria-label="Open cart"
-    style={{ touchAction: 'manipulation' }}
   >
     <span className="relative">
       <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

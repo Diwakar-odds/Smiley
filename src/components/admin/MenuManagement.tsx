@@ -10,6 +10,7 @@ interface MenuItem {
     price: number;
     category: string;
     imageUrl?: string;
+    available?: boolean;
 }
 
 interface MenuManagementProps {
@@ -40,6 +41,30 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ initialMenuItems = [] }
             fetchMenuItems();
         }
     }, [initialMenuItems]);
+
+    // Toggle availability using PUT /api/menu/:id
+    const handleToggleAvailability = async (id: string, current: boolean | undefined) => {
+        try {
+            // Find the item to get all its fields
+            const item = menuItems.find(item => item._id === id);
+            if (!item) return;
+            const updatedItem = {
+                name: item.name,
+                description: item.description,
+                price: item.price,
+                category: item.category,
+                imageUrl: item.imageUrl,
+                available: !current
+            };
+                                            className="menu-item-toggle"
+            setMenuItems(menuItems.map(item =>
+                item._id === id ? response.data : item
+            ));
+        } catch (err) {
+            setError('Failed to update item availability');
+            console.error(err);
+        }
+    };
 
     const fetchMenuItems = async () => {
         try {
@@ -177,6 +202,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ initialMenuItems = [] }
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Availability</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -214,6 +240,16 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ initialMenuItems = [] }
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         ₹{item.price.toFixed(2)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                        <button
+                                            onClick={() => handleToggleAvailability(item._id, item.available)}
+                                            className={`px-3 py-1 rounded-full text-xs font-semibold border-2 ${item.available ? 'bg-green-100 text-green-900 border-green-900' : 'bg-red-100 text-red-900 border-red-900'}`}
+                                            aria-label={`Mark ${item.name} as ${item.available ? 'out of stock' : 'available'}`}
+                                            style={{ minWidth: 110, display: 'inline-block' }}
+                                        >
+                                            {item.available ? 'Available' : 'Out of Stock'}
+                                        </button>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button

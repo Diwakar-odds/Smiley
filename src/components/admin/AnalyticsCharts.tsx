@@ -19,43 +19,19 @@ interface AnalyticsChartsProps {
     }[];
     timeRange?: 'daily' | 'weekly' | 'monthly';
     onTimeRangeChange?: (range: 'daily' | 'weekly' | 'monthly') => void;
+    salesData?: { labels: string[]; values: number[] };
 }
 
 const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
     topItems,
     timeRange = 'weekly',
-    onTimeRangeChange
+    onTimeRangeChange,
+    salesData
 }) => {
-    const [salesData, setSalesData] = useState<SalesData>({
-        labels: [],
-        values: [],
-    });
 
-    // Sample data for demonstration - replace with real API data
-    useEffect(() => {
-        const generateSampleSalesData = () => {
-            let labels: string[] = [];
-            let values: number[] = [];
-
-            if (timeRange === 'daily') {
-                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                values = [4200, 3800, 5100, 4900, 6200, 7500, 6800];
-            } else if (timeRange === 'weekly') {
-                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-                values = [28000, 32000, 34000, 38500];
-            } else {
-                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                values = [120000, 145000, 135000, 160000, 148000, 172000];
-            }
-
-            setSalesData({
-                labels,
-                values
-            });
-        };
-
-        generateSampleSalesData();
-    }, [timeRange]);
+    // Use real sales data if provided
+    const chartLabels = salesData?.labels || [];
+    const chartValues = salesData?.values || [];
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -127,7 +103,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
                             <h3 className="text-md font-semibold text-gray-700 mb-2">Top Selling Items</h3>
                             <ul className="space-y-1">
                                 {topItems.map((item, index) => (
-                                    <li key={item._id} className="flex justify-between items-center text-sm">
+                                    <li key={item._id} className="flex justify-between items-center text-sm text-gray-800">
                                         <span>{index + 1}. {item.name}</span>
                                         <span className="font-semibold">{item.count} sold</span>
                                     </li>
@@ -196,11 +172,11 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({
                             }
                         }}
                         data={{
-                            labels: salesData.labels,
+                            labels: chartLabels,
                             datasets: [
                                 {
                                     label: 'Revenue',
-                                    data: salesData.values,
+                                    data: chartValues,
                                     backgroundColor: 'rgba(79, 70, 229, 0.6)',
                                     borderColor: 'rgba(79, 70, 229, 1)',
                                     borderWidth: 1

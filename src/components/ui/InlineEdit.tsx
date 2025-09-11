@@ -81,6 +81,7 @@ export const InlineEdit: React.FC<InlineEditProps> = ({
           className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           disabled={isLoading}
           autoFocus
+          title="Edit Option"
         >
           {options.map(option => (
             <option key={option} value={option}>{option}</option>

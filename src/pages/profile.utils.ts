@@ -64,10 +64,12 @@ export const fetchUserProfile = async (): Promise<ProfileState> => {
 export const updateUserProfile = async (
   profile: ProfileState
 ): Promise<ProfileState> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("Updated profile:", profile);
-      resolve(profile);
-    }, 1000);
-  });
+  const { data } = await client.put("/users/profile", profile);
+  return {
+    name: data.name || "",
+    email: data.email || "",
+    mobile: data.mobile || "",
+    address: data.address || "",
+    profilePic: data.profilePic || "",
+  };
 };

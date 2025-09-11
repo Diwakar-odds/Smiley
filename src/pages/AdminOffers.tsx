@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../hooks/useAuth';
+// import { useAuth } from '../hooks/useAuth';
 
 const AdminOffers = () => {
-  const { user, token } = useAuth();
+  // Get user and token from localStorage
+  const user = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+  const token = localStorage.getItem('jwtToken') || '';
   const [offers, setOffers] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     id: '',
@@ -65,7 +67,7 @@ const AdminOffers = () => {
       }
 
       // Refresh offers
-      const { data } = await axios.get(`/api/offers?storeId=${user?.storeId}`, config);
+  const { data } = await axios.get(`/api/offers?storeId=${user?.storeId}`, config);
       setOffers(data);
 
       // Reset form
@@ -77,7 +79,7 @@ const AdminOffers = () => {
         startDate: '',
         endDate: '',
         discountPercentage: '',
-        storeId: user?.storeId || '',
+  storeId: user?.storeId || '',
       });
       setIsEditing(false);
     } catch (error) {
@@ -109,7 +111,7 @@ const AdminOffers = () => {
       await axios.delete(`/api/offers/${id}`, config);
       setSuccess('Offer deleted successfully!');
       // Refresh offers
-      const { data } = await axios.get(`/api/offers?storeId=${user?.storeId}`, config);
+  const { data } = await axios.get(`/api/offers?storeId=${user?.storeId}`, config);
       setOffers(data);
     } catch (error) {
       setError('Failed to delete offer. Please try again.');
@@ -130,8 +132,8 @@ const AdminOffers = () => {
           <input type="text" name="name" placeholder="Offer Name" value={formData.name} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
           <input type="text" name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
           <input type="text" name="bannerImage" placeholder="Banner Image URL" value={formData.bannerImage} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
-          <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
-          <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+          <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required title="Start Date" />
+          <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required title="End Date" />
           <input type="number" name="discountPercentage" placeholder="Discount %" value={formData.discountPercentage} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
         </div>
         <button type="submit" className="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">{isEditing ? 'Update Offer' : 'Add Offer'}</button>

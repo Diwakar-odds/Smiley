@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import client from '../api/client';
 import { motion } from 'framer-motion';
 
@@ -86,7 +86,7 @@ const Inventory = () => {
                   <td className="py-2 px-4 border-b">{item.mealId.name}</td>
                   <td className="py-2 px-4 border-b">
                     {editingStock === item.mealId._id ? (
-                      <input
+                      <input title="Inventory Input"
                         type="number"
                         value={newStockValue}
                         onChange={(e) => setNewStockValue(Number(e.target.value))}
