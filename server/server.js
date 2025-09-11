@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'url';
+import path from 'path';
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -17,7 +19,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Resolve the root directory for static files
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const root = path.resolve(__dirname, '..');
+
+// Serve static files from the Vite build directory
+app.use(express.static(path.join(root, 'dist')));
+
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/menu", menuRoutes);
@@ -35,6 +45,11 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/offers", offerRoutes);
+
+// Catch-all route to serve the frontend for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(root, 'dist', 'index.html'));
+});
 
 const PORT = process.env.PORT || 5000;
 

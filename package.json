@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "cd server && npm start",
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
     "server:dev": "cd server && npm run dev",
-    "client:dev": "vite",
+    "client:dev": "vite --host --port 3000",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -22,12 +23,15 @@
     "chart.js": "^4.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
+    "express": "^5.1.0",
     "framer-motion": "^11.0.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.344.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.5",
+    "pg": "^8.16.3",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
@@ -35,8 +39,10 @@
     "react-native-safe-area-context": "^5.6.0",
     "react-native-screens": "^4.14.1",
     "react-router-dom": "^7.8.1",
+    "sequelize": "^6.37.7",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "twilio": "^5.9.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
