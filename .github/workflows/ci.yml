@@ -52,8 +52,7 @@ jobs:
       run: npm run build
 
     - name: Run tests
-      run: npm test
-      if: false  # Disable until tests are implemented
+      run: npm run test:run
 
     - name: Test server
       run: cd server && npm test
