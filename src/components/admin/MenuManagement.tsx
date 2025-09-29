@@ -56,10 +56,12 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ initialMenuItems = [] }
                 imageUrl: item.imageUrl,
                 available: !current
             };
-                                            className="menu-item-toggle"
+            // SEND THE API REQUEST!
+            const response = await client.put(`/menu/${id}`, updatedItem);
             setMenuItems(menuItems.map(item =>
                 item._id === id ? response.data : item
             ));
+            setError(null);
         } catch (err) {
             setError('Failed to update item availability');
             console.error(err);

@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
 import { CartItem } from '../../types/cart';
 
 interface OrderFormProps {
@@ -11,17 +10,9 @@ interface OrderFormProps {
 }
 
 const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
-  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Online'>('COD');
+  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Online' | 'LAST'>('COD');
+  const [lastPaymentMethod, setLastPaymentMethod] = useState<any>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
-
-  React.useEffect(() => {
-    if (!razorpayLoaded) {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => setRazorpayLoaded(true);
-      document.body.appendChild(script);
-    }
-  }, [razorpayLoaded]);
   const [showDetailsForm, setShowDetailsForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -33,6 +24,50 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Fetch last payment method and user profile on mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const jwtToken = localStorage.getItem('jwtToken');
+      if (!jwtToken) return;
+      
+      try {
+        // Fetch last payment method
+        const paymentRes = await fetch('/api/payments/last', {
+          headers: { Authorization: `Bearer ${jwtToken}` }
+        });
+        if (paymentRes.ok) {
+          const paymentData = await paymentRes.json();
+          setLastPaymentMethod(paymentData);
+        }
+
+        // Fetch user profile to auto-populate name and phone
+        const profileRes = await fetch('/api/users/profile', {
+          headers: { Authorization: `Bearer ${jwtToken}` }
+        });
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          setFormData(prev => ({
+            ...prev,
+            name: profileData.name || '',
+            phone: profileData.mobile || ''
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    if (!razorpayLoaded) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => setRazorpayLoaded(true);
+      document.body.appendChild(script);
+    }
+  }, [razorpayLoaded]);
 
   // Auto-close modal on route change
   useEffect(() => {
@@ -67,7 +102,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           return;
         }
         // Create order on backend for Razorpay
-  const orderRes = await fetch('/api/orders/razorpay', {
+        const orderRes = await fetch('/api/orders/razorpay', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -123,7 +158,11 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
 
     async function submitOrder(paymentStatus: string, razorpayPaymentId: string) {
       try {
-  const response = await fetch('/api/orders', {
+        let paymentMethodToSend: string | 'COD' | 'Online' = paymentMethod;
+        if (paymentMethod === 'LAST' && lastPaymentMethod && lastPaymentMethod.id) {
+          paymentMethodToSend = lastPaymentMethod.id;
+        }
+        const response = await fetch('/api/orders', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -135,7 +174,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
             phone: formData.phone,
             address: formData.address,
             specialRequests: formData.specialRequests,
-            paymentMethod,
+            paymentMethod: paymentMethodToSend,
             paymentStatus,
             razorpayPaymentId,
             storeId: 2, // Use correct integer storeId
@@ -162,7 +201,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
     <div>
       <motion.button
         type="button"
-  className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-poppins font-semibold py-3 sm:py-4 rounded-lg mb-3 sm:mb-4 text-base sm:text-lg"
+        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-poppins font-semibold py-3 sm:py-4 rounded-lg mb-3 sm:mb-4 text-base sm:text-lg"
         onClick={() => setShowDetailsForm(true)}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
@@ -171,7 +210,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
       </motion.button>
 
       {showDetailsForm && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-2">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -186,39 +225,54 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
             >
               &times;
             </button>
+            {(formData.name || formData.phone) && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-700 text-sm flex items-center">
+                  <span className="mr-2">✓</span>
+                  Your name and phone have been pre-filled from your profile to save time!
+                </p>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div>
                 <label htmlFor="payment-method" className="block font-inter font-medium text-gray-700 mb-1 sm:mb-2 text-sm sm:text-base">Payment Method</label>
                 <select
                   id="payment-method"
                   value={paymentMethod}
-                  onChange={e => setPaymentMethod(e.target.value as 'COD' | 'Online')}
+                  onChange={e => setPaymentMethod(e.target.value as 'COD' | 'Online' | 'LAST')}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base"
                 >
                   <option value="COD">Cash on Delivery</option>
                   <option value="Online">Online Payment (Razorpay)</option>
+                  {lastPaymentMethod && lastPaymentMethod.cardNumber && (
+                    <option value="LAST">Use Last Payment Method (****{lastPaymentMethod.cardNumber.slice(-4)})</option>
+                  )}
                 </select>
               </div>
               <div>
-                <label className="block font-inter font-medium text-gray-700 mb-1 sm:mb-2 text-sm sm:text-base">Name</label>
+                <label className="block font-inter font-medium text-gray-700 mb-1 sm:mb-2 text-sm sm:text-base">
+                  Name {formData.name && <span className="text-green-600 text-xs">(from your profile)</span>}
+                </label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base bg-white text-gray-900"
                   placeholder="Enter your name"
                   required
                 />
               </div>
               <div>
-                <label className="block font-inter font-medium text-gray-700 mb-1 sm:mb-2 text-sm sm:text-base">Phone</label>
+                <label className="block font-inter font-medium text-gray-700 mb-1 sm:mb-2 text-sm sm:text-base">
+                  Phone {formData.phone && <span className="text-green-600 text-xs">(from your profile)</span>}
+                </label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base bg-white text-gray-900"
                   placeholder="Enter your phone number"
                   required
                 />
@@ -230,7 +284,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
                   name="address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base bg-white text-gray-900"
                   placeholder="Enter your address"
                   required
                 />
@@ -242,7 +296,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
                   value={formData.specialRequests}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm sm:text-base bg-white text-gray-900"
                   placeholder="Any special instructions or requests..."
                 />
               </div>

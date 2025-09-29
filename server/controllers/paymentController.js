@@ -1,3 +1,22 @@
+// Get last used payment method for a user
+import { User } from "../models/sequelize/index.js";
+
+export const getLastPaymentMethod = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user || !user.lastPaymentMethodId) {
+      return res.status(404).json({ message: "No last payment method found" });
+    }
+    const paymentMethod = await PaymentMethod.findByPk(user.lastPaymentMethodId);
+    if (!paymentMethod) {
+      return res.status(404).json({ message: "Last payment method not found" });
+    }
+    res.json(paymentMethod);
+  } catch (error) {
+    console.error("Error fetching last payment method:", error);
+    res.status(500).json({ message: "Error fetching last payment method", error: error.message });
+  }
+};
 import { PaymentMethod } from "../models/sequelize/index.js";
 
 // Add a new payment method

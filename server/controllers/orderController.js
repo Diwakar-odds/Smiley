@@ -4,7 +4,7 @@ import { Order, User, MenuItem, sequelize } from "../models/sequelize/index.js";
 // @route   POST /api/orders
 // @access  Private
 export const createOrder = async (req, res) => {
-  const { name, phone, address, items, totalPrice, specialRequests, storeId } =
+  const { name, phone, address, items, totalPrice, specialRequests, storeId, paymentMethod } =
     req.body;
 
   // Validate required fields
@@ -57,6 +57,14 @@ export const createOrder = async (req, res) => {
         },
         { transaction: t }
       );
+
+      // If paymentMethod is provided and is a PaymentMethod id, update user's lastPaymentMethodId
+      if (paymentMethod) {
+        await User.update(
+          { lastPaymentMethodId: paymentMethod },
+          { where: { id: userId }, transaction: t }
+        );
+      }
 
       // Create order items in the junction table
       for (const item of items) {

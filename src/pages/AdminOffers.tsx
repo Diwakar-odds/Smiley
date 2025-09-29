@@ -129,12 +129,12 @@ const AdminOffers = () => {
       {success && <div className="bg-green-100 text-green-700 p-2 mb-4 rounded">{success}</div>}
       <form onSubmit={handleSubmit} className="mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" name="name" placeholder="Offer Name" value={formData.name} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
-          <input type="text" name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
-          <input type="text" name="bannerImage" placeholder="Banner Image URL" value={formData.bannerImage} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
-          <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required title="Start Date" />
-          <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required title="End Date" />
-          <input type="number" name="discountPercentage" placeholder="Discount %" value={formData.discountPercentage} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+          <input type="text" name="name" placeholder="Offer Name" value={formData.name} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900" required />
+          <input type="text" name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900" required />
+          <input type="text" name="bannerImage" placeholder="Banner Image URL" value={formData.bannerImage} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900" required />
+          <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900" required title="Start Date" />
+          <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900" required title="End Date" />
+          <input type="number" name="discountPercentage" placeholder="Discount %" value={formData.discountPercentage} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900" required />
         </div>
         <button type="submit" className="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">{isEditing ? 'Update Offer' : 'Add Offer'}</button>
         {isEditing && <button type="button" onClick={() => setIsEditing(false)} className="mt-2 w-full bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500">Cancel Edit</button>}

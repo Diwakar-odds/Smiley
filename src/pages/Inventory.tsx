@@ -90,7 +90,7 @@ const Inventory = () => {
                         type="number"
                         value={newStockValue}
                         onChange={(e) => setNewStockValue(Number(e.target.value))}
-                        className="w-24 p-1 border rounded"
+                        className="w-24 p-1 border rounded bg-white text-gray-900"
                       />
                     ) : (
                       item.stock

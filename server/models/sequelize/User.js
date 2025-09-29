@@ -58,6 +58,14 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      lastPaymentMethodId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: "PaymentMethods",
+          key: "id",
+        },
+      },
     },
     {
       tableName: "Users",
