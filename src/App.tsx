@@ -4,6 +4,7 @@ import smileyLogo from './assets/smiley-logo.png';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { CartItem, MenuItemData } from './types/cart';
+import pushNotificationService from './services/pushNotificationService';
 const LoginRegister = React.lazy(() => import('./pages/LoginRegister'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Inventory = React.lazy(() => import('./pages/Inventory'));
@@ -64,17 +65,47 @@ const App = () => {
     setShowCart(false);
   }, [location.pathname]);
 
-  const addToCart = (item: MenuItemData) => {
+    const [loading, setLoading] = useState(true);
+
+  // Initialize push notifications for admin users
+  useEffect(() => {
+    const initializePushNotifications = async () => {
+      const token = localStorage.getItem('jwtToken');
+      const userRole = localStorage.getItem('role');
+
+      // Only initialize push notifications for admin users
+      if (token && userRole === 'admin') {
+        try {
+          await pushNotificationService.initialize();
+        } catch (error) {
+          console.error('Failed to initialize push notifications:', error);
+        }
+      }
+    };
+
+    initializePushNotifications();
+  }, []);
+
+  // Add item to cart
+  const addToCart = (item: MenuItemData, quantity: number) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+      const existingItem = prevCart.find(cartItem => cartItem.id === item._id);
       if (existingItem) {
         return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+          cartItem.id === item._id
+            ? { ...cartItem, quantity: cartItem.quantity + quantity }
             : cartItem
         );
+      } else {
+        const newCartItem: CartItem = {
+          id: item._id,
+          name: item.name,
+          price: item.price,
+          quantity,
+          imageUrl: item.imageUrl
+        };
+        return [...prevCart, newCartItem];
       }
-      return [...prevCart, { ...item, quantity: 1 }];
     });
   };
 

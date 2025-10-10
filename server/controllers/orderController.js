@@ -1,5 +1,6 @@
 import { Order, User, MenuItem, sequelize } from "../models/sequelize/index.js";
-import { createAdminNotification } from "../services/notificationService.js";
+import { sendOrderNotificationSMS, sendOrderStatusUpdateSMS } from "../services/adminNotificationService.js";
+import { sendOrderPushNotification } from "./pushNotificationController.js";
 
 const isUuidV4 = (value) =>
   typeof value === "string" &&
@@ -111,13 +112,32 @@ export const createOrder = async (req, res) => {
       return completeOrder;
     });
 
-    const notificationPromise = createAdminNotification(result);
+    // Send SMS and Push notifications to admin(s) about the new order
+    try {
+      const orderItems = result.MenuItems.map(item => ({
+        name: item.name,
+        quantity: item.OrderItem.quantity
+      }));
+
+      const notificationData = {
+        orderId: result.id,
+        customerName: result.name,
+        customerPhone: result.phone,
+        totalPrice: result.totalPrice,
+        items: orderItems
+      };
+
+      // Send SMS notification
+      await sendOrderNotificationSMS(notificationData);
+
+      // Send push notification
+      await sendOrderPushNotification(notificationData);
+    } catch (notificationError) {
+      // Don't fail the order creation if notifications fail
+      console.error("Failed to send notifications:", notificationError);
+    }
 
     res.status(201).json(result);
-
-    notificationPromise.catch((error) => {
-      console.error("Failed to dispatch admin notification:", error);
-    });
   } catch (error) {
     console.error("Error creating order:", error);
     // Provide more detailed error for debugging
@@ -180,11 +200,34 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    const order = await Order.findByPk(req.params.id);
+    const order = await Order.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          attributes: ["id", "name", "email", "mobile"],
+        }
+      ]
+    });
 
     if (order) {
+      const oldStatus = order.status;
       order.status = status;
       const updatedOrder = await order.save();
+
+      // Send SMS notification to admin(s) about status change (only if status actually changed)
+      if (oldStatus !== status) {
+        try {
+          await sendOrderStatusUpdateSMS({
+            orderId: order.id,
+            customerName: order.User ? order.User.name : order.name,
+            status: status
+          }, req.user?.mobile); // Exclude the admin who made the change
+        } catch (smsError) {
+          // Don't fail the update if SMS fails
+          console.error("Failed to send status update SMS notification:", smsError);
+        }
+      }
+
       res.json(updatedOrder);
     } else {
       res.status(404).json({ message: "Order not found" });
