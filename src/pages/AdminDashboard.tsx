@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OrderDetails from '../components/ui/OrderDetails';
 import AdminStats from '../components/admin/AdminStats';
@@ -12,6 +12,8 @@ import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 Chart.register(ArcElement, Tooltip, Legend);
 import AdminNotification from '../components/ui/AdminNotification';
 import { useOrderNotifications } from '../hooks/useOrderNotifications';
+import NotificationCenter from '../components/admin/NotificationCenter';
+import usePushNotifications from '../hooks/usePushNotifications';
 import { useTheme } from '../contexts/ThemeContext';
 import { useToast } from '../contexts/ToastContext';
 import { useSessionTimeout } from '../hooks/useSessionTimeout';
@@ -86,11 +88,23 @@ interface Order {
 interface SalesOverview {
     totalOrders: number;
     totalRevenue: number;
+    dailySales?: Array<{
+        date: string;
+        orderCount: number;
+        dailyRevenue: number;
+    }>;
 }
 
 interface CustomerBehavior {
     totalUsers: number;
     repeatCustomers: number;
+    averageOrderValue?: number;
+    ordersPerUser?: Array<{
+        id: number;
+        name: string;
+        orderCount: number;
+        totalSpent: number;
+    }>;
 }
 
 interface TopItem {
@@ -115,7 +129,15 @@ interface TopItem {
     // Hooks
     const navigate = useNavigate();
     const token = localStorage.getItem('jwtToken');
-    const { notifications } = useOrderNotifications(token);
+    const {
+        notifications,
+        unreadCount,
+        markAsRead,
+        markAsHandled,
+        loading: notificationsLoading,
+    } = useOrderNotifications(token);
+    const { error: pushError } = usePushNotifications({ enabled: true });
+    const latestNotificationIdRef = useRef<number | null>(null);
     const { toggleTheme, isDark } = useTheme();
     const { showToast } = useToast();
     
@@ -124,6 +146,70 @@ interface TopItem {
         warningTime: 5 * 60 * 1000, // 5 minutes warning
         onWarning: () => showToast('info', 'Your session will expire soon. Please refresh to extend.', 10000),
     });
+
+    // Refresh function needs to be defined before effects that depend on it
+    const refreshData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const [salesRes, customerRes, topItemsRes, ordersRes] = await Promise.all([
+                client.get('/analytics/sales-overview'),
+                client.get('/analytics/customer-behavior'),
+                client.get('/analytics/top-items'),
+                client.get('/orders'),
+            ]);
+
+            setSalesOverview(salesRes.data);
+            setCustomerBehavior(customerRes.data);
+
+            let processedTopItems: TopItem[] = [];
+            if (Array.isArray(topItemsRes.data)) {
+                processedTopItems = topItemsRes.data.map((item: any) => ({
+                    _id: item.id || item._id,
+                    name: item.name || 'Unknown Item',
+                    count: item.totalSold || item.count || 0
+                }));
+            } else if (topItemsRes.data?.topItems) {
+                processedTopItems = topItemsRes.data.topItems.map((item: any) => {
+                    const details = topItemsRes.data.details?.find((d: any) => d._id === item._id);
+                    return {
+                        _id: item._id,
+                        name: details?.name || 'Unknown Item',
+                        count: item.count
+                    };
+                });
+            }
+            setTopItems(processedTopItems);
+            setOrders(ordersRes.data);
+            setShowNotif(false);
+            setLoading(false);
+            showToast('success', 'Dashboard data refreshed successfully!');
+        } catch (err: any) {
+            console.error('Dashboard refresh error:', err);
+            const errorMessage = err.response?.data?.message || 'Failed to load dashboard data. Please try again.';
+            setError(errorMessage);
+            setLoading(false);
+            showToast('error', errorMessage);
+        }
+    }, [showToast]);
+
+    useEffect(() => {
+        if (unreadCount > 0) {
+            setShowNotif(true);
+        }
+    }, [unreadCount]);
+
+    useEffect(() => {
+        if (!notifications.length) {
+            return;
+        }
+        const latestNotification = notifications[0];
+        if (latestNotification && latestNotification.id !== latestNotificationIdRef.current) {
+            latestNotificationIdRef.current = latestNotification.id;
+            refreshData();
+        }
+    }, [notifications, refreshData]);
 
     // Auth check
     useEffect(() => {
@@ -242,52 +328,6 @@ interface TopItem {
         fetchDashboardData();
     }, [token, navigate]);
 
-    // Refresh function
-    const refreshData = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const [salesRes, customerRes, topItemsRes, ordersRes] = await Promise.all([
-                client.get('/analytics/sales-overview'),
-                client.get('/analytics/customer-behavior'),
-                client.get('/analytics/top-items'),
-                client.get('/orders'),
-            ]);
-
-            setSalesOverview(salesRes.data);
-            setCustomerBehavior(customerRes.data);
-
-            let processedTopItems: TopItem[] = [];
-            if (Array.isArray(topItemsRes.data)) {
-                processedTopItems = topItemsRes.data.map((item: any) => ({
-                    _id: item.id || item._id,
-                    name: item.name || 'Unknown Item',
-                    count: item.totalSold || item.count || 0
-                }));
-            } else if (topItemsRes.data?.topItems) {
-                processedTopItems = topItemsRes.data.topItems.map((item: any) => {
-                    const details = topItemsRes.data.details?.find((d: any) => d._id === item._id);
-                    return {
-                        _id: item._id,
-                        name: details?.name || 'Unknown Item',
-                        count: item.count
-                    };
-                });
-            }
-            setTopItems(processedTopItems);
-            setOrders(ordersRes.data);
-            setShowNotif(false);
-            setLoading(false);
-            showToast('success', 'Dashboard data refreshed successfully!');
-        } catch (err: any) {
-            console.error('Dashboard refresh error:', err);
-            const errorMessage = err.response?.data?.message || 'Failed to load dashboard data. Please try again.';
-            setError(errorMessage);
-            setLoading(false);
-            showToast('error', errorMessage);
-        }
-    };
 
     // Loading state
     if (loading) {
@@ -363,12 +403,38 @@ interface TopItem {
                         exit="exit"
                         variants={tabVariants}
                     >
-                        <AdminStats
-                            totalRevenue={salesOverview?.totalRevenue || 0}
-                            totalOrders={salesOverview?.totalOrders || 0}
-                            totalUsers={customerBehavior?.totalUsers || 0}
-                            repeatCustomers={customerBehavior?.repeatCustomers || 0}
-                        />
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+                            <NotificationCenter
+                                notifications={notifications}
+                                onAcknowledge={async (id) => {
+                                    try {
+                                        await markAsRead(id);
+                                    } catch (err) {
+                                        console.error('Failed to acknowledge notification', err);
+                                        showToast('error', 'Failed to acknowledge notification');
+                                    }
+                                }}
+                                onResolve={async (id) => {
+                                    try {
+                                        await markAsHandled(id);
+                                        showToast('success', 'Order marked as handled');
+                                    } catch (err) {
+                                        console.error('Failed to mark notification handled', err);
+                                        showToast('error', 'Failed to mark notification handled');
+                                    }
+                                }}
+                                loading={notificationsLoading}
+                            />
+                            <AdminStats
+                                totalRevenue={salesOverview?.totalRevenue || 0}
+                                totalOrders={salesOverview?.totalOrders || 0}
+                                totalUsers={customerBehavior?.totalUsers || 0}
+                                repeatCustomers={customerBehavior?.repeatCustomers || 0}
+                                dailySales={salesOverview?.dailySales || []}
+                                averageOrderValue={customerBehavior?.averageOrderValue || 0}
+                                ordersPerUser={customerBehavior?.ordersPerUser || []}
+                            />
+                        </div>
                         <OrdersTable
                             orders={orders.slice(0, 5)}
                             onSelectOrder={setSelectedOrder}
@@ -558,7 +624,7 @@ interface TopItem {
                                     setActiveTab('orders');
                                     setSidebarOpen(false);
                                 }}
-                                notificationCount={notifications?.length}
+                                notificationCount={unreadCount}
                             />
                             <SidebarItem
                                 icon={<FiList />}
@@ -649,7 +715,7 @@ interface TopItem {
                                 {loading ? 'Refreshing...' : 'Refresh Data'}
                             </motion.button>
 
-                            {notifications && notifications.length > 0 && (
+                            {unreadCount > 0 && (
                                 <motion.div
                                     initial={{ scale: 0.8 }}
                                     animate={{ scale: 1 }}
@@ -661,7 +727,7 @@ interface TopItem {
                                     }}
                                 >
                                     <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
-                                        {notifications.length} new order{notifications.length !== 1 ? 's' : ''}
+                                        {unreadCount} new order{unreadCount !== 1 ? 's' : ''}
                                     </span>
                                 </motion.div>
                             )}
@@ -692,11 +758,16 @@ interface TopItem {
 
                 {/* Main Content Area */}
                 <div className="p-6 md:p-8 text-gray-900 dark:text-gray-100">
-                    {showNotif && notifications && notifications.length > 0 && (
+                    {showNotif && unreadCount > 0 && (
                         <AdminNotification
-                            message={`You have ${notifications.length} new order${notifications.length !== 1 ? 's' : ''}!`}
+                            message={`You have ${unreadCount} new order${unreadCount !== 1 ? 's' : ''}!`}
                             onClose={() => setShowNotif(false)}
                         />
+                    )}
+                    {pushError && (
+                        <div className="mb-4 text-sm text-yellow-700 bg-yellow-100 border border-yellow-300 rounded-lg px-4 py-3">
+                            Push notifications disabled: {pushError}
+                        </div>
                     )}
                     {renderTabContent()}
                 </div>

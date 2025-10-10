@@ -1,4 +1,11 @@
 import { Order, User, MenuItem, sequelize } from "../models/sequelize/index.js";
+import { createAdminNotification } from "../services/notificationService.js";
+
+const isUuidV4 = (value) =>
+  typeof value === "string" &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value
+  );
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -58,8 +65,8 @@ export const createOrder = async (req, res) => {
         { transaction: t }
       );
 
-      // If paymentMethod is provided and is a PaymentMethod id, update user's lastPaymentMethodId
-      if (paymentMethod) {
+      // If paymentMethod looks like a stored method id (UUID), remember it for future orders
+      if (paymentMethod && isUuidV4(paymentMethod)) {
         await User.update(
           { lastPaymentMethodId: paymentMethod },
           { where: { id: userId }, transaction: t }
@@ -104,7 +111,13 @@ export const createOrder = async (req, res) => {
       return completeOrder;
     });
 
+    const notificationPromise = createAdminNotification(result);
+
     res.status(201).json(result);
+
+    notificationPromise.catch((error) => {
+      console.error("Failed to dispatch admin notification:", error);
+    });
   } catch (error) {
     console.error("Error creating order:", error);
     // Provide more detailed error for debugging

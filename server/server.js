@@ -12,6 +12,7 @@ import menuRoutes from "./routes/menuRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 const app = express();
 
@@ -34,11 +35,13 @@ app.use("/api/menu", menuRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/store", storeRoutes);
+app.use("/api/notifications", notificationRoutes);
 import addressRoutes from "./routes/addressRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import offerRoutes from "./routes/offerRoutes.js";
+import { startEscalationScheduler } from "./services/notificationService.js";
 
 app.use("/api/addresses", addressRoutes);
 app.use("/api/payments", paymentRoutes);
@@ -61,6 +64,8 @@ const startServer = async () => {
 
     // Sync all models with the database
     await syncModels({ alter: true });
+
+  startEscalationScheduler();
 
     // Listen on all network interfaces so Codespaces / container port forwarding works
     const HOST = process.env.HOST || "0.0.0.0";

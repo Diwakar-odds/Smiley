@@ -10,6 +10,8 @@ import OtpModel from "./Otp.js";
 import PaymentMethodModel from "./PaymentMethod.js";
 import ReviewModel from "./Review.js";
 import OrderItemModel from "./OrderItem.js";
+import AdminNotificationModel from "./AdminNotification.js";
+import AdminPushSubscriptionModel from "./AdminPushSubscription.js";
 
 import { sequelize } from "../../config/sqlDb.js";
 const User = UserModel(sequelize);
@@ -23,6 +25,8 @@ const Otp = OtpModel(sequelize);
 const PaymentMethod = PaymentMethodModel(sequelize);
 const Review = ReviewModel(sequelize);
 const OrderItem = OrderItemModel(sequelize);
+const AdminNotification = AdminNotificationModel(sequelize);
+const AdminPushSubscription = AdminPushSubscriptionModel(sequelize);
 
 // Associations
 User.hasMany(Order, { foreignKey: "userId" });
@@ -75,6 +79,30 @@ OrderItem.belongsTo(MenuItem, { foreignKey: "menuItemId" });
 Store.hasMany(Order, { foreignKey: "storeId" });
 Order.belongsTo(Store, { foreignKey: "storeId" });
 
+Order.hasMany(AdminNotification, { foreignKey: "orderId" });
+AdminNotification.belongsTo(Order, { foreignKey: "orderId" });
+
+AdminNotification.belongsTo(User, {
+  foreignKey: "acknowledgedBy",
+  as: "acknowledgedByAdmin",
+});
+AdminNotification.belongsTo(User, {
+  foreignKey: "handledBy",
+  as: "handledByAdmin",
+});
+
+User.hasMany(AdminNotification, {
+  foreignKey: "acknowledgedBy",
+  as: "acknowledgedNotifications",
+});
+User.hasMany(AdminNotification, {
+  foreignKey: "handledBy",
+  as: "handledNotifications",
+});
+
+User.hasMany(AdminPushSubscription, { foreignKey: "adminId" });
+AdminPushSubscription.belongsTo(User, { foreignKey: "adminId" });
+
 // Utility to sync all models
 async function syncModels(options = {}) {
   await sequelize.sync(options);
@@ -93,5 +121,7 @@ export {
   PaymentMethod,
   Review,
   OrderItem,
+  AdminNotification,
+  AdminPushSubscription,
   syncModels,
 };
