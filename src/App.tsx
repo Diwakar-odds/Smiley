@@ -60,12 +60,21 @@ const App = () => {
     setTimeout(() => setIsLoading(false), 2000);
   }, []);
 
+  // Load cart from localStorage on component mount
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    setCart(storedCart);
+  }, []);
+
+  // Save cart to localStorage whenever cart changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
   // Close cart when route changes
   useEffect(() => {
     setShowCart(false);
   }, [location.pathname]);
-
-    const [loading, setLoading] = useState(true);
 
   // Initialize push notifications for admin users
   useEffect(() => {
@@ -87,22 +96,24 @@ const App = () => {
   }, []);
 
   // Add item to cart
-  const addToCart = (item: MenuItemData, quantity: number) => {
+  const addToCart = (item: MenuItemData, quantity: number = 1) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.id === item._id);
+      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
       if (existingItem) {
         return prevCart.map(cartItem =>
-          cartItem.id === item._id
+          cartItem.id === item.id
             ? { ...cartItem, quantity: cartItem.quantity + quantity }
             : cartItem
         );
       } else {
         const newCartItem: CartItem = {
-          id: item._id,
+          id: item.id,
           name: item.name,
+          description: item.description,
           price: item.price,
           quantity,
-          imageUrl: item.imageUrl
+          imageUrl: item.imageUrl,
+          category: item.category
         };
         return [...prevCart, newCartItem];
       }

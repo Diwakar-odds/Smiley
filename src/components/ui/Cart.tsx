@@ -2,26 +2,15 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Plus, Minus } from 'lucide-react';
 import OrderForm from '../forms/OrderForm';
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  category: string;
-}
-
-interface CartItem extends MenuItem {
-  quantity: number;
-}
+import { CartItem } from '../../types/cart';
+import { MenuItemData } from '../../data/menuData';
 
 interface CartProps {
   cart: CartItem[];
   onClose: () => void;
   clearCart: () => void;
-  addToCart: (item: MenuItem) => void;
-  removeFromCart: (item: MenuItem) => void;
+  addToCart: (item: MenuItemData, quantity?: number) => void;
+  removeFromCart: (item: MenuItemData) => void;
 }
 
 const Cart = ({ cart, onClose, clearCart, addToCart, removeFromCart }: CartProps) => {

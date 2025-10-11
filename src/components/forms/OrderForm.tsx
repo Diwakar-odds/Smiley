@@ -162,6 +162,14 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
         if (paymentMethod === 'LAST' && lastPaymentMethod && lastPaymentMethod.id) {
           paymentMethodToSend = lastPaymentMethod.id;
         }
+        const totalPriceNum = typeof total === 'number' ? total : Number(total);
+        console.log('Submitting order with total:', total, 'converted to:', totalPriceNum, 'isNaN:', isNaN(totalPriceNum));
+        
+        if (isNaN(totalPriceNum) || totalPriceNum <= 0) {
+          alert('Invalid total price. Please refresh the page and try again.');
+          return;
+        }
+        
         const response = await fetch('/api/orders', {
           method: 'POST',
           headers: {
@@ -178,7 +186,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
             paymentStatus,
             razorpayPaymentId,
             storeId: 2, // Use correct integer storeId
-            totalPrice: total
+            totalPrice: totalPriceNum
           }),
         });
 

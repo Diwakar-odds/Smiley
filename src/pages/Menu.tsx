@@ -12,7 +12,7 @@ interface Offer {
   discountPercentage: number;
 }
 
-const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData) => void }) => {
+const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData, quantity?: number) => void }) => {
   const [menuItems, setMenuItems] = useState<MenuItemData[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);

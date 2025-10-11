@@ -2,18 +2,22 @@ import React from 'react';
 import { FiUsers, FiShoppingCart, FiDollarSign, FiRefreshCw } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
+type StatKey = 'revenue' | 'orders' | 'users' | 'repeat';
+
 interface StatsProps {
     totalRevenue: number;
     totalOrders: number;
     totalUsers: number;
     repeatCustomers: number;
+    onStatClick?: (stat: StatKey) => void;
 }
 
 const AdminStats: React.FC<StatsProps> = ({
     totalRevenue,
     totalOrders,
     totalUsers,
-    repeatCustomers
+    repeatCustomers,
+    onStatClick
 }) => {
     return (
         <motion.div
@@ -27,24 +31,28 @@ const AdminStats: React.FC<StatsProps> = ({
                 title="Total Revenue"
                 value={`₹${totalRevenue?.toFixed(2) ?? '0.00'}`}
                 color="from-orange-400 to-pink-500"
+                onClick={() => onStatClick?.('revenue')}
             />
             <StatCard
                 icon={<FiShoppingCart />}
                 title="Total Orders"
                 value={totalOrders ?? 0}
                 color="from-blue-400 to-blue-600"
+                onClick={() => onStatClick?.('orders')}
             />
             <StatCard
                 icon={<FiUsers />}
                 title="Total Users"
                 value={totalUsers ?? 0}
                 color="from-green-400 to-green-600"
+                onClick={() => onStatClick?.('users')}
             />
             <StatCard
                 icon={<FiRefreshCw />}
                 title="Repeat Customers"
                 value={repeatCustomers ?? 0}
                 color="from-purple-400 to-purple-600"
+                onClick={() => onStatClick?.('repeat')}
             />
         </motion.div>
     );
@@ -55,11 +63,14 @@ interface StatCardProps {
     title: string;
     value: string | number;
     color: string;
+    onClick?: () => void;
 }
 
-const StatCard = ({ icon, title, value, color }: StatCardProps) => (
-    <motion.div
-        className={`bg-gradient-to-br ${color} shadow-lg hover:shadow-xl hover:shadow-${color.split('-')[1]}-500/20 rounded-2xl p-6 flex items-center space-x-5 transition-all duration-300`}
+const StatCard = ({ icon, title, value, color, onClick }: StatCardProps) => (
+    <motion.button
+        type="button"
+        onClick={onClick}
+        className={`bg-gradient-to-br ${color} shadow-lg hover:shadow-xl hover:shadow-${color.split('-')[1]}-500/20 rounded-2xl p-6 flex items-center space-x-5 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60`}
         whileHover={{ scale: 1.03, y: -3 }}
         whileTap={{ scale: 0.98 }}
     >
@@ -68,7 +79,7 @@ const StatCard = ({ icon, title, value, color }: StatCardProps) => (
             <p className="text-white/80 font-medium text-sm mb-1">{title}</p>
             <p className="text-2xl font-bold text-white">{value}</p>
         </div>
-    </motion.div>
+    </motion.button>
 );
 
 export default AdminStats;

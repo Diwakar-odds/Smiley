@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OrderDetails from '../components/ui/OrderDetails';
 import AdminStats from '../components/admin/AdminStats';
@@ -22,6 +22,8 @@ const AdminDashboard = () => {
     // Sidebar and tab state
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('dashboard');
+    // Modal for order details
+    const [modalOrder, setModalOrder] = useState<Order | null>(null);
 
     // Sidebar item component
     interface SidebarItemProps {
@@ -125,6 +127,60 @@ interface TopItem {
     const [salesChartData, setSalesChartData] = useState<{ labels: string[]; values: number[] }>({ labels: [], values: [] });
     const [showNotif, setShowNotif] = useState<boolean>(true);
 
+    const handleStatClick = useCallback((stat: 'revenue' | 'orders' | 'users' | 'repeat') => {
+        switch (stat) {
+            case 'orders':
+                setActiveTab('orders');
+                break;
+            case 'users':
+                setActiveTab('users');
+                break;
+            case 'repeat':
+            case 'revenue':
+                setActiveTab('analytics');
+                break;
+            default:
+                break;
+        }
+    }, []);
+
+    const computeSalesChart = useCallback((daily: any[]) => {
+        if (!daily) {
+            setSalesChartData({ labels: [], values: [] });
+            return;
+        }
+
+        if (timeRange === 'weekly') {
+            const weeks: { [key: string]: number } = {};
+            let weekIndex = 1;
+            let weekSum = 0;
+            let dayCount = 0;
+            daily.forEach((d: any, i: number) => {
+                weekSum += Number(d.dailyRevenue || 0);
+                dayCount++;
+                if (dayCount === 7 || i === daily.length - 1) {
+                    weeks[`Week ${weekIndex}`] = weekSum;
+                    weekIndex++;
+                    weekSum = 0;
+                    dayCount = 0;
+                }
+            });
+            setSalesChartData({ labels: Object.keys(weeks), values: Object.values(weeks) });
+        } else if (timeRange === 'daily') {
+            setSalesChartData({
+                labels: daily.map((d: any) => new Date(d.date).toLocaleDateString()),
+                values: daily.map((d: any) => Number(d.dailyRevenue || 0)),
+            });
+        } else {
+            const months: { [key: string]: number } = {};
+            daily.forEach((d: any) => {
+                const month = new Date(d.date).toLocaleString('default', { month: 'short', year: 'numeric' });
+                months[month] = (months[month] || 0) + Number(d.dailyRevenue || 0);
+            });
+            setSalesChartData({ labels: Object.keys(months), values: Object.values(months) });
+        }
+    }, [timeRange]);
+
     // Hooks
     const navigate = useNavigate();
     const token = localStorage.getItem('jwtToken');
@@ -165,100 +221,14 @@ interface TopItem {
         }
     }, [token, navigate]);
 
-    // Fetch data
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            if (!token) return;
-
-            try {
-                setLoading(true);
-                const [salesRes, customerRes, topItemsRes, ordersRes] = await Promise.all([
-                    client.get('/analytics/sales-overview'),
-                    client.get('/analytics/customer-behavior'),
-                    client.get('/analytics/top-items'),
-                    client.get('/orders'),
-                ]);
-
-                setSalesOverview(salesRes.data);
-                // Prepare sales chart data for AnalyticsCharts
-                if (salesRes.data && salesRes.data.dailySales) {
-                    // Group daily sales into weeks for 'weekly' view
-                    const daily = salesRes.data.dailySales;
-                    if (timeRange === 'weekly') {
-                        // Assume daily is sorted by date ASC
-                        const weeks: { [key: string]: number } = {};
-                        let weekIndex = 1;
-                        let weekSum = 0;
-                        let dayCount = 0;
-                        daily.forEach((d: any, i: number) => {
-                            weekSum += Number(d.dailyRevenue || 0);
-                            dayCount++;
-                            if (dayCount === 7 || i === daily.length - 1) {
-                                weeks[`Week ${weekIndex}`] = weekSum;
-                                weekIndex++;
-                                weekSum = 0;
-                                dayCount = 0;
-                            }
-                        });
-                        setSalesChartData({ labels: Object.keys(weeks), values: Object.values(weeks) });
-                    } else if (timeRange === 'daily') {
-                        setSalesChartData({
-                            labels: daily.map((d: any) => new Date(d.date).toLocaleDateString()),
-                            values: daily.map((d: any) => Number(d.dailyRevenue || 0)),
-                        });
-                    } else {
-                        // Monthly: group by month
-                        const months: { [key: string]: number } = {};
-                        daily.forEach((d: any) => {
-                            const month = new Date(d.date).toLocaleString('default', { month: 'short', year: 'numeric' });
-                            months[month] = (months[month] || 0) + Number(d.dailyRevenue || 0);
-                        });
-                        setSalesChartData({ labels: Object.keys(months), values: Object.values(months) });
-                    }
-                }
-                setCustomerBehavior(customerRes.data);
-
-                let processedTopItems: TopItem[] = [];
-                if (Array.isArray(topItemsRes.data)) {
-                    processedTopItems = topItemsRes.data.map((item: any) => ({
-                        _id: item.id || item._id,
-                        name: item.name || 'Unknown Item',
-                        count: item.totalSold || item.count || 0
-                    }));
-                } else if (topItemsRes.data?.topItems) {
-                    processedTopItems = topItemsRes.data.topItems.map((item: any) => {
-                        const details = topItemsRes.data.details?.find((d: any) => d._id === item._id);
-                        return {
-                            _id: item._id,
-                            name: details?.name || 'Unknown Item',
-                            count: item.count
-                        };
-                    });
-                }
-                setTopItems(processedTopItems);
-                setOrders(ordersRes.data);
-                setError(null);
-            } catch (err: unknown) {
-                console.error('Dashboard data fetch error:', err);
-                const error = err as { response?: { status?: number } };
-                if (error?.response?.status === 401 || error?.response?.status === 403) {
-                    localStorage.removeItem('jwtToken');
-                    navigate('/login');
-                } else {
-                    setError('Failed to load dashboard data');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDashboardData();
-    }, [token, navigate]);
-
     // Refresh function
-    const refreshData = async () => {
-        setLoading(true);
-        setError(null);
+    const refreshData = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+        if (!token) return;
+
+        if (!silent) {
+            setLoading(true);
+            setError(null);
+        }
 
         try {
             const [salesRes, customerRes, topItemsRes, ordersRes] = await Promise.all([
@@ -269,6 +239,9 @@ interface TopItem {
             ]);
 
             setSalesOverview(salesRes.data);
+            if (salesRes.data?.dailySales) {
+                computeSalesChart(salesRes.data.dailySales);
+            }
             setCustomerBehavior(customerRes.data);
 
             let processedTopItems: TopItem[] = [];
@@ -290,17 +263,44 @@ interface TopItem {
             }
             setTopItems(processedTopItems);
             setOrders(ordersRes.data);
-            setShowNotif(false);
-            setLoading(false);
-            showToast('success', 'Dashboard data refreshed successfully!');
+            if (!silent) {
+                setShowNotif(false);
+                showToast('success', 'Dashboard data refreshed successfully!');
+            }
         } catch (err: any) {
             console.error('Dashboard refresh error:', err);
+            const status = err.response?.status;
+            if (status === 401 || status === 403) {
+                localStorage.removeItem('jwtToken');
+                navigate('/login');
+                return;
+            }
+
             const errorMessage = err.response?.data?.message || 'Failed to load dashboard data. Please try again.';
             setError(errorMessage);
-            setLoading(false);
-            showToast('error', errorMessage);
+            if (!silent) {
+                showToast('error', errorMessage);
+            }
+        } finally {
+            if (!silent) {
+                setLoading(false);
+            }
         }
-    };
+    }, [token, showToast, navigate, computeSalesChart]);
+
+    useEffect(() => {
+        refreshData();
+    }, [refreshData]);
+
+    useEffect(() => {
+        if (!token) return;
+
+        const interval = setInterval(() => {
+            refreshData({ silent: true });
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, [token, refreshData]);
 
     // Loading state
     if (loading) {
@@ -381,15 +381,28 @@ interface TopItem {
                             totalOrders={salesOverview?.totalOrders || 0}
                             totalUsers={customerBehavior?.totalUsers || 0}
                             repeatCustomers={customerBehavior?.repeatCustomers || 0}
-                            dailySales={salesOverview?.dailySales || []}
-                            averageOrderValue={customerBehavior?.averageOrderValue || 0}
-                            ordersPerUser={customerBehavior?.ordersPerUser || []}
+                            onStatClick={handleStatClick}
                         />
                         <OrdersTable
                             orders={orders.slice(0, 5)}
-                            onSelectOrder={setSelectedOrder}
-                            onRefresh={refreshData}
+                            onSelectOrder={(order) => setModalOrder(order)}
+                            onRefresh={() => refreshData({ silent: true })}
                         />
+                        {/* Order Details Modal */}
+                        {modalOrder && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-lg w-full relative animate-fadeIn">
+                                    <button
+                                        className="absolute top-3 right-3 text-gray-400 hover:text-indigo-600 text-2xl font-bold"
+                                        onClick={() => setModalOrder(null)}
+                                        aria-label="Close order details modal"
+                                    >
+                                        &times;
+                                    </button>
+                                    <OrderDetails order={modalOrder} onBack={() => setModalOrder(null)} />
+                                </div>
+                            </div>
+                        )}
                         <AnalyticsCharts
                             topItems={topItems}
                             timeRange={timeRange}

@@ -10,7 +10,7 @@ interface MenuItemData {
 }
 
 interface MenuItemProps extends MenuItemData {
-  addToCart: (item: MenuItemData) => void;
+  addToCart: (item: MenuItemData, quantity?: number) => void;
 }
 
 const MenuItem = ({ id, name, description, price, imageUrl, category, addToCart }: MenuItemProps) => {

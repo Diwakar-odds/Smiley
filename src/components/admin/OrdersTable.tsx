@@ -10,6 +10,7 @@ interface Order {
         name: string;
         id: number;
     };
+    name?: string;
     status: OrderStatus;
     totalPrice: number;
     createdAt: string;
@@ -89,7 +90,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onSelectOrder, onRefr
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
-                                    {order.user?.name || 'Anonymous'}
+                                    {order.user?.name || order.name || 'Guest'}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     {new Date(order.createdAt).toLocaleDateString()}

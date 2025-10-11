@@ -6,10 +6,24 @@ import { Op } from "sequelize";
 // 📊 Sales Overview
 export async function getSalesOverview(req, res) {
   try {
-    const totalOrders = await Order.count({ where: { status: 'completed' } });
+    const activeStatuses = ['pending', 'accepted', 'completed'];
 
-    // Calculate total revenue
-    const totalRevenue = await Order.sum("totalPrice", { where: { status: 'completed' } });
+    const totalOrders = await Order.count({
+      where: {
+        status: {
+          [Op.in]: activeStatuses,
+        },
+      },
+    });
+
+    // Calculate total revenue for all active (non-rejected) orders
+    const totalRevenue = await Order.sum('totalPrice', {
+      where: {
+        status: {
+          [Op.in]: activeStatuses,
+        },
+      },
+    });
 
     // Get sales by date for trends (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -22,7 +36,9 @@ export async function getSalesOverview(req, res) {
         [sequelize.fn("sum", sequelize.col("totalPrice")), "dailyRevenue"],
       ],
       where: {
-        status: 'completed',
+        status: {
+          [Op.in]: activeStatuses,
+        },
         createdAt: {
           [Op.gte]: thirtyDaysAgo,
         },
@@ -83,11 +99,28 @@ export async function getTopItems(req, res) {
 // 👥 Customer behavior analytics
 export async function getCustomerBehavior(req, res) {
   try {
-    // Count of users
-    const userCount = await User.count();
+    // Count of total users
+    const totalUsers = await User.count();
+
+    // Count of repeat customers (users with more than 1 completed order)
+    const repeatCustomersResult = await sequelize.query(
+      `
+      SELECT COUNT(*) as "count"
+      FROM (
+        SELECT u."id"
+        FROM "Users" u
+        JOIN "Orders" o ON u."id" = o."userId"
+        WHERE o."status" = 'completed'
+        GROUP BY u."id"
+        HAVING COUNT(o."id") > 1
+      ) as repeat_customers
+    `,
+      { type: sequelize.QueryTypes.SELECT }
+    );
+
+    const repeatCustomers = parseInt(repeatCustomersResult[0]?.count || 0);
 
     // Average order value
-
     const averageOrderValue = await Order.findOne({
       attributes: [
         [sequelize.fn("AVG", sequelize.col("totalPrice")), "average"],
@@ -128,10 +161,13 @@ export async function getCustomerBehavior(req, res) {
     );
 
     res.json({
-      userCount,
-      averageOrderValue: averageOrderValue?.average || 0,
+      totalUsers,
+      repeatCustomers,
+      averageOrderValue: parseFloat(averageOrderValue?.average || 0),
       ordersPerUser,
       orderTimes,
+      // Backward compatibility
+      userCount: totalUsers,
     });
   } catch (error) {
     console.error("Error fetching customer behavior:", error);

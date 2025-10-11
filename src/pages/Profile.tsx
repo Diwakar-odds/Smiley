@@ -17,6 +17,8 @@ import {
   Heart,
   ShoppingBag,
   Camera,
+  ArrowLeft,
+  Home,
 } from "lucide-react";
 import {
   profileReducer,
@@ -147,10 +149,40 @@ const Profile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <div className="relative min-h-screen w-full overflow-hidden">
         {/* Gradient overlay for consistent look */}
         <div className="absolute inset-0 bg-gradient-to-br from-orange-100/60 via-pink-100/40 to-yellow-100/60 z-10 pointer-events-none animate-pulse" />
-        <div className="relative z-20 w-full max-w-3xl p-4 sm:p-6 lg:p-8 font-sans">
+        
+        {/* Navigation Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative z-30 flex items-center justify-between p-4 sm:p-6 bg-gradient-to-r from-orange-500 to-pink-500 shadow-lg"
+        >
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/20 transition-colors duration-200"
+            onClick={() => navigate('/')}
+            aria-label="Go back to home"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back to Home
+          </Button>
+          
+          <h1 className="text-white text-xl font-bold tracking-tight">My Profile</h1>
+          
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/20 transition-colors duration-200"
+            onClick={() => navigate('/')}
+            aria-label="Go to home"
+          >
+            <Home className="w-5 h-5" />
+          </Button>
+        </motion.div>
+
+        <div className="relative z-20 w-full p-4 sm:p-6 lg:p-8 font-sans flex items-center justify-center min-h-screen-minus-nav">
           <ContentSkeleton />
         </div>
       </div>
@@ -162,30 +194,104 @@ const Profile: React.FC = () => {
   }
 
   if (selectedOrder) {
-    return <OrderDetails order={selectedOrder} onBack={() => setSelectedOrder(null)} />;
+    return (
+      <div className="relative min-h-screen w-full overflow-hidden">
+        {/* Gradient overlay for consistent look */}
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-100/60 via-pink-100/40 to-yellow-100/60 z-10 pointer-events-none animate-pulse" />
+        
+        {/* Navigation Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative z-30 flex items-center justify-between p-4 sm:p-6 bg-gradient-to-r from-orange-500 to-pink-500 shadow-lg"
+        >
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/20 transition-colors duration-200"
+            onClick={() => setSelectedOrder(null)}
+            aria-label="Go back to profile"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back to Profile
+          </Button>
+          
+          <h1 className="text-white text-xl font-bold tracking-tight">Order Details</h1>
+          
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/20 transition-colors duration-200"
+            onClick={() => navigate('/')}
+            aria-label="Go to home"
+          >
+            <Home className="w-5 h-5" />
+          </Button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative z-20 w-full h-full p-4 sm:p-8 lg:p-12 font-sans min-h-screen-minus-nav"
+          aria-label="Order details content"
+        >
+          <OrderDetails order={selectedOrder} onBack={() => setSelectedOrder(null)} />
+        </motion.div>
+      </div>
+    );
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen w-full overflow-hidden">
       {/* Gradient overlay for extra style */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-100/60 via-pink-100/40 to-yellow-100/60 z-10 pointer-events-none animate-pulse" />
+      
+      {/* Navigation Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-30 flex items-center justify-between p-4 sm:p-6 bg-gradient-to-r from-orange-500 to-pink-500 shadow-lg"
+      >
+        <Button
+          variant="ghost"
+          className="text-white hover:bg-white/20 transition-colors duration-200"
+          onClick={() => navigate('/')}
+          aria-label="Go back to home"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Home
+        </Button>
+        
+        <h1 className="text-white text-xl font-bold tracking-tight">My Profile</h1>
+        
+        <Button
+          variant="ghost"
+          className="text-white hover:bg-white/20 transition-colors duration-200"
+          onClick={() => navigate('/')}
+          aria-label="Go to home"
+        >
+          <Home className="w-5 h-5" />
+        </Button>
+      </motion.div>
+
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-20 w-full max-w-3xl p-4 sm:p-8 lg:p-12 font-sans"
+        className="relative z-20 w-full h-full p-4 sm:p-8 lg:p-12 font-sans min-h-screen-minus-nav"
         aria-label="Profile main content"
       >
-        <Card className="shadow-2xl hover:shadow-3xl transition-shadow duration-300 rounded-3xl border-0 bg-white/80 backdrop-blur-2xl animate-fadein">
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-pink-500 rounded-t-3xl py-6 px-8 shadow-xl">
+        <Card className="shadow-2xl hover:shadow-3xl transition-shadow duration-300 rounded-3xl border-0 bg-white/80 backdrop-blur-2xl animate-fadein w-full h-full min-h-screen flex flex-col">
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-pink-500 rounded-t-3xl py-4 px-8 shadow-xl">
             <motion.div
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.7, type: "spring" }}
             >
-              <CardTitle className="flex items-center justify-between text-white text-3xl font-extrabold tracking-tight">
+              <CardTitle className="flex items-center justify-between text-white text-2xl font-extrabold tracking-tight">
                 <span className="flex items-center gap-2">
-                  <Heart className="w-7 h-7 text-pink-200 animate-bounce" aria-hidden="true" /> My Profile
+                  <Heart className="w-6 h-6 text-pink-200 animate-bounce" aria-hidden="true" /> Welcome Back
                 </span>
                 <div className="flex space-x-2">
                   <Button
@@ -209,7 +315,7 @@ const Profile: React.FC = () => {
             </motion.div>
           </CardHeader>
 
-          <CardContent className="p-8 sm:p-10 lg:p-12">
+          <CardContent className="p-8 sm:p-10 lg:p-12 flex-1 flex flex-col">
             <motion.p
               className="text-center text-gray-700 mb-4 text-lg font-medium"
               initial={{ opacity: 0, y: 20 }}
@@ -248,7 +354,7 @@ const Profile: React.FC = () => {
               </div>
             </motion.div>
 
-            <Tabs defaultValue="info" className="animate-fadein" aria-label="Profile sections">
+            <Tabs defaultValue="info" className="animate-fadein flex-1 flex flex-col" aria-label="Profile sections">
               <TabsList className="grid grid-cols-5 bg-gradient-to-r from-orange-200 via-pink-200 to-red-200 rounded-xl mb-4">
                 <TabsTrigger value="info" className="font-bold text-orange-700 transition-all duration-200 hover:text-pink-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">Profile Info</TabsTrigger>
                 <TabsTrigger value="orders" className="font-bold text-pink-700 transition-all duration-200 hover:text-orange-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">My Orders</TabsTrigger>
@@ -257,8 +363,8 @@ const Profile: React.FC = () => {
                 <TabsTrigger value="settings" className="font-bold text-pink-700 transition-all duration-200 hover:text-orange-600 focus:ring-2 focus:ring-pink-300 focus:outline-none">Settings</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info">
-                <div className="space-y-4 mt-4">
+              <TabsContent value="info" className="flex-1">
+                <div className="space-y-4 mt-4 h-full">
                   <Input
                     name="name"
                     value={profile.name}
@@ -291,8 +397,8 @@ const Profile: React.FC = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="orders">
-                <div className="mt-4 space-y-3">
+              <TabsContent value="orders" className="flex-1">
+                <div className="mt-4 space-y-3 h-full overflow-y-auto">
                   {orders.length === 0 ? (
                     <div className="text-center text-gray-500">No orders found.</div>
                   ) : (
@@ -309,16 +415,20 @@ const Profile: React.FC = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="addresses">
-                <AddressManagement />
+              <TabsContent value="addresses" className="flex-1">
+                <div className="h-full overflow-y-auto">
+                  <AddressManagement />
+                </div>
               </TabsContent>
 
-              <TabsContent value="payment">
-                <PaymentMethodManagement />
+              <TabsContent value="payment" className="flex-1">
+                <div className="h-full overflow-y-auto">
+                  <PaymentMethodManagement />
+                </div>
               </TabsContent>
 
-              <TabsContent value="settings">
-                <div className="mt-4 space-y-6">
+              <TabsContent value="settings" className="flex-1">
+                <div className="mt-4 space-y-6 h-full overflow-y-auto">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center space-x-2">
                       {darkMode ? <Moon className="text-pink-500 animate-spin" /> : <Sun className="text-orange-400 animate-spin" />}

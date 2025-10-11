@@ -8,8 +8,15 @@ const Checkout = () => {
     useEffect(() => {
         // Fetch cart from localStorage or backend if needed
         const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+        console.log('Checkout: Loaded cart from localStorage:', storedCart);
         setCart(storedCart);
-        setTotal(storedCart.reduce((acc: number, item: { price: number; quantity: number }) => acc + item.price * item.quantity, 0));
+        const calculatedTotal = storedCart.reduce((acc: number, item: { price: number; quantity: number }) => {
+            const itemTotal = item.price * item.quantity;
+            console.log(`Item: ${item.name || 'Unknown'}, Price: ${item.price}, Quantity: ${item.quantity}, Subtotal: ${itemTotal}`);
+            return acc + itemTotal;
+        }, 0);
+        console.log('Checkout: Calculated total:', calculatedTotal);
+        setTotal(calculatedTotal);
     }, []);
 
     const clearCart = () => {
