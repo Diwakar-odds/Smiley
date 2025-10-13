@@ -4,8 +4,12 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
+import { validateEnvironment } from "./utils/envValidation.js";
 import { connectDB, sequelize } from "./config/sqlDb.js";
 import { syncModels } from "./models/sequelize/index.js";
+
+// Validate environment variables on startup
+validateEnvironment();
 import authRoutes from "./routes/authRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
@@ -40,6 +44,7 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import offerRoutes from "./routes/offerRoutes.js";
 import pushNotificationRoutes from "./routes/pushNotificationRoutes.js";
+import logRoutes from "./routes/logRoutes.js";
 
 app.use("/api/addresses", addressRoutes);
 app.use("/api/payments", paymentRoutes);
@@ -47,6 +52,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/offers", offerRoutes);
 app.use("/api/push", pushNotificationRoutes);
+app.use("/api/logs", logRoutes);
 
 // Catch-all route to serve the frontend for client-side routing
 app.get('*', (req, res) => {

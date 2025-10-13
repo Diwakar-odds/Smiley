@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import smileyLogo from './assets/smiley-logo.png';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
+import ErrorBoundary from './components/ErrorBoundary';
+import { performanceMonitor } from './services/performanceMonitor';
+import { logger } from './services/logger';
 import { CartItem, MenuItemData } from './types/cart';
 import pushNotificationService from './services/pushNotificationService';
 const LoginRegister = React.lazy(() => import('./pages/LoginRegister'));
@@ -56,6 +59,10 @@ const App = () => {
   const location = useLocation();
 
   useEffect(() => {
+    // Initialize monitoring services
+    performanceMonitor.start();
+    logger.info('Application started');
+    
     // Simulate loading for 2 seconds
     setTimeout(() => setIsLoading(false), 2000);
   }, []);
@@ -202,13 +209,15 @@ const App = () => {
 
 const AppWithProviders: React.FC = () => {
   return (
-    <ThemeProvider>
-      <ToastProvider>
-        <Router>
-          <App />
-        </Router>
-      </ToastProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <ToastProvider>
+          <Router>
+            <App />
+          </Router>
+        </ToastProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 };
 

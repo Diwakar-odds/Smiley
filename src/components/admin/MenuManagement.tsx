@@ -246,9 +246,8 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ initialMenuItems = [] }
                                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <button
                                             onClick={() => handleToggleAvailability(item._id, item.available)}
-                                            className={`px-3 py-1 rounded-full text-xs font-semibold border-2 ${item.available ? 'bg-green-100 text-green-900 border-green-900' : 'bg-red-100 text-red-900 border-red-900'}`}
+                                            className={`px-3 py-1 rounded-full text-xs font-semibold border-2 min-w-[110px] inline-block ${item.available ? 'bg-green-100 text-green-900 border-green-900' : 'bg-red-100 text-red-900 border-red-900'}`}
                                             aria-label={`Mark ${item.name} as ${item.available ? 'out of stock' : 'available'}`}
-                                            style={{ minWidth: 110, display: 'inline-block' }}
                                         >
                                             {item.available ? 'Available' : 'Out of Stock'}
                                         </button>

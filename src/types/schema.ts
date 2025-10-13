@@ -9,6 +9,29 @@ export type MenuCategory =
   | "combos"
   | "pastry";
 
+// Order-related interfaces
+export interface OrderItem {
+  id?: number;
+  menuItemId: number;
+  name: string;
+  quantity: number;
+  price: number;
+  OrderItem?: {
+    quantity: number;
+    price: number;
+  };
+}
+
+export interface Order {
+  id: number;
+  userId: number;
+  status: OrderStatus;
+  totalAmount: number;
+  createdAt: string;
+  updatedAt: string;
+  items?: OrderItem[];
+}
+
 // Validation functions
 export const isValidOrderStatus = (status: string): status is OrderStatus => {
   return ["pending", "accepted", "rejected", "completed"].includes(status);

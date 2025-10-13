@@ -97,7 +97,10 @@ const Profile: React.FC = () => {
 
         // Fetch user orders
         const { data: userOrders } = await client.get<Order[]>("/orders/user");
-        setOrders(userOrders);
+        console.log('Fetched user orders:', userOrders);
+        console.log('First order details:', userOrders?.[0]);
+        console.log('First order MenuItems:', userOrders?.[0]?.MenuItems);
+        setOrders(userOrders || []);
 
         // Fetch saved items (replace with real API if available)
         // Placeholder: fetch from /users/saved or similar endpoint
@@ -408,7 +411,10 @@ const Profile: React.FC = () => {
                           <ShoppingBag className="w-5 h-5 text-pink-500 animate-bounce" />
                           <span className="font-semibold text-orange-700">Order #{order.id} - {order.status}</span>
                         </div>
-                        <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple" onClick={() => setSelectedOrder(order)} aria-label={`View details for order #${order.id}`}>View Details</Button>
+                        <Button size="sm" className="bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold shadow hover:scale-110 active:scale-95 transition-transform duration-200 ripple" onClick={() => {
+                          console.log('Setting selected order:', order);
+                          setSelectedOrder(order);
+                        }} aria-label={`View details for order #${order.id}`}>View Details</Button>
                       </Card>
                     ))
                   )}
