@@ -1,8 +1,34 @@
 {
   "name": "smiley-food-app",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "1.0.0",
+  "description": "A modern, full-stack food ordering application with real-time order tracking, admin dashboard, and payment integration",
   "type": "module",
+  "author": "Your Name <your-email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/smiley-food-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/smiley-food-app/issues"
+  },
+  "homepage": "https://github.com/yourusername/smiley-food-app#readme",
+  "keywords": [
+    "food-ordering",
+    "react",
+    "nodejs",
+    "express",
+    "postgresql",
+    "tailwindcss",
+    "pwa",
+    "restaurant",
+    "delivery"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "start": "cd server && npm start",
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",

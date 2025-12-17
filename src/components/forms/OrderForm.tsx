@@ -163,7 +163,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           paymentMethodToSend = lastPaymentMethod.id;
         }
         const totalPriceNum = typeof total === 'number' ? total : Number(total);
-        console.log('Submitting order with total:', total, 'converted to:', totalPriceNum, 'isNaN:', isNaN(totalPriceNum));
+        // Submit order with validated total
         
         if (isNaN(totalPriceNum) || totalPriceNum <= 0) {
           alert('Invalid total price. Please refresh the page and try again.');

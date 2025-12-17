@@ -97,9 +97,7 @@ const Profile: React.FC = () => {
 
         // Fetch user orders
         const { data: userOrders } = await client.get<Order[]>("/orders/user");
-        console.log('Fetched user orders:', userOrders);
-        console.log('First order details:', userOrders?.[0]);
-        console.log('First order MenuItems:', userOrders?.[0]?.MenuItems);
+        // Orders fetched successfully
         setOrders(userOrders || []);
 
         // Fetch saved items (replace with real API if available)

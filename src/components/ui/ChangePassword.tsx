@@ -17,7 +17,7 @@ const ChangePassword = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Add logic to change password
-    console.log("Changing password...");
+    // Handle password change
   };
 
   return (

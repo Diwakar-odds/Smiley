@@ -2,7 +2,7 @@ import React from "react";
 
 const CartFab = ({ onClick, itemCount }: { onClick: () => void; itemCount: number }) => (
   <button
-    className="cart-fab-style" // TODO: Move styles to CSS file
+    className="cart-fab-style"
     onClick={onClick}
     aria-label="Open cart"
   >
