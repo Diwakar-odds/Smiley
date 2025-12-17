@@ -272,7 +272,7 @@ http://localhost:5000/api
 - `GET /api/orders/:id` - Get order details
 - `PUT /api/orders/:id` - Update order status (admin)
 
-For complete API documentation, see [API.md](./API.md) (if available).
+For complete API documentation, see [API.md](./API.md).
 
 ## 🧪 Testing
 
