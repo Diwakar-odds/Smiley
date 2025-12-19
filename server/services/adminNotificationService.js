@@ -5,9 +5,9 @@ import { TWILIO_CONFIG } from "../config/twilioConfig.js";
 // Initialize Twilio client
 const twilioClient = twilio(TWILIO_CONFIG.accountSid, TWILIO_CONFIG.authToken);
 
-// Admin phone numbers - These should be moved to environment variables
+// Admin phone numbers - These should be set in environment variables
 const ADMIN_PHONE_NUMBERS = [
-  process.env.ADMIN_PHONE_1 || "+918765612405", // Replace with actual admin phone
+  process.env.ADMIN_PHONE_1 || "", // Set in environment variables
   process.env.ADMIN_PHONE_2 || "", // Optional second admin
 ].filter(phone => phone && phone !== ""); // Remove empty entries
 

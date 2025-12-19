@@ -38,7 +38,7 @@ export function validateEnvironment() {
   // Check for development defaults in production
   if (process.env.NODE_ENV === 'production') {
     const developmentDefaults = [
-      { key: 'JWT_SECRET', dev: 'your_jwt_secret_diwakar' },
+      { key: 'JWT_SECRET', dev: 'your_jwt_secret' },
       { key: 'POSTGRES_PASSWORD', dev: 'password' }
     ];
     
