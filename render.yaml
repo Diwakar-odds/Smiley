@@ -9,7 +9,7 @@ services:
     env: node
     region: oregon # Change to your preferred region (oregon, frankfurt, singapore, etc.)
     plan: free # Options: free, starter, standard, pro, pro_plus
-    buildCommand: cd server && npm install
+    buildCommand: cd server && npm install --legacy-peer-deps
     startCommand: cd server && npm start
     healthCheckPath: /api/store/settings
     envVars:
