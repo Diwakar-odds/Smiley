@@ -56,7 +56,6 @@ services:
       # JWT Secret (Generate secure random string)
       - key: JWT_SECRET
         generateValue: true
-        sync: false # Each service gets its own value
       
       # Twilio Configuration (Add these via Render Dashboard or CLI)
       - key: TWILIO_ACCOUNT_SID
