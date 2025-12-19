@@ -1,0 +1,97 @@
+# Render Blueprint Configuration
+# https://render.com/docs/blueprint-spec
+
+services:
+  # Backend API Service
+  - type: web
+    name: smiley-food-backend
+    runtime: node
+    env: node
+    region: oregon # Change to your preferred region (oregon, frankfurt, singapore, etc.)
+    plan: free # Options: free, starter, standard, pro, pro_plus
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    healthCheckPath: /api/store/settings
+    envVars:
+      # Node Environment
+      - key: NODE_ENV
+        value: production
+      
+      # Server Configuration
+      - key: PORT
+        value: 10000 # Render uses port 10000 by default
+      
+      - key: HOST
+        value: 0.0.0.0
+      
+      # Database Configuration (PostgreSQL)
+      # Option 1: Use Render's PostgreSQL database
+      - key: POSTGRES_URI
+        fromDatabase:
+          name: smiley-food-db
+          property: connectionString
+      
+      # Option 2: Or use individual parameters (uncomment if not using URI)
+      # - key: POSTGRES_HOST
+      #   fromDatabase:
+      #     name: smiley-food-db
+      #     property: host
+      # - key: POSTGRES_PORT
+      #   fromDatabase:
+      #     name: smiley-food-db
+      #     property: port
+      # - key: POSTGRES_DB
+      #   fromDatabase:
+      #     name: smiley-food-db
+      #     property: database
+      # - key: POSTGRES_USER
+      #   fromDatabase:
+      #     name: smiley-food-db
+      #     property: user
+      # - key: POSTGRES_PASSWORD
+      #   fromDatabase:
+      #     name: smiley-food-db
+      #     property: password
+      
+      # JWT Secret (Generate secure random string)
+      - key: JWT_SECRET
+        generateValue: true
+        sync: false # Each service gets its own value
+      
+      # Twilio Configuration (Add these via Render Dashboard or CLI)
+      - key: TWILIO_ACCOUNT_SID
+        sync: false # Add via dashboard - not in version control
+      
+      - key: TWILIO_AUTH_TOKEN
+        sync: false # Add via dashboard - not in version control
+      
+      - key: TWILIO_PHONE_NUMBER
+        sync: false # Add via dashboard - not in version control
+      
+      - key: TWILIO_VERIFY_SERVICE_SID
+        sync: false # Add via dashboard - not in version control
+      
+      # VAPID Keys for Push Notifications (Generate with: npx web-push generate-vapid-keys)
+      - key: VAPID_PUBLIC_KEY
+        sync: false # Add via dashboard - not in version control
+      
+      - key: VAPID_PRIVATE_KEY
+        sync: false # Add via dashboard - not in version control
+      
+      # Frontend URL for CORS
+      - key: FRONTEND_URL
+        value: https://your-netlify-site.netlify.app # Update with your actual Netlify URL
+
+# PostgreSQL Database
+databases:
+  - name: smiley-food-db
+    databaseName: smiley_food
+    plan: free # Options: free, starter, standard, pro, pro_plus
+    region: oregon # Should match the web service region
+    user: smiley_user
+    ipAllowList: [] # Empty array allows connections from Render services only
+
+# Note: After deployment, you'll need to:
+# 1. Set up environment variables via Render Dashboard
+# 2. Connect your frontend (Netlify) to the backend URL
+# 3. Run database migrations if needed

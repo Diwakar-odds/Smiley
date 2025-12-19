@@ -19,8 +19,17 @@ import storeRoutes from "./routes/storeRoutes.js";
 
 const app = express();
 
+// CORS Configuration for production
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL || 'https://your-netlify-site.netlify.app' 
+    : '*',
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Resolve the root directory for static files

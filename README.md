@@ -294,28 +294,44 @@ npm run test:coverage
 2. Update `POSTGRES_URI` or individual database environment variables
 3. Run migrations if applicable
 
-### Frontend Deployment (Vercel/Netlify)
-1. Build the project: `npm run build`
-2. Deploy the `dist` folder
-3. Set environment variables in hosting dashboard
-4. Configure build settings:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
+## 🚀 Production Deployment
 
-### Backend Deployment (Heroku/Railway/Render)
-1. Set all required environment variables
-2. Deploy the `server` directory
-3. Ensure `NODE_ENV=production`
-4. Start command: `npm start`
+This project is configured for deployment on:
+- **Frontend**: Netlify (with `netlify.toml`)
+- **Backend**: Render (with `render.yaml` blueprint)
+- **Database**: Render PostgreSQL
 
-### Important Production Checklist
-- [ ] Update all environment variables
-- [ ] Change JWT_SECRET to a strong random value
-- [ ] Enable SSL for database connections
-- [ ] Set up CORS with specific origins
-- [ ] Enable rate limiting
-- [ ] Configure logging and monitoring
-- [ ] Set up automated backups for database
+### Quick Deploy
+
+**📖 For complete step-by-step instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)**
+
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Deploy Backend on Render**
+   - Connect repository and use Blueprint
+   - Render will auto-create database and web service
+   - Set sensitive environment variables
+
+3. **Deploy Frontend on Netlify**
+   - Connect repository (auto-detects `netlify.toml`)
+   - Set `VITE_API_BASE_URL` to your Render backend URL
+   - Deploy!
+
+4. **Update CORS**
+   - Set `FRONTEND_URL` on Render to your Netlify URL
+   - Redeploy backend
+
+### Production Checklist
+- [ ] All environment variables configured on Netlify and Render
+- [ ] JWT_SECRET is a secure random string (32+ characters)
+- [ ] Database backups enabled on Render
+- [ ] CORS configured with your actual Netlify domain
+- [ ] Test authentication, orders, and payments
+- [ ] Monitor logs for errors
+- [ ] Set up uptime monitoring (UptimeRobot, etc.)
 
 ## 🤝 Contributing
 
