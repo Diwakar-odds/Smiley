@@ -80,7 +80,7 @@ services:
       
       # Frontend URL for CORS
       - key: FRONTEND_URL
-        value: https://your-netlify-site.netlify.app # Update with your actual Netlify URL
+        value: https://smileyfoood.netlify.app/ # Update with your actual Netlify URL
 
 # PostgreSQL Database
 databases:
