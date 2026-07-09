@@ -11,7 +11,7 @@ services:
     plan: free # Options: free, starter, standard, pro, pro_plus
     buildCommand: cd server && npm install --legacy-peer-deps
     startCommand: cd server && npm start
-    healthCheckPath: /api/store/settings
+    healthCheckPath: /
     envVars:
       # Node Environment
       - key: NODE_ENV

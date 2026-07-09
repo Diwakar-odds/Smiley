@@ -21,8 +21,8 @@ const app = express();
 
 // CORS Configuration for production
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL || 'https://your-netlify-site.netlify.app' 
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL || 'https://your-netlify-site.netlify.app'
     : '*',
   credentials: true,
   optionsSuccessStatus: 200
@@ -32,21 +32,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Resolve the root directory for static files
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const root = path.resolve(__dirname, '..');
-
-// Serve static files from the Vite build directory
-app.use(express.static(path.join(root, 'dist')));
-
-// API Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/inventory", inventoryRoutes);
-app.use("/api/menu", menuRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/analytics", analyticsRoutes);
-app.use("/api/store", storeRoutes);
 import addressRoutes from "./routes/addressRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
@@ -55,6 +40,13 @@ import offerRoutes from "./routes/offerRoutes.js";
 import pushNotificationRoutes from "./routes/pushNotificationRoutes.js";
 import logRoutes from "./routes/logRoutes.js";
 
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/menu", menuRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/store", storeRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
@@ -63,9 +55,14 @@ app.use("/api/offers", offerRoutes);
 app.use("/api/push", pushNotificationRoutes);
 app.use("/api/logs", logRoutes);
 
-// Catch-all route to serve the frontend for client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(root, 'dist', 'index.html'));
+// Basic health check for Render
+app.get('/', (req, res) => {
+  res.status(200).send("Smiley Food API is running!");
+});
+
+// Handle 404s for any unmatched routes
+app.use('*', (req, res) => {
+  res.status(404).json({ message: "API Route Not Found" });
 });
 
 const PORT = process.env.PORT || 5000;
@@ -79,7 +76,7 @@ const startServer = async () => {
     // Sync all models with the database
     // TEMPORARY FIX: We are setting force: true to wipe the corrupted PaymentMethods table.
     // Make sure to change this back to false after it successfully deploys!
-    await syncModels({ force: true });
+    await syncModels({ force: false });
 
     // Listen on all network interfaces so Codespaces / container port forwarding works
     const HOST = process.env.HOST || "0.0.0.0";
