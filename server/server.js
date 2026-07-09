@@ -76,8 +76,10 @@ const startServer = async () => {
     // Connect to the database
     await connectDB();
 
-    // Sync all models with the database (less aggressive sync)
-    await syncModels({ force: false });
+    // Sync all models with the database
+    // TEMPORARY FIX: We are setting force: true to wipe the corrupted PaymentMethods table.
+    // Make sure to change this back to false after it successfully deploys!
+    await syncModels({ force: true });
 
     // Listen on all network interfaces so Codespaces / container port forwarding works
     const HOST = process.env.HOST || "0.0.0.0";
