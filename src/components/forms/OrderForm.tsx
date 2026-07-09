@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CartItem } from '../../types/cart';
+import { API_BASE_URL } from '../../api/config';
 
 interface OrderFormProps {
   cart: CartItem[];
@@ -33,7 +34,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
       
       try {
         // Fetch last payment method
-        const paymentRes = await fetch('/api/payments/last', {
+        const paymentRes = await fetch(`${API_BASE_URL}/payments/last`, {
           headers: { Authorization: `Bearer ${jwtToken}` }
         });
         if (paymentRes.ok) {
@@ -42,7 +43,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
         }
 
         // Fetch user profile to auto-populate name and phone
-        const profileRes = await fetch('/api/users/profile', {
+        const profileRes = await fetch(`${API_BASE_URL}/users/profile`, {
           headers: { Authorization: `Bearer ${jwtToken}` }
         });
         if (profileRes.ok) {
@@ -102,7 +103,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           return;
         }
         // Create order on backend for Razorpay
-        const orderRes = await fetch('/api/orders/razorpay', {
+        const orderRes = await fetch(`${API_BASE_URL}/orders/razorpay`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -170,7 +171,7 @@ const OrderForm = ({ cart, total, clearCart }: OrderFormProps) => {
           return;
         }
         
-        const response = await fetch('/api/orders', {
+        const response = await fetch(`${API_BASE_URL}/orders`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

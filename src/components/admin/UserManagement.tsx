@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiUser, FiUserCheck, FiUserX, FiStar } from 'react-icons/fi';
-import client from '../../api/client.js';
+import client from '../../api/client';
 
 interface User {
     _id: string;

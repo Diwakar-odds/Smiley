@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { API_BASE_URL } from '../../api/config';
 
 interface PaymentMethod {
   id: string;
@@ -22,7 +23,7 @@ const PaymentMethodManagement = () => {
   React.useEffect(() => {
     const fetchMethods = async () => {
       const jwtToken = localStorage.getItem('jwtToken');
-  const res = await fetch('/api/payments', {
+  const res = await fetch(`${API_BASE_URL}/payments`, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       const data = await res.json();
@@ -38,7 +39,7 @@ const PaymentMethodManagement = () => {
 
   const handleAddPaymentMethod = async () => {
     const jwtToken = localStorage.getItem('jwtToken');
-  const res = await fetch('/api/payments', {
+  const res = await fetch(`${API_BASE_URL}/payments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

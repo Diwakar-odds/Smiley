@@ -57,6 +57,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/offers", offerRoutes);
 app.use("/api/push", pushNotificationRoutes);
 app.use("/api/logs", logRoutes);
+app.use("/api/errors", logRoutes);
 
 // Basic health check for Render
 app.get('/', (req, res) => {

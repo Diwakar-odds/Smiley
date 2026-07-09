@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import client from '../api/client';
 // import { useAuth } from '../hooks/useAuth';
 
 const AdminOffers = () => {
@@ -29,7 +29,7 @@ const AdminOffers = () => {
             Authorization: `Bearer ${token}`,
           },
         };
-        const { data } = await axios.get(`/api/offers?storeId=${user?.storeId}`, config);
+        const { data } = await client.get(`/offers?storeId=${user?.storeId}`, config);
         setOffers(data);
       } catch (error) {
         setError('Failed to fetch offers.');
@@ -59,15 +59,15 @@ const AdminOffers = () => {
       };
 
       if (isEditing) {
-        await axios.put(`/api/offers/${formData.id}`, formData, config);
+        await client.put(`/offers/${formData.id}`, formData, config);
         setSuccess('Offer updated successfully!');
       } else {
-        await axios.post('/api/offers', formData, config);
+        await client.post('/offers', formData, config);
         setSuccess('Offer created successfully!');
       }
 
       // Refresh offers
-  const { data } = await axios.get(`/api/offers?storeId=${user?.storeId}`, config);
+  const { data } = await client.get(`/offers?storeId=${user?.storeId}`, config);
       setOffers(data);
 
       // Reset form
@@ -108,10 +108,10 @@ const AdminOffers = () => {
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.delete(`/api/offers/${id}`, config);
+      await client.delete(`/offers/${id}`, config);
       setSuccess('Offer deleted successfully!');
       // Refresh offers
-  const { data } = await axios.get(`/api/offers?storeId=${user?.storeId}`, config);
+  const { data } = await client.get(`/offers?storeId=${user?.storeId}`, config);
       setOffers(data);
     } catch (error) {
       setError('Failed to delete offer. Please try again.');

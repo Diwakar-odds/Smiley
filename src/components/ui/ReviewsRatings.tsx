@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { API_BASE_URL } from '../../api/config';
 
 interface Review {
     id: string;
@@ -19,7 +20,7 @@ const ReviewsRatings = ({ menuItemId }: ReviewsRatingsProps) => {
 
     React.useEffect(() => {
         const fetchReviews = async () => {
-            const res = await fetch(`/api/reviews/${menuItemId}`);
+            const res = await fetch(`${API_BASE_URL}/reviews/${menuItemId}`);
             const data = await res.json();
             setReviews(data.map((r: any) => ({
                 id: r._id,
@@ -33,7 +34,7 @@ const ReviewsRatings = ({ menuItemId }: ReviewsRatingsProps) => {
 
     const handleAddReview = async () => {
         const jwtToken = localStorage.getItem('jwtToken');
-    const res = await fetch('/api/reviews', {
+    const res = await fetch(`${API_BASE_URL}/reviews`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

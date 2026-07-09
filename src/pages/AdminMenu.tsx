@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import client from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 
 const AdminMenu = () => {
@@ -30,7 +30,7 @@ const AdminMenu = () => {
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.post('/api/menu', formData, config);
+      await client.post('/menu', formData, config);
       setSuccess('Menu item created successfully!');
       setFormData({
         name: '',

@@ -3,7 +3,54 @@ import { logger } from '../services/logger.js';
 
 const router = express.Router();
 
-// Log frontend errors
+// Log frontend errors (accepts POST to /api/logs directly)
+router.post('/', async (req, res) => {
+  try {
+    const { level, message, context, userId, sessionId, timestamp } = req.body;
+    
+    if (!level || !message) {
+      return res.status(400).json({ error: 'Missing required fields: level, message' });
+    }
+
+    const logEntry = {
+      level,
+      message,
+      context: {
+        ...context,
+        source: 'frontend',
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+      },
+      userId,
+      sessionId,
+      timestamp: timestamp || new Date().toISOString(),
+    };
+
+    switch (level) {
+      case 'error':
+        logger.error(`Frontend Error: ${message}`, logEntry.context);
+        break;
+      case 'warn':
+        logger.warn(`Frontend Warning: ${message}`, logEntry.context);
+        break;
+      case 'info':
+        logger.info(`Frontend Info: ${message}`, logEntry.context);
+        break;
+      case 'debug':
+        logger.debug(`Frontend Debug: ${message}`, logEntry.context);
+        break;
+      default:
+        logger.info(`Frontend Log: ${message}`, logEntry.context);
+    }
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error processing log request:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Log frontend errors (also accepts POST to /api/logs/log)
 router.post('/log', async (req, res) => {
   try {
     const { level, message, context, userId, sessionId, timestamp } = req.body;

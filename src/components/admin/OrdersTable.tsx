@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import client from '../../api/client.js';
+import client from '../../api/client';
 import { motion } from 'framer-motion';
 import { FiCheck, FiX, FiEdit } from 'react-icons/fi';
 import { OrderStatus } from '../../types/schema';

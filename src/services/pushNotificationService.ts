@@ -165,7 +165,8 @@ class PushNotificationService {
     try {
       const token = localStorage.getItem('jwtToken');
       
-      await fetch('/api/push/subscribe', {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://smiley-food-backend.onrender.com/api';
+      await fetch(`${apiBase}/push/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -190,7 +191,8 @@ class PushNotificationService {
     try {
       const token = localStorage.getItem('jwtToken');
       
-      await fetch('/api/push/unsubscribe', {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://smiley-food-backend.onrender.com/api';
+      await fetch(`${apiBase}/push/unsubscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { API_BASE_URL } from '../../api/config';
 
 interface Address {
   id: string;
@@ -24,7 +25,7 @@ const AddressManagement = () => {
   React.useEffect(() => {
     const fetchAddresses = async () => {
       const jwtToken = localStorage.getItem('jwtToken');
-  const res = await fetch('/api/addresses', {
+  const res = await fetch(`${API_BASE_URL}/addresses`, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       const data = await res.json();
@@ -41,7 +42,7 @@ const AddressManagement = () => {
 
   const handleAddAddress = async () => {
     const jwtToken = localStorage.getItem('jwtToken');
-  const res = await fetch('/api/addresses', {
+  const res = await fetch(`${API_BASE_URL}/addresses`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +57,7 @@ const AddressManagement = () => {
 
   const handleDeleteAddress = async (id: string): Promise<void> => {
     const jwtToken = localStorage.getItem('jwtToken');
-  await fetch(`/api/addresses/${id}`, {
+  await fetch(`${API_BASE_URL}/addresses/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwtToken}` }
     });
