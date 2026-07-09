@@ -66,7 +66,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   private sendToMonitoringService = async (errorReport: any) => {
     try {
-      const baseUrl = (import.meta as any)?.env?.VITE_API_BASE_URL ?? '/api';
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://smiley-food-backend.onrender.com/api';
       // Send to your backend error logging endpoint
       await fetch(`${baseUrl}/errors/log`, {
         method: 'POST',
