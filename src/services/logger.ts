@@ -50,7 +50,9 @@ class Logger {
   private async sendToServer(logEntry: LogEntry): Promise<void> {
     if (!this.isDevelopment) {
       try {
-        await fetch('/api/logs', {
+        const baseUrl = (import.meta as any)?.env?.VITE_API_BASE_URL ?? '/api';
+        
+        await fetch(`${baseUrl}/logs`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

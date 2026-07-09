@@ -21,6 +21,10 @@ class PerformanceMonitor {
     if ('PerformanceObserver' in window) {
       this.observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
+          // Prevent infinite loop by ignoring the logger's own network requests
+          if (entry.name.includes('/logs')) {
+            continue;
+          }
           this.recordMetric(entry.name, entry.duration, {
             entryType: entry.entryType,
           });
