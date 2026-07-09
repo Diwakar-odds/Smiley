@@ -22,7 +22,10 @@ const app = express();
 // CORS Configuration for production
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? process.env.FRONTEND_URL || 'https://your-netlify-site.netlify.app'
+    ? [
+        process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : 'https://your-netlify-site.netlify.app',
+        'https://smileyfoood.netlify.app'
+      ]
     : '*',
   credentials: true,
   optionsSuccessStatus: 200
