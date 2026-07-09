@@ -1,3 +1,5 @@
+import { API_BASE_URL } from '../api/config';
+
 // Centralized logging service for the application
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -50,9 +52,7 @@ class Logger {
   private async sendToServer(logEntry: LogEntry): Promise<void> {
     if (!this.isDevelopment) {
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://smiley-food-backend.onrender.com/api';
-        
-        await fetch(`${baseUrl}/logs`, {
+        await fetch(`${API_BASE_URL}/logs`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

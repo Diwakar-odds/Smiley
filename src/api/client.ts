@@ -1,7 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-
-// Use import.meta.env directly for Vite static replacement, and hardcode the production URL as a fallback
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://smiley-food-backend.onrender.com/api';
+import { API_BASE_URL } from "./config";
 
 const client: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

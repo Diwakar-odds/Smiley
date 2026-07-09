@@ -1,4 +1,5 @@
 // services/pushNotificationService.ts
+import { API_BASE_URL } from '../api/config';
 const VAPID_PUBLIC_KEY = 'BM8EEfrZjgUoGo8U70Wc-xbWqmtkDPaLByJcFZpcHPjzK7l67eInGTsD0Kx2VdFn9En4QHUsO7yWHxTvPqNiHMQ';
 
 interface NotificationPayload {
