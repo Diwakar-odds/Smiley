@@ -60,15 +60,24 @@ if (process.env.POSTGRES_URI) {
   );
 }
 
-// Test the connection
-const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("✅ PostgreSQL connection established successfully.");
-  } catch (error) {
-    console.error("❌ Unable to connect to PostgreSQL database:", error);
-    // In dev we won't exit the process; let the caller decide. In production you might still want to exit.
-    if (process.env.NODE_ENV === "production") process.exit(1);
+// Test the connection with retry logic
+const connectDB = async (retries = 5, delay = 5000) => {
+  while (retries > 0) {
+    try {
+      await sequelize.authenticate();
+      console.log("✅ PostgreSQL connection established successfully.");
+      return;
+    } catch (error) {
+      console.error(`❌ Unable to connect to PostgreSQL database. Retries left: ${retries - 1}`);
+      console.error(error.message || error);
+      retries -= 1;
+      if (retries === 0) {
+        if (process.env.NODE_ENV === "production") process.exit(1);
+        throw error;
+      }
+      // Wait for the delay before retrying
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
   }
 };
 
