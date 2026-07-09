@@ -23,11 +23,16 @@ const MenuSection = ({ addToCart }: { addToCart: (item: MenuItemData, quantity?:
     const fetchMenuItems = async () => {
       try {
         const { data: dbItems } = await client.get('/menu');
-        // Convert price to number for each item
-        setMenuItems(dbItems.map((item: any) => ({
-          ...item,
-          price: item.price !== null && item.price !== undefined ? Number(item.price) : 0,
-        })));
+        if (Array.isArray(dbItems)) {
+          // Convert price to number for each item
+          setMenuItems(dbItems.map((item: any) => ({
+            ...item,
+            price: item.price !== null && item.price !== undefined ? Number(item.price) : 0,
+          })));
+        } else {
+          console.error("API did not return an array:", dbItems);
+          throw new Error("Invalid API response format");
+        }
         setError(null);
       } catch (error) {
         setError("Failed to load menu items from database.");
