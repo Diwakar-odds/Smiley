@@ -58,6 +58,8 @@ app.use("/api/offers", offerRoutes);
 app.use("/api/push", pushNotificationRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/errors", logRoutes);
+import debugRoutes from "./routes/debugRoutes.js";
+app.use("/api/debug", debugRoutes);
 
 // Basic health check for Render
 app.get('/', (req, res) => {
