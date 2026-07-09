@@ -10,7 +10,7 @@ export default function PaymentMethodModel(sequelize) {
         primaryKey: true,
       },
       userId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: "Users",
